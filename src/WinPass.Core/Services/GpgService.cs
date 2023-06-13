@@ -3,6 +3,8 @@ using Spectre.Console;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
+using WinPass.Shared.Models.Abstractions;
+using WinPass.Shared.Models.Errors;
 
 namespace WinPass.Core.Services;
 
@@ -16,7 +18,7 @@ public class GpgService : IService
 
     #region Public methods
 
-    public Password? Decrypt(string filePath)
+    public Result<Password, Error> Decrypt(string filePath)
     {
         var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
         {
@@ -30,7 +32,7 @@ public class GpgService : IService
         if (!ok)
         {
             AnsiConsole.MarkupLine("[red]Unable to decrypt password[/]");
-            return default;
+            return new Result<Password, Error>(default, new GpgDecryptError());
         }
 
         if (!string.IsNullOrWhiteSpace(result))

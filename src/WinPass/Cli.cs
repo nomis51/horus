@@ -41,6 +41,11 @@ public class Cli
             case "show":
                 Show(commandArgs);
                 break;
+            
+            case "insert":
+                case "add":
+
+                break;
 
             case "cc":
                 ClearClipboard(commandArgs);
@@ -52,6 +57,19 @@ public class Cli
 
     #region Commands
 
+    private void Insert(IReadOnlyList<string> args)
+    {
+        if (args.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]password name argument required[/]");
+            return;
+        }
+
+        var name = args.First();
+        
+        
+    }
+    
     private void ClearClipboard(IReadOnlyList<string> args)
     {
         if (args.Count == 0) return;
@@ -81,7 +99,6 @@ public class Cli
         }
 
         if (password is null) return;
-
 
         Table table = new();
         table.AddColumn("Key");

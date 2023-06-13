@@ -35,7 +35,6 @@ public class FsService : IService
         
         AnsiConsole.MarkupLine($"[red]password named {name} doesn't exists[/]");
         return string.Empty;
-
     }
 
     public IEnumerable<StoreEntry> ListStoreEntries()
