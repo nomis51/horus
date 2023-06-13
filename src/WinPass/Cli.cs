@@ -1,6 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using Spectre.Console;
 using WinPass.Core.Services;
+using WinPass.Core.WinApi;
+using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass;
@@ -24,10 +26,11 @@ public class Cli
             return;
         }
 
+        var commandArgs = args.Skip(1).ToArray();
         switch (args[0])
         {
             case "init":
-                Init(args.Skip(1).ToArray());
+                Init(commandArgs);
                 break;
 
             case "ls":
@@ -36,7 +39,11 @@ public class Cli
                 break;
 
             case "show":
-                Show(args.Skip(1).ToArray());
+                Show(commandArgs);
+                break;
+
+            case "cc":
+                ClearClipboard(commandArgs);
                 break;
         }
     }
@@ -44,6 +51,15 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void ClearClipboard(IReadOnlyList<string> args)
+    {
+        if (args.Count == 0) return;
+        if (!int.TryParse(args[0], out var intValue)) return;
+
+        Thread.Sleep(1000 * intValue);
+        User32.ClearClipboard();
+    }
 
     private void Show(IReadOnlyList<string> args)
     {
@@ -56,23 +72,42 @@ public class Cli
         var copy = args.Count == 2 && args[0] == "-c";
         var name = args.Count == 2 ? args[1] : args[0];
 
-        var password = AppService.Instance.GetPassword(name);
-        if (string.IsNullOrEmpty(password)) return;
-
+        var password = AppService.Instance.GetPassword(name, copy);
         if (copy)
         {
-            // TODO: to clipboard
+            AnsiConsole.MarkupLine("Password copied");
+            AnsiConsole.MarkupLine("[yellow]Clipboard will be cleared in 10 seconds[/]");
             return;
         }
 
-        AnsiConsole.MarkupLine("Terminal will clear in 10 seconds");
-        AnsiConsole.MarkupLine($"Password for [blue]{name}[/] is [yellow]{password}[/]");
+        if (password is null) return;
 
-        Task.Run(() =>
+
+        Table table = new();
+        table.AddColumn("Key");
+        table.AddColumn("Value");
+
+        foreach (var metadata in password.Metadata)
         {
-            Thread.Sleep(10 * 1000);
-            Console.Clear();
-        });
+            table.AddRow(metadata.Key, metadata.Value);
+        }
+
+        AnsiConsole.Write(table);
+
+        AnsiConsole.MarkupLine("Terminal will clear in 10 seconds");
+        AnsiConsole.MarkupLine($"Password for [blue]{name}[/] is{Environment.NewLine}[yellow]{password.Value}[/]");
+
+        var (_, top) = Console.GetCursorPosition();
+
+        Thread.Sleep(10 * 1000);
+        Console.SetCursorPosition(0, top - 3);
+        for (var i = 0; i < 3; ++i)
+        {
+            for (var k = 0; k < Console.WindowWidth; ++k)
+            {
+                Console.Write(" ");
+            }
+        }
     }
 
     private void List()

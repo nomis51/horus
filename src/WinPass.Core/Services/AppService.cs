@@ -1,4 +1,7 @@
-﻿using WinPass.Shared.Abstractions;
+﻿using WinPass.Core.WinApi;
+using WinPass.Shared.Abstractions;
+using WinPass.Shared.Helpers;
+using WinPass.Shared.Models;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass.Core.Services;
@@ -47,10 +50,16 @@ public class AppService : IService
 
     #region Public methods
 
-    public string GetPassword(string name)
+    public Password? GetPassword(string name, bool copy = false)
     {
         var path = _fsService.GetPath(name);
-        return _gpgService.Decrypt(path);
+        var password = _gpgService.Decrypt(path);
+        if (password is null || !copy) return password;
+
+        User32.SetClipboard(password.Value);
+
+        ProcessHelper.Fork(new[] { "cc", "10" });
+        return default;
     }
 
     public IEnumerable<StoreEntry> ListStoreEntries()
