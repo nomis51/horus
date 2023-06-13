@@ -2,6 +2,7 @@
 using Spectre.Console;
 using WinPass.Core.Services;
 using WinPass.Core.WinApi;
+using WinPass.Shared.Enums;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Fs;
 
@@ -41,9 +42,9 @@ public class Cli
             case "show":
                 Show(commandArgs);
                 break;
-            
+
             case "insert":
-                case "add":
+            case "add":
 
                 break;
 
@@ -66,10 +67,8 @@ public class Cli
         }
 
         var name = args.First();
-        
-        
     }
-    
+
     private void ClearClipboard(IReadOnlyList<string> args)
     {
         if (args.Count == 0) return;
@@ -90,7 +89,13 @@ public class Cli
         var copy = args.Count == 2 && args[0] == "-c";
         var name = args.Count == 2 ? args[1] : args[0];
 
-        var password = AppService.Instance.GetPassword(name, copy);
+        var (password, error) = AppService.Instance.GetPassword(name, copy);
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
+
         if (copy)
         {
             AnsiConsole.MarkupLine("Password copied");
@@ -129,13 +134,14 @@ public class Cli
 
     private void List()
     {
-        var entries = AppService.Instance.ListStoreEntries()
-            .ToList();
-        if (!entries.Any())
+        var (entries, error) = AppService.Instance.ListStoreEntries();
+        if (error is not null)
         {
-            AnsiConsole.MarkupLine("Store is empty");
+            AnsiConsole.MarkupLine($"[{error.Severity}]{error.Message}[/]");
             return;
         }
+
+        if (entries is null) return;
 
         var tree = new Tree(string.Empty);
         RenderEntries(entries, tree);
@@ -157,7 +163,11 @@ public class Cli
             return;
         }
 
-        AppService.Instance.InitializeStoreFolder(args[0]);
+        var (_, error) = AppService.Instance.InitializeStoreFolder(args[0]);
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{error.Severity}]{error.Message}[/]");
+        }
     }
 
     #endregion
@@ -173,6 +183,18 @@ public class Cli
 
             RenderEntries(entry.Entries, n);
         }
+    }
+
+    private string GetErrorColor(ErrorSeverity severity)
+    {
+        return severity switch
+        {
+            ErrorSeverity.Error => "red",
+            ErrorSeverity.Info => "blue",
+            ErrorSeverity.Success => "green",
+            ErrorSeverity.Warning => "yellow",
+            _ => "white",
+        };
     }
 
     #endregion

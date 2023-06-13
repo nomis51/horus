@@ -1,8 +1,8 @@
 ﻿namespace WinPass.Shared.Models.Abstractions;
 
 public class Result<TResult, TError> : Tuple<TResult, TError>
-    where TResult : class
-    where TError : class, IError
+    where TResult : class?
+    where TError : class?, IError?
 {
     #region Constructors
 

@@ -5,6 +5,7 @@ using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors;
+using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
 
@@ -18,9 +19,9 @@ public class GpgService : IService
 
     #region Public methods
 
-    public Result<Password, Error> Decrypt(string filePath)
+    public Result<Password?, Error?> Decrypt(string filePath)
     {
-        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
+        var (ok, result, _) = ProcessHelper.Exec(Gpg, new[]
         {
             "--quiet",
             "--yes",
@@ -29,36 +30,24 @@ public class GpgService : IService
             "-d",
             filePath
         });
-        if (!ok)
+        if (!ok) return new Result<Password?, Error?>(new GpgDecryptError());
+
+        if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError());
+
+        var lines = result.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
+
+        Password password = new(lines.First());
+
+        for (var i = 1; i < lines.Length; ++i)
         {
-            AnsiConsole.MarkupLine("[red]Unable to decrypt password[/]");
-            return new Result<Password, Error>(default, new GpgDecryptError());
+            var parts = lines[i].Split(":", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length < 2) continue;
+
+            password.Metadata.Add(new Metadata(parts[0], string.Join(string.Empty, parts.Skip(1))));
         }
 
-        if (!string.IsNullOrWhiteSpace(result))
-        {
-            var lines = result.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (!lines.Any())
-            {
-                AnsiConsole.MarkupLine("[yellow]Entry is empty[/]");
-                return default;
-            }
-
-            Password password = new(lines.First());
-
-            for (var i = 1; i < lines.Length; ++i)
-            {
-                var parts = lines[i].Split(":", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length < 2) continue;
-
-                password.Metadata.Add(new Metadata(parts[0], string.Join(string.Empty, parts.Skip(1))));
-            }
-
-            return password;
-        }
-
-        AnsiConsole.WriteLine($"[red]Error occured while decrypting password: {error}[/]");
-        return default;
+        return new Result<Password?, Error?>(password);
     }
 
     public bool DoKeyExists(string key)

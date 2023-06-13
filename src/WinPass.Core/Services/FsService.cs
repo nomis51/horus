@@ -2,6 +2,10 @@
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Exceptions.Fs;
 using WinPass.Shared.Exceptions.Gpg;
+using WinPass.Shared.Models.Abstractions;
+using WinPass.Shared.Models.Errors;
+using WinPass.Shared.Models.Errors.Fs;
+using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass.Core.Services;
@@ -32,36 +36,33 @@ public class FsService : IService
     {
         var path = Path.Join(_storeFolderPath, $"{name}.gpg");
         if (File.Exists(path)) return path;
-        
+
         AnsiConsole.MarkupLine($"[red]password named {name} doesn't exists[/]");
         return string.Empty;
     }
 
-    public IEnumerable<StoreEntry> ListStoreEntries()
+    public Result<List<StoreEntry>?, Error?> ListStoreEntries()
     {
         if (!IsStoreInitialized())
-        {
-            AnsiConsole.MarkupLine("[yellow]Store not initialized[/]");
-            return Enumerable.Empty<StoreEntry>();
-        }
+            return new Result<List<StoreEntry>?, Error?>(new FsStoreNotInitializedError());
 
         List<StoreEntry> entries = new();
         EnumerateGpgFiles(_storeFolderPath, entries);
-        return entries;
+        return new Result<List<StoreEntry>?, Error?>(entries);
     }
 
-    public void InitializeStoreFolder(string gpgKey)
+    public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey)
     {
-        if (IsStoreInitialized())
-        {
-            AnsiConsole.MarkupLine("[yellow]Store already initialized[/]");
-            return;
-        }
+        if (IsStoreInitialized()) return new ResultStruct<byte, Error?>(new FsStoreAlreadyInitializedError());
 
-        CreateStoreFolder();
-        if (!AppService.Instance.DoGpgKeyExists(gpgKey)) throw new GpgKeyNotFoundException();
+        var result = CreateStoreFolder();
+        if (result.Item2 is not null) return result;
+
+        if (!AppService.Instance.DoGpgKeyExists(gpgKey))
+            return new ResultStruct<byte, Error?>(new GpgKeyNotFoundError());
 
         File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgKey);
+        return new ResultStruct<byte, Error?>(0);
     }
 
     public void Initialize()
@@ -94,17 +95,18 @@ public class FsService : IService
         }
     }
 
-    private void CreateStoreFolder()
+    private ResultStruct<byte, Error?> CreateStoreFolder()
     {
         if (Directory.Exists(_storeFolderPath))
         {
             var files = Directory.EnumerateFileSystemEntries(_storeFolderPath).ToList();
-            if (files.Contains(GpgIdFileName)) throw new FsStoreFolderAlreadyExistsException();
-
-            return;
+            return files.Contains(GpgIdFileName)
+                ? new ResultStruct<byte, Error?>(new FsStoreFolderAlreadyExistsError())
+                : new ResultStruct<byte, Error?>(0);
         }
 
         Directory.CreateDirectory(_storeFolderPath);
+        return new ResultStruct<byte, Error?>(0);
     }
 
     #endregion

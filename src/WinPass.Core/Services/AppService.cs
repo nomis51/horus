@@ -2,6 +2,8 @@
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
+using WinPass.Shared.Models.Abstractions;
+using WinPass.Shared.Models.Errors;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass.Core.Services;
@@ -50,26 +52,27 @@ public class AppService : IService
 
     #region Public methods
 
-    public Password? GetPassword(string name, bool copy = false)
+    public Result<Password?, Error?> GetPassword(string name, bool copy = false)
     {
         var path = _fsService.GetPath(name);
-        var password = _gpgService.Decrypt(path);
-        if (password is null || !copy) return password;
+        var result = _gpgService.Decrypt(path);
+        if (!copy) return result;
+        if (result.Item1 is null) return result;
 
-        User32.SetClipboard(password.Value);
+        User32.SetClipboard(result.Item1.Value);
 
         ProcessHelper.Fork(new[] { "cc", "10" });
-        return default;
+        return result;
     }
 
-    public IEnumerable<StoreEntry> ListStoreEntries()
+    public Result<List<StoreEntry>?, Error?> ListStoreEntries()
     {
         return _fsService.ListStoreEntries();
     }
 
-    public void InitializeStoreFolder(string gpgKey)
+    public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey)
     {
-        _fsService.InitializeStoreFolder(gpgKey);
+        return _fsService.InitializeStoreFolder(gpgKey);
     }
 
     public bool DoGpgKeyExists(string key)

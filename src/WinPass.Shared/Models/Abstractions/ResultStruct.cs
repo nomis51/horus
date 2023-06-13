@@ -2,7 +2,7 @@
 
 public class ResultStruct<TResult, TError> : Tuple<TResult, TError>
     where TResult : struct
-    where TError : class, IError
+    where TError : class?, IError?
 {
     #region Constructors
 
