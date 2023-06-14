@@ -10,4 +10,9 @@ public class Metadata
         Key = key;
         Value = value;
     }
+
+    public override string ToString()
+    {
+        return $"{Key}: {Value}";
+    }
 }

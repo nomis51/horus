@@ -268,11 +268,23 @@ public class Cli
     {
         foreach (var entry in entries)
         {
-            var n = node.AddNode(!entry.IsFolder
-                ? $"[{(entry.Highlight ? "underline yellow" : "blue")}]{entry.Name}[/]"
-                : entry.Highlight
-                    ? $"[underline yellow]{entry.Name}[/]"
-                    : $"{entry.Name}");
+            var style = string.Join(
+                " ",
+                new[]
+                {
+                    entry.Highlight ? "underline" : string.Empty,
+                    entry.IsFolder ? string.Empty : "blue"
+                }.Where(v => !string.IsNullOrEmpty(v))
+            );
+            var n = node.AddNode(
+                string.IsNullOrWhiteSpace(style) ? entry.Name : $"[{style}]{entry.Name}[/]"
+            );
+
+            foreach (var metadata in entry.Metadata)
+            {
+                n.AddNode($"[green]{metadata}[/]");
+            }
+
             if (!entry.IsFolder) continue;
 
             if (!entry.Entries.Any())

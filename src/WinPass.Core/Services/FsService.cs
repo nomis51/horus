@@ -101,13 +101,32 @@ public class FsService : IService
         {
             if (!filePath.EndsWith(".gpg")) continue;
 
+            var doSearch = !string.IsNullOrEmpty(searchText);
             var fileName = Path.GetFileName(filePath).Split(".gpg").First();
-            if (!string.IsNullOrEmpty(searchText) && !fileName.Contains(searchText)) continue;
+
+            List<string> metadata = new();
+            if (doSearch)
+            {
+                var name = Path.Join(path, fileName)[_storeFolderPath.Length..];
+                var (password, error) = AppService.Instance.GetPassword(name);
+                if (error is null && password is not null)
+                {
+                    foreach (var passwordMetadata in password.Metadata)
+                    {
+                        if (!passwordMetadata.Key.Contains(searchText) && !passwordMetadata.Value.Contains(searchText)) continue;
+
+                        metadata.Add(passwordMetadata.ToString());
+                    }
+                }
+            }
+            
+            if (doSearch && !fileName.Contains(searchText) && !metadata.Any()) continue;
 
             entries.Add(
                 new StoreEntry(
                     fileName,
-                    highlight: !string.IsNullOrEmpty(searchText) && fileName.Contains(searchText)
+                    highlight: doSearch && (fileName.Contains(searchText) || metadata.Any()),
+                    metadata: metadata
                 )
             );
         }
