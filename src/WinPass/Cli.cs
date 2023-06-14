@@ -1,9 +1,10 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.Design;
+using System.Text.RegularExpressions;
 using Spectre.Console;
 using WinPass.Core.Services;
 using WinPass.Core.WinApi;
 using WinPass.Shared.Enums;
-using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass;
@@ -48,6 +49,10 @@ public class Cli
                 Insert(commandArgs);
                 break;
 
+            case "edit":
+                Edit(commandArgs);
+                break;
+
             case "grep":
             case "find":
             case "search":
@@ -68,6 +73,10 @@ public class Cli
                 Rename(commandArgs);
                 break;
 
+            case "help":
+                Help();
+                break;
+
             case "cc":
                 ClearClipboard(commandArgs);
                 break;
@@ -77,6 +86,76 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void Help()
+    {
+        Table table = new()
+        {
+            Border = TableBorder.Rounded
+        };
+        table.AddColumn("Command");
+        table.AddColumn("Description");
+        table.AddColumn("Example");
+
+        table.AddRow(
+            "winpass init [gpg-id]".EscapeMarkup(),
+            "Initialize the password store using the GPG ID provided",
+            "winpass init A034B347F727EAA5"
+        );
+        table.AddRow(
+            "winpass (list|ls|*blank*)".EscapeMarkup(),
+            "Show the list of passwords in the store",
+            "winpass list"
+        );
+        table.AddRow(
+            "winpass show [args] [name]".EscapeMarkup(),
+            "Show the password requested by [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
+                "-c : Copy the password to the clipboard instead of showing it",
+                "-m : Also show metadata of the password if any",
+                "-f : Don't automatically clear the terminal after a while"
+            ),
+            "winpass show -c -m github/work"
+        );
+        table.AddRow(
+            "winpass (insert|add) [name]".EscapeMarkup(),
+            "Insert a new password named [name]",
+            "winpass add -m github/work"
+        );
+        table.AddRow(
+            "winpass generate [args] [name]".EscapeMarkup(),
+            "Generate a new password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
+                "-s : Size of the password (default: 20)",
+                "-a : Custom alphabet to generate the password",
+                "-c : Copy the password to the clipboard instead of showing it",
+                "-f : Don't automatically clear the terminal after a while"
+            ),
+            "winpass generate -s=12 -a=abc123 -c github/work"
+        );
+        table.AddRow(
+            "winpass (remove|delete) [name]".EscapeMarkup(),
+            "Delete the password named [name]",
+            "winpass remove github/work"
+        );
+        table.AddRow(
+            "winpass (rename|move) [args] [name]".EscapeMarkup(),
+            "Rename or duplicate the password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
+                "-d : Duplicate the password named [name] instead of renaming it"
+            ),
+            "winpass generate -s=12 -a=abc123 -c github/work"
+        );
+        table.AddRow(
+            "winpass (find|search|grep) [text]".EscapeMarkup(),
+            "Find passwords or metadata containing [text]" +
+            "winpass find \"email: my-email@github.com\""
+        );
+        table.AddRow(
+            "winpass help",
+            "Show the help (this)",
+            "winpass help"
+        );
+
+        AnsiConsole.Write(table);
+    }
 
     private void Rename(IReadOnlyList<string> args)
     {
@@ -105,7 +184,8 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"Are you sure you want to {(duplicate ? "duplicate" : "rename")} the password [blue]{name}[/] into [yellow]{newName}[/]?");
+        AnsiConsole.MarkupLine(
+            $"Are you sure you want to {(duplicate ? "duplicate" : "rename")} the password [blue]{name}[/] into [yellow]{newName}[/]?");
         AnsiConsole.Write("(y/n) > ");
 
         var key = Console.ReadKey();
@@ -177,7 +257,7 @@ public class Cli
                 length = intValue;
             }
 
-            if (args[i].StartsWith("-l="))
+            if (args[i].StartsWith("-a="))
             {
                 var value = args[i].Split("=").Last();
                 if (string.IsNullOrWhiteSpace(value)) continue;
@@ -185,7 +265,7 @@ public class Cli
                 customAlphabet = value;
             }
 
-            if (args[i] == "-s")
+            if (args[i] == "-c")
             {
                 copy = false;
             }
