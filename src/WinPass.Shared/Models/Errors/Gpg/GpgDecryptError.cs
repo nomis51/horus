@@ -4,7 +4,7 @@ namespace WinPass.Shared.Models.Errors.Gpg;
 
 public class GpgDecryptError : Error
 {
-    public GpgDecryptError() : base("Unable to decrypt password")
+    public GpgDecryptError(string message) : base($"Unable to decrypt password: {message}")
     {
     }
 }

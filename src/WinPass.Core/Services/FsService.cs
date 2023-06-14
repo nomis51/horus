@@ -1,9 +1,6 @@
 ﻿using Spectre.Console;
 using WinPass.Shared.Abstractions;
-using WinPass.Shared.Exceptions.Fs;
-using WinPass.Shared.Exceptions.Gpg;
 using WinPass.Shared.Models.Abstractions;
-using WinPass.Shared.Models.Errors;
 using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
@@ -32,13 +29,22 @@ public class FsService : IService
 
     #region Public methods
 
+    public bool DoEntryExists(string filePath)
+    {
+        return File.Exists(filePath);
+    }
+
+    public string GetGpgId()
+    {
+        var filePath = Path.Join(_storeFolderPath, GpgIdFileName);
+        var data = File.ReadAllText(filePath).Trim();
+
+        return data;
+    }
+
     public string GetPath(string name)
     {
-        var path = Path.Join(_storeFolderPath, $"{name}.gpg");
-        if (File.Exists(path)) return path;
-
-        AnsiConsole.MarkupLine($"[red]password named {name} doesn't exists[/]");
-        return string.Empty;
+       return Path.Join(_storeFolderPath, $"{name}.gpg");
     }
 
     public Result<List<StoreEntry>?, Error?> ListStoreEntries()

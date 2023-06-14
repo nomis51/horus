@@ -1,9 +1,12 @@
-﻿using WinPass.Core.WinApi;
+﻿using Spectre.Console;
+using WinPass.Core.WinApi;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors;
+using WinPass.Shared.Models.Errors.Fs;
+using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass.Core.Services;
@@ -52,10 +55,33 @@ public class AppService : IService
 
     #region Public methods
 
+    public bool DoEntryExists(string name)
+    {
+        var filePath = _fsService.GetPath(name);
+        return _fsService.DoEntryExists(filePath);
+    }
+    
+    public ResultStruct<byte, Error?> InsertPassword(string name, string value)
+    {
+        var gpgKeyId = _fsService.GetGpgId();
+        if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+
+        var filePath = _fsService.GetPath(name);
+        if (_fsService.DoEntryExists(filePath))
+            return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
+
+        var result = _gpgService.Encrypt(gpgKeyId, filePath, value);
+        return !_fsService.DoEntryExists(filePath)
+            ? new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"))
+            : result;
+    }
+
     public Result<Password?, Error?> GetPassword(string name, bool copy = false)
     {
-        var path = _fsService.GetPath(name);
-        var result = _gpgService.Decrypt(path);
+        var filePath = _fsService.GetPath(name);
+        if (!_fsService.DoEntryExists(filePath)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
+
+        var result = _gpgService.Decrypt(filePath);
         if (!copy) return result;
         if (result.Item1 is null) return result;
 

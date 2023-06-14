@@ -7,7 +7,7 @@ public static class ProcessHelper
 {
     #region Public methods
 
-    public static void Fork(string[] args, string workingDirectory = ".")
+    public static void Fork(string[] args, string workingDirectory = "")
     {
         var asm = Assembly.GetEntryAssembly();
         if (asm is null) return;
@@ -15,8 +15,8 @@ public static class ProcessHelper
         _ = Exec(asm.Location.Replace(".dll", ".exe"), args, workingDirectory, false);
     }
 
-    public static Tuple<bool, string, string> Exec(string program, string[] args, string workingDirectory = ".",
-        bool forWaitExit = true)
+    public static Tuple<bool, string, string> Exec(string program, string[] args, string workingDirectory = "",
+        bool waitForExit = true)
     {
         var process = new Process
         {
@@ -27,13 +27,13 @@ public static class ProcessHelper
                 Arguments = string.Join(" ", args),
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                RedirectStandardError = forWaitExit,
-                RedirectStandardOutput = forWaitExit,
+                RedirectStandardError = waitForExit,
+                RedirectStandardOutput = waitForExit,
             },
         };
 
         process.Start();
-        if (!forWaitExit) return new Tuple<bool, string, string>(false, string.Empty, string.Empty);
+        if (!waitForExit) return new Tuple<bool, string, string>(false, string.Empty, string.Empty);
 
         var stderr = process.StandardError.ReadToEnd();
         var stdout = process.StandardOutput.ReadToEnd();

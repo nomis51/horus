@@ -19,9 +19,31 @@ public class GpgService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
+    {
+        var (ok, _, error) = ProcessHelper.Exec("cmd", new[]
+        {
+            "/c",
+            "echo",
+            value,
+            "|",
+            Gpg,
+            "--quiet",
+            "--yes",
+            "--compress-algo=none",
+            "--no-encrypt-to",
+            "-e",
+            "-r",
+            key,
+            "-o",
+            filePath
+        });
+        return !ok ? new ResultStruct<byte, Error?>(new GpgEncryptError(error)) : new ResultStruct<byte, Error?>(0);
+    }
+
     public Result<Password?, Error?> Decrypt(string filePath)
     {
-        var (ok, result, _) = ProcessHelper.Exec(Gpg, new[]
+        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
         {
             "--quiet",
             "--yes",
@@ -30,9 +52,9 @@ public class GpgService : IService
             "-d",
             filePath
         });
-        if (!ok) return new Result<Password?, Error?>(new GpgDecryptError());
+        if (!ok) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
-        if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError());
+        if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
         var lines = result.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
