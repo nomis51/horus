@@ -30,14 +30,22 @@ public class FsService : IService
 
     #region Public methods
 
-    public ResultStruct<byte, Error?> RenameEntry(string name, string newName)
+    public ResultStruct<byte, Error?> RenameEntry(string name, string newName, bool duplicate = false)
     {
         var filePath = GetPath(name);
         if (!DoEntryExists(filePath)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
 
         var newFilePath = GetPath(newName);
 
-        File.Move(filePath, newFilePath);
+        if (duplicate)
+        {
+            File.Copy(filePath, newFilePath);
+        }
+        else
+        {
+            File.Move(filePath, newFilePath);
+        }
+
         return new ResultStruct<byte, Error?>(0);
     }
 

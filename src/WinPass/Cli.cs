@@ -87,6 +87,15 @@ public class Cli
         }
 
         var name = args.Last();
+        var duplicate = false;
+
+        for (var i = 0; i < args.Count - 1; ++i)
+        {
+            if (args[i] == "-d")
+            {
+                duplicate = true;
+            }
+        }
 
         if (!AppService.Instance.DoGpgKeyExists(name))
         {
@@ -109,7 +118,7 @@ public class Cli
         Console.WriteLine();
         if (key.Key != ConsoleKey.Y) return;
 
-        var (_, error) = AppService.Instance.RenamePassword(name, newName);
+        var (_, error) = AppService.Instance.RenamePassword(name, newName, duplicate);
 
         if (error is not null)
         {
@@ -117,7 +126,9 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"Password [blue]{name}[/] renamed to [blue]{newName}[/]");
+        AnsiConsole.MarkupLine(duplicate
+            ? $"Password [blue]{name}[/] duplicated to [blue]{newName}[/]"
+            : $"Password [blue]{name}[/] renamed to [blue]{newName}[/]");
     }
 
     private void Delete(IReadOnlyList<string> args)
