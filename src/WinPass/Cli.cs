@@ -97,12 +97,6 @@ public class Cli
             }
         }
 
-        if (!AppService.Instance.DoGpgKeyExists(name))
-        {
-            AnsiConsole.MarkupLine("[red]Password doesn't exists[/]");
-            return;
-        }
-
         AnsiConsole.Write("Enter the new name: ");
         var newName = Console.ReadLine();
         if (string.IsNullOrWhiteSpace(newName))
@@ -111,7 +105,7 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"Are you sure you want rename the password [blue]{name}[/] into [yellow]{newName}[/]?");
+        AnsiConsole.MarkupLine($"Are you sure you want to {(duplicate ? "duplicate" : "rename")} the password [blue]{name}[/] into [yellow]{newName}[/]?");
         AnsiConsole.Write("(y/n) > ");
 
         var key = Console.ReadKey();
