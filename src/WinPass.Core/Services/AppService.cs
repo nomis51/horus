@@ -55,6 +55,11 @@ public class AppService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> DeletePassword(string name)
+    {
+        return _fsService.DeleteEntry(name);
+    }
+
     public Result<string, Error?> GeneratePassword(string name, int length, string customAlphabet, bool copy)
     {
         var value = PasswordHelper.Generate(length, customAlphabet);

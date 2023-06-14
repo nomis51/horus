@@ -30,6 +30,15 @@ public class FsService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> DeleteEntry(string name)
+    {
+        var filePath = GetPath(name);
+        if (!DoEntryExists(filePath)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
+        
+        File.Delete(filePath);
+        return new ResultStruct<byte, Error?>(0);
+    }
+
     public List<StoreEntry> SearchFiles(string term)
     {
         List<StoreEntry> entries = new();

@@ -58,6 +58,11 @@ public class Cli
                 Generate(commandArgs);
                 break;
 
+            case "delete":
+            case "remove":
+                Delete(commandArgs);
+                break;
+
             case "cc":
                 ClearClipboard(commandArgs);
                 break;
@@ -67,6 +72,29 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void Delete(IReadOnlyList<string> args)
+    {
+        if (args.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            return;
+        }
+
+        var name = args.Last();
+
+        AnsiConsole.MarkupLine($"Are you sure you want to delete de password [blue]{name}[/]?");
+        AnsiConsole.Write("(y/n) > ");
+
+        var key = Console.ReadKey();
+        if (key.Key != ConsoleKey.Y) return;
+
+        var (_, error) = AppService.Instance.DeletePassword(name);
+
+        if (error is null) return;
+
+        AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+    }
 
     private void Generate(IReadOnlyList<string> args)
     {
