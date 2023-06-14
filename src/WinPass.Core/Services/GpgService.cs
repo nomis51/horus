@@ -25,7 +25,7 @@ public class GpgService : IService
         {
             "/c",
             "echo",
-            value,
+            $"\"{value}\"",
             "|",
             Gpg,
             "--quiet",

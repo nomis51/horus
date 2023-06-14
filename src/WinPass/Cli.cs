@@ -54,6 +54,10 @@ public class Cli
                 Search(commandArgs);
                 break;
 
+            case "generate":
+                Generate(commandArgs);
+                break;
+
             case "cc":
                 ClearClipboard(commandArgs);
                 break;
@@ -64,11 +68,89 @@ public class Cli
 
     #region Commands
 
+    private void Generate(IReadOnlyList<string> args)
+    {
+        if (args.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            return;
+        }
+
+        var name = args.Last();
+        var length = 0;
+        var customAlphabet = string.Empty;
+        var copy = true;
+        var dontClear = false;
+
+        for (var i = 0; i < args.Count - 1; ++i)
+        {
+            if (args[i].StartsWith("-s="))
+            {
+                var value = args[i].Split("=").Last();
+                if (!int.TryParse(value, out var intValue)) continue;
+
+                length = intValue;
+            }
+
+            if (args[i].StartsWith("-l="))
+            {
+                var value = args[i].Split("=").Last();
+                if (string.IsNullOrWhiteSpace(value)) continue;
+
+                customAlphabet = value;
+            }
+
+            if (args[i] == "-s")
+            {
+                copy = false;
+            }
+
+            if (args[i] == "-f")
+            {
+                dontClear = true;
+            }
+        }
+
+        var (password, error) = AppService.Instance.GeneratePassword(name, length, customAlphabet, copy);
+
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
+
+        AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated");
+        if (copy)
+        {
+            AnsiConsole.MarkupLine("Password copied");
+            AnsiConsole.MarkupLine("[yellow]Clipboard will be cleared in 10 seconds[/]");
+            return;
+        }
+
+        Table passwordTable = new()
+        {
+            Border = TableBorder.Rounded,
+            ShowHeaders = false,
+            Expand = false,
+        };
+
+        passwordTable.AddColumn(string.Empty);
+        passwordTable.AddRow($"Password is [yellow]{password.EscapeMarkup()}[/]");
+
+        AnsiConsole.Write(passwordTable);
+
+        if (dontClear) return;
+        AnsiConsole.MarkupLine("[yellow]Terminal will clear in 10 seconds[/]");
+
+        Thread.Sleep(10 * 1000);
+        Console.Clear();
+    }
+
     private void Search(IReadOnlyList<string> args)
     {
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]search term argument required[/]");
+            AnsiConsole.MarkupLine("[red]Search term argument required[/]");
             return;
         }
 
@@ -177,7 +259,7 @@ public class Cli
         };
 
         passwordTable.AddColumn(string.Empty);
-        passwordTable.AddRow($"Password is [yellow]{password.Value}[/]");
+        passwordTable.AddRow($"Password is [yellow]{password.Value.EscapeMarkup()}[/]");
 
         if (!showMetadata)
         {
@@ -216,7 +298,7 @@ public class Cli
 
         if (dontClear) return;
 
-        AnsiConsole.MarkupLine("Terminal will clear in 10 seconds");
+        AnsiConsole.MarkupLine("[yellow]Terminal will clear in 10 seconds[/]");
 
         Thread.Sleep(10 * 1000);
         Console.Clear();

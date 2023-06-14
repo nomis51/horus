@@ -55,17 +55,30 @@ public class AppService : IService
 
     #region Public methods
 
+    public Result<string, Error?> GeneratePassword(string name, int length, string customAlphabet, bool copy)
+    {
+        var value = PasswordHelper.Generate(length, customAlphabet);
+        var (_, error) = InsertPassword(name, value);
+        if (error is not null) return new Result<string, Error?>(error);
+
+        if (!copy) return new Result<string, Error?>(value);
+        User32.SetClipboard(value);
+
+        ProcessHelper.Fork(new[] { "cc", "10" });
+        return new Result<string, Error?>(value);
+    }
+
     public List<StoreEntry> Search(string term)
     {
-       return _fsService.SearchFiles(term);
+        return _fsService.SearchFiles(term);
     }
-    
+
     public bool DoEntryExists(string name)
     {
         var filePath = _fsService.GetPath(name);
         return _fsService.DoEntryExists(filePath);
     }
-    
+
     public ResultStruct<byte, Error?> InsertPassword(string name, string value)
     {
         var gpgKeyId = _fsService.GetGpgId();
