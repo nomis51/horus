@@ -27,7 +27,7 @@ public class Cli
             return;
         }
 
-        var commandArgs = args.Skip(1).ToArray();
+        var commandArgs = args.Skip(1).ToList();
         switch (args[0])
         {
             case "init":
@@ -40,12 +40,18 @@ public class Cli
                 break;
 
             case "show":
-                Show(commandArgs.ToList());
+                Show(commandArgs);
                 break;
 
             case "insert":
             case "add":
                 Insert(commandArgs);
+                break;
+
+            case "grep":
+            case "find":
+            case "search":
+                Search(commandArgs);
                 break;
 
             case "cc":
@@ -57,6 +63,21 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void Search(IReadOnlyList<string> args)
+    {
+        if (args.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]search term argument required[/]");
+            return;
+        }
+
+        var term = args[0];
+        var entries = AppService.Instance.Search(term);
+        var tree = new Tree(string.Empty);
+        RenderEntries(entries, tree);
+        AnsiConsole.Write(tree);
+    }
 
     private void Insert(IReadOnlyList<string> args)
     {
@@ -247,9 +268,18 @@ public class Cli
     {
         foreach (var entry in entries)
         {
-            var isFolder = entry.Entries.Any();
-            var n = node.AddNode(!isFolder ? $"[blue]{entry.Name}[/]" : entry.Name);
-            if (!isFolder) continue;
+            var n = node.AddNode(!entry.IsFolder
+                ? $"[{(entry.Highlight ? "underline yellow" : "blue")}]{entry.Name}[/]"
+                : entry.Highlight
+                    ? $"[underline yellow]{entry.Name}[/]"
+                    : $"{entry.Name}");
+            if (!entry.IsFolder) continue;
+
+            if (!entry.Entries.Any())
+            {
+                n.AddNode("...");
+                continue;
+            }
 
             RenderEntries(entry.Entries, n);
         }

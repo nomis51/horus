@@ -55,6 +55,11 @@ public class AppService : IService
 
     #region Public methods
 
+    public List<StoreEntry> Search(string term)
+    {
+       return _fsService.SearchFiles(term);
+    }
+    
     public bool DoEntryExists(string name)
     {
         var filePath = _fsService.GetPath(name);

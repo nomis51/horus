@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using System.Reflection.Metadata.Ecma335;
+using Spectre.Console;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Fs;
@@ -29,6 +30,13 @@ public class FsService : IService
 
     #region Public methods
 
+    public List<StoreEntry> SearchFiles(string term)
+    {
+        List<StoreEntry> entries = new();
+        EnumerateGpgFiles(_storeFolderPath, entries, term);
+        return entries;
+    }
+
     public bool DoEntryExists(string filePath)
     {
         return File.Exists(filePath);
@@ -44,7 +52,7 @@ public class FsService : IService
 
     public string GetPath(string name)
     {
-       return Path.Join(_storeFolderPath, $"{name}.gpg");
+        return Path.Join(_storeFolderPath, $"{name}.gpg");
     }
 
     public Result<List<StoreEntry>?, Error?> ListStoreEntries()
@@ -87,17 +95,38 @@ public class FsService : IService
         return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
     }
 
-    private void EnumerateGpgFiles(string path, List<StoreEntry> entries)
+    private void EnumerateGpgFiles(string path, List<StoreEntry> entries, string searchText = "")
     {
-        entries.AddRange(from filePath in Directory.EnumerateFiles(path)
-            where filePath.EndsWith(".gpg")
-            select new StoreEntry(Path.GetFileName(filePath).Split(".gpg").First()));
+        foreach (var filePath in Directory.EnumerateFiles(path))
+        {
+            if (!filePath.EndsWith(".gpg")) continue;
+
+            var fileName = Path.GetFileName(filePath).Split(".gpg").First();
+            if (!string.IsNullOrEmpty(searchText) && !fileName.Contains(searchText)) continue;
+
+            entries.Add(
+                new StoreEntry(
+                    fileName,
+                    highlight: !string.IsNullOrEmpty(searchText) && fileName.Contains(searchText)
+                )
+            );
+        }
 
         foreach (var dir in Directory.EnumerateDirectories(path))
         {
             if (dir.StartsWith(".git")) continue;
-            entries.Add(new StoreEntry(Path.GetFileName(dir)!));
-            EnumerateGpgFiles(dir, entries.Last().Entries);
+            var dirName = Path.GetFileName(dir);
+
+            entries.Add(
+                new StoreEntry(dirName, true, !string.IsNullOrEmpty(searchText) && dirName.Contains(searchText)));
+
+            var lastEntry = entries.Last();
+            EnumerateGpgFiles(dir, lastEntry.Entries, searchText);
+
+            if (!lastEntry.Entries.Any() && !lastEntry.Highlight)
+            {
+                entries.RemoveAt(entries.Count - 1);
+            }
         }
     }
 
