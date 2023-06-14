@@ -63,6 +63,11 @@ public class Cli
                 Delete(commandArgs);
                 break;
 
+            case "rename":
+            case "move":
+                Rename(commandArgs);
+                break;
+
             case "cc":
                 ClearClipboard(commandArgs);
                 break;
@@ -72,6 +77,48 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void Rename(IReadOnlyList<string> args)
+    {
+        if (args.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            return;
+        }
+
+        var name = args.Last();
+
+        if (!AppService.Instance.DoGpgKeyExists(name))
+        {
+            AnsiConsole.MarkupLine("[red]Password doesn't exists[/]");
+            return;
+        }
+
+        AnsiConsole.Write("Enter the new name: ");
+        var newName = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            AnsiConsole.MarkupLine("[red]The name was empty[/]");
+            return;
+        }
+
+        AnsiConsole.MarkupLine($"Are you sure you want rename the password [blue]{name}[/] into [yellow]{newName}[/]?");
+        AnsiConsole.Write("(y/n) > ");
+
+        var key = Console.ReadKey();
+        Console.WriteLine();
+        if (key.Key != ConsoleKey.Y) return;
+
+        var (_, error) = AppService.Instance.RenamePassword(name, newName);
+
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
+
+        AnsiConsole.MarkupLine($"Password [blue]{name}[/] renamed to [blue]{newName}[/]");
+    }
 
     private void Delete(IReadOnlyList<string> args)
     {
@@ -87,13 +134,18 @@ public class Cli
         AnsiConsole.Write("(y/n) > ");
 
         var key = Console.ReadKey();
+        Console.WriteLine();
         if (key.Key != ConsoleKey.Y) return;
 
         var (_, error) = AppService.Instance.DeletePassword(name);
 
-        if (error is null) return;
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
 
-        AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+        AnsiConsole.MarkupLine($"Password [blue]{name}[/] removed");
     }
 
     private void Generate(IReadOnlyList<string> args)
@@ -147,13 +199,14 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated");
         if (copy)
         {
-            AnsiConsole.MarkupLine("Password copied");
+            AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated and [yellow]copied[/]");
             AnsiConsole.MarkupLine("[yellow]Clipboard will be cleared in 10 seconds[/]");
             return;
         }
+
+        AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated");
 
         Table passwordTable = new()
         {

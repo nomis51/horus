@@ -55,6 +55,11 @@ public class AppService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> RenamePassword(string name, string newName)
+    {
+        return _fsService.RenameEntry(name, newName);
+    }
+
     public ResultStruct<byte, Error?> DeletePassword(string name)
     {
         return _fsService.DeleteEntry(name);

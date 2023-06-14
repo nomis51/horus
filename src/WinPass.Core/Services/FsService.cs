@@ -30,11 +30,22 @@ public class FsService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> RenameEntry(string name, string newName)
+    {
+        var filePath = GetPath(name);
+        if (!DoEntryExists(filePath)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
+
+        var newFilePath = GetPath(newName);
+
+        File.Move(filePath, newFilePath);
+        return new ResultStruct<byte, Error?>(0);
+    }
+
     public ResultStruct<byte, Error?> DeleteEntry(string name)
     {
         var filePath = GetPath(name);
         if (!DoEntryExists(filePath)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
-        
+
         File.Delete(filePath);
         return new ResultStruct<byte, Error?>(0);
     }
@@ -122,13 +133,14 @@ public class FsService : IService
                 {
                     foreach (var passwordMetadata in password.Metadata)
                     {
-                        if (!passwordMetadata.Key.Contains(searchText) && !passwordMetadata.Value.Contains(searchText)) continue;
+                        if (!passwordMetadata.Key.Contains(searchText) && !passwordMetadata.Value.Contains(searchText))
+                            continue;
 
                         metadata.Add(passwordMetadata.ToString());
                     }
                 }
             }
-            
+
             if (doSearch && !fileName.Contains(searchText) && !metadata.Any()) continue;
 
             entries.Add(
