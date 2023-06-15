@@ -157,6 +157,22 @@ public class Cli
         AnsiConsole.Write(table);
     }
 
+    private void Edit(IReadOnlyList<string> args)
+    {
+        if (args.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            return;
+        }
+
+        var name = args.Last();
+        var (_, error) = AppService.Instance.EditPassword(name);
+
+        if (error is null) return;
+
+        AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+    }
+
     private void Rename(IReadOnlyList<string> args)
     {
         if (args.Count == 0)
@@ -421,46 +437,29 @@ public class Cli
         {
             Border = TableBorder.Rounded,
             ShowHeaders = false,
-            Expand = showMetadata,
         };
 
         passwordTable.AddColumn(string.Empty);
         passwordTable.AddRow($"Password is [yellow]{password.Value.EscapeMarkup()}[/]");
-
-        if (!showMetadata)
+       
+        if (showMetadata && password.Metadata.Any())
         {
-            AnsiConsole.Write(passwordTable);
-        }
-        else
-        {
-            Table table = new()
+            Table metadataTable = new()
             {
-                Border = TableBorder.Double,
+                Border = TableBorder.Rounded,
             };
-            table.AddColumn($"[blue]{name}[/]", column => column.Alignment = Justify.Center);
+            metadataTable.AddColumn("Key");
+            metadataTable.AddColumn("Value");
 
-            if (password.Metadata.Any())
+            foreach (var metadata in password.Metadata)
             {
-                Table metadataTable = new()
-                {
-                    Border = TableBorder.Rounded,
-                    Expand = true,
-                };
-                metadataTable.AddColumn("Key");
-                metadataTable.AddColumn("Value");
-
-                foreach (var metadata in password.Metadata)
-                {
-                    metadataTable.AddRow(metadata.Key, metadata.Value);
-                }
-
-                table.AddRow(metadataTable);
+                metadataTable.AddRow(metadata.Key, metadata.Value);
             }
 
-            table.AddRow(passwordTable);
-
-            AnsiConsole.Write(table);
+            AnsiConsole.Write(metadataTable);
         }
+        
+        AnsiConsole.Write(passwordTable);
 
         if (dontClear) return;
 

@@ -1,4 +1,6 @@
-﻿namespace WinPass.Shared.Models;
+﻿using System.Text;
+
+namespace WinPass.Shared.Models;
 
 public class Password
 {
@@ -14,5 +16,18 @@ public class Password
     {
         Value = value;
         Metadata = metadata;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder sb = new();
+        sb.AppendLine(Value);
+        
+        foreach (var metadata in Metadata)
+        {
+            sb.AppendLine(metadata.ToString());
+        }
+
+        return sb.ToString();
     }
 }

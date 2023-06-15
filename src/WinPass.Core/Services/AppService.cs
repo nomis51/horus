@@ -1,10 +1,8 @@
-﻿using Spectre.Console;
-using WinPass.Core.WinApi;
+﻿using WinPass.Core.WinApi;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
-using WinPass.Shared.Models.Errors;
 using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
@@ -55,6 +53,11 @@ public class AppService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> EditPassword(string name)
+    {
+        return _fsService.EditEntry(name);
+    }
+
     public ResultStruct<byte, Error?> RenamePassword(string name, string newName, bool duplicate = false)
     {
         return _fsService.RenameEntry(name, newName, duplicate);
@@ -94,21 +97,21 @@ public class AppService : IService
         var gpgKeyId = _fsService.GetGpgId();
         if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
 
-        var filePath = _fsService.GetPath(name);
-        if (_fsService.DoEntryExists(filePath))
+        if (_fsService.DoEntryExists(name))
             return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
 
+        var filePath = _fsService.GetPath(name);
         var result = _gpgService.Encrypt(gpgKeyId, filePath, value);
-        return !_fsService.DoEntryExists(filePath)
+        return !_fsService.DoEntryExists(name)
             ? new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"))
             : result;
     }
 
     public Result<Password?, Error?> GetPassword(string name, bool copy = false)
     {
-        var filePath = _fsService.GetPath(name);
-        if (!_fsService.DoEntryExists(filePath)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
+        if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
 
+        var filePath = _fsService.GetPath(name);
         var result = _gpgService.Decrypt(filePath);
         if (!copy) return result;
         if (result.Item1 is null) return result;

@@ -1,10 +1,10 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using Spectre.Console;
-using WinPass.Shared.Abstractions;
+﻿using WinPass.Shared.Abstractions;
+using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
+using System.Security.AccessControl;
 
 namespace WinPass.Core.Services;
 
@@ -30,11 +30,45 @@ public class FsService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> EditEntry(string name)
+    {
+        if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
+
+        var (password, errorGetPassword) = AppService.Instance.GetPassword(name);
+        if (errorGetPassword is not null) return new ResultStruct<byte, Error?>(errorGetPassword);
+        if (password is null) return new ResultStruct<byte, Error?>(new GpgDecryptError("Password was null"));
+
+        var tmpFilePath = Path.GetTempFileName();
+        File.WriteAllText(tmpFilePath, password.ToString());
+        FileAccessHelper.PrepareTempFileAccess(tmpFilePath);
+
+        var (ok, _, stderror) = ProcessHelper.Exec("notepad", new[] { tmpFilePath });
+        FileAccessHelper.ResetTempFileAccess(tmpFilePath);
+        var data = File.ReadAllText(tmpFilePath);
+        File.Delete(tmpFilePath);
+
+        if (!ok || !string.IsNullOrEmpty(stderror) || string.IsNullOrWhiteSpace(data))
+            return new ResultStruct<byte, Error?>(new FsEditPasswordFailedError());
+
+        var filePath = GetPath(name);
+        var filePathBak = $"{filePath}.bak";
+        File.Move(filePath, filePathBak);
+        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, data);
+        if (errorInsertPassword is not null)
+        {
+            File.Move(filePathBak, filePath);
+            return new ResultStruct<byte, Error?>(errorInsertPassword);
+        }
+
+        File.Delete(filePathBak);
+        return new ResultStruct<byte, Error?>(0);
+    }
+
     public ResultStruct<byte, Error?> RenameEntry(string name, string newName, bool duplicate = false)
     {
-        var filePath = GetPath(name);
-        if (!DoEntryExists(filePath)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
+        if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
 
+        var filePath = GetPath(name);
         var newFilePath = GetPath(newName);
 
         if (duplicate)
@@ -51,9 +85,9 @@ public class FsService : IService
 
     public ResultStruct<byte, Error?> DeleteEntry(string name)
     {
-        var filePath = GetPath(name);
-        if (!DoEntryExists(filePath)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
+        if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
 
+        var filePath = GetPath(name);
         File.Delete(filePath);
         return new ResultStruct<byte, Error?>(0);
     }
@@ -65,8 +99,9 @@ public class FsService : IService
         return entries;
     }
 
-    public bool DoEntryExists(string filePath)
+    public bool DoEntryExists(string name)
     {
+        var filePath = GetPath(name);
         return File.Exists(filePath);
     }
 

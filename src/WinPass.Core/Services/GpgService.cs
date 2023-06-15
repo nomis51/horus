@@ -1,10 +1,9 @@
-﻿using System.Security;
-using Spectre.Console;
+﻿using Spectre.Console;
 using WinPass.Shared.Abstractions;
+using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
-using WinPass.Shared.Models.Errors;
 using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
@@ -21,11 +20,11 @@ public class GpgService : IService
 
     public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
     {
-        var (ok, _, error) = ProcessHelper.Exec("cmd", new[]
+        var (ok, result, error) = ProcessHelper.Exec("cmd", new[]
         {
             "/c",
             "echo",
-            $"\"{value}\"",
+            value.ToBase64(),
             "|",
             Gpg,
             "--quiet",
@@ -56,7 +55,7 @@ public class GpgService : IService
 
         if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
-        var lines = result.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var lines = result.FromBase64().Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
 
         Password password = new(lines.First());
