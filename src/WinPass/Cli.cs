@@ -5,6 +5,7 @@ using Spectre.Console;
 using WinPass.Core.Services;
 using WinPass.Core.WinApi;
 using WinPass.Shared.Enums;
+using WinPass.Shared.Models;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass;
@@ -166,11 +167,102 @@ public class Cli
         }
 
         var name = args.Last();
-        var (_, error) = AppService.Instance.EditPassword(name);
 
-        if (error is null) return;
+        var (password, error) = AppService.Instance.GetPassword(name);
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
 
-        AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+        if (password is null) return;
+
+        var lastErrorMessage = string.Empty;
+        while (true)
+        {
+            Console.Clear();
+            if (!string.IsNullOrEmpty(lastErrorMessage))
+            {
+                AnsiConsole.MarkupLine($"[red]{lastErrorMessage.EscapeMarkup()}[/]");
+                lastErrorMessage = string.Empty;
+            }
+
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title($"What do you want to edit on [blue]{name}[/]?")
+                    .AddChoices(
+                        "Save and quit",
+                        "The password",
+                        "The metadata",
+                        "Cancel"
+                    )
+            );
+
+            if (choice == "Save and quit")
+            {
+                var (_, errorEditPassword) = AppService.Instance.EditPassword(name, password);
+
+                AnsiConsole.MarkupLine(
+                    errorEditPassword is not null
+                        ? $"[{GetErrorColor(errorEditPassword.Severity)}]{errorEditPassword.Message}[/]"
+                        : "[green]Changes saved[/]");
+
+                break;
+            }
+
+            if (choice == "Cancel") break;
+            if (choice == "The password")
+            {
+                var newPassword = AnsiConsole.Prompt(
+                    new TextPrompt<string>("Enter the new password: ")
+                        .Secret(null)
+                );
+                if (string.IsNullOrWhiteSpace(newPassword))
+                {
+                    lastErrorMessage = "Password can't be empty";
+                    continue;
+                }
+
+                var newPasswordConfirm = AnsiConsole.Prompt(
+                    new TextPrompt<string>("Confirm the new password: ")
+                        .Secret(null)
+                );
+                if (!newPassword.Equals(newPasswordConfirm))
+                {
+                    lastErrorMessage = "Passwords don't match";
+                    continue;
+                }
+
+                password.Set(newPassword);
+                continue;
+            }
+
+            if (choice == "The metadata")
+            {
+                var items = password.Metadata.Select(m => $"[green]{m.Key}[/]: {m.Value}").ToList();
+                var metadataChoice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Which metadata do you want to edit?")
+                        .AddChoices(
+                            items.Concat(new[] { "Cancel" })
+                        )
+                );
+
+                if (metadataChoice == "Cancel") continue;
+
+                var index = items.IndexOf(metadataChoice);
+                if (index == -1)
+                {
+                    lastErrorMessage = "Metadata not found";
+                    continue;
+                }
+
+                password.Metadata[index].Key =
+                    AnsiConsole.Ask("Enter the [green]key[/]:", password.Metadata[index].Key);
+                password.Metadata[index].Value =
+                    AnsiConsole.Ask("Enter the [green]value[/]:", password.Metadata[index].Value);
+            }
+        }
     }
 
     private void Rename(IReadOnlyList<string> args)
@@ -316,17 +408,9 @@ public class Cli
 
         AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated");
 
-        Table passwordTable = new()
-        {
-            Border = TableBorder.Rounded,
-            ShowHeaders = false,
-            Expand = false,
-        };
-
-        passwordTable.AddColumn(string.Empty);
-        passwordTable.AddRow($"Password is [yellow]{password.EscapeMarkup()}[/]");
-
-        AnsiConsole.Write(passwordTable);
+        DisplayPassword(password);
+        password = string.Empty;
+        GC.Collect();
 
         if (dontClear) return;
         AnsiConsole.MarkupLine($"[yellow]Terminal will clear in {timeout} second(s)[/]");
@@ -366,10 +450,23 @@ public class Cli
             return;
         }
 
-        var password = ReadPassword();
-        if (string.IsNullOrEmpty(password))
+        var password = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter the new password: ")
+                .Secret(null)
+        );
+        if (string.IsNullOrWhiteSpace(password))
         {
-            AnsiConsole.MarkupLine("[yellow]Password was empty[/]");
+            AnsiConsole.MarkupLine("[red]Password can't be empty[/]");
+            return;
+        }
+
+        var passwordConfirm = AnsiConsole.Prompt(
+            new TextPrompt<string>("Confirm the new password: ")
+                .Secret(null)
+        );
+        if (!password.Equals(passwordConfirm))
+        {
+            AnsiConsole.MarkupLine("[red]Passwords don't match[/]");
             return;
         }
 
@@ -451,33 +548,12 @@ public class Cli
 
         if (password is null) return;
 
-        Table passwordTable = new()
-        {
-            Border = TableBorder.Rounded,
-            ShowHeaders = false,
-        };
-
-        passwordTable.AddColumn(string.Empty);
-        passwordTable.AddRow($"Password is [yellow]{password.Value.EscapeMarkup()}[/]");
-
         if (showMetadata && password.Metadata.Any())
         {
-            Table metadataTable = new()
-            {
-                Border = TableBorder.Rounded,
-            };
-            metadataTable.AddColumn("Key");
-            metadataTable.AddColumn("Value");
-
-            foreach (var metadata in password.Metadata)
-            {
-                metadataTable.AddRow(metadata.Key, metadata.Value);
-            }
-
-            AnsiConsole.Write(metadataTable);
+            DisplayMetadata(password.Metadata);
         }
 
-        AnsiConsole.Write(passwordTable);
+        DisplayPassword(password.Value);
 
         if (dontClear) return;
 
@@ -528,6 +604,38 @@ public class Cli
     #endregion
 
     #region Private methods
+
+    private void DisplayMetadata(List<Metadata> metadata)
+    {
+        Table table = new()
+        {
+            Border = TableBorder.Rounded,
+        };
+        table.AddColumn("Key");
+        table.AddColumn("Value");
+
+        foreach (var m in metadata)
+        {
+            table.AddRow(m.Key, m.Value);
+        }
+
+        AnsiConsole.Write(table);
+    }
+
+    private void DisplayPassword(string value)
+    {
+        Table table = new()
+        {
+            Border = TableBorder.Rounded,
+            ShowHeaders = false,
+        };
+
+        table.AddColumn(string.Empty);
+        table.AddRow($"Password is [yellow]{value.EscapeMarkup()}[/]");
+        AnsiConsole.Write(table);
+        table.Rows.Clear();
+        GC.Collect();
+    }
 
     private void RenderEntries(List<StoreEntry> entries, IHasTreeNodes node)
     {

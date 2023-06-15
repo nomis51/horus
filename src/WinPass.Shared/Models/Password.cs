@@ -2,9 +2,9 @@
 
 namespace WinPass.Shared.Models;
 
-public class Password
+public class Password : IDisposable
 {
-    public string Value { get; }
+    public string Value { get; private set; }
     public List<Metadata> Metadata { get; } = new();
 
     public Password(string value)
@@ -18,6 +18,11 @@ public class Password
         Metadata = metadata;
     }
 
+    public void Set(string value)
+    {
+        Value = value;
+    }
+
     public override string ToString()
     {
         StringBuilder sb = new();
@@ -29,5 +34,11 @@ public class Password
         }
 
         return sb.ToString();
+    }
+
+    public void Dispose()
+    {
+        Value = string.Empty;
+        GC.Collect();
     }
 }

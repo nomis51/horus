@@ -53,9 +53,9 @@ public class AppService : IService
 
     #region Public methods
 
-    public ResultStruct<byte, Error?> EditPassword(string name)
+    public ResultStruct<byte, Error?> EditPassword(string name, Password password)
     {
-        return _fsService.EditEntry(name);
+        return _fsService.EditEntry(name, password);
     }
 
     public ResultStruct<byte, Error?> RenamePassword(string name, string newName, bool duplicate = false)

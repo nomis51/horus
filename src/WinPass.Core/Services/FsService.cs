@@ -5,6 +5,7 @@ using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
 using System.Security.AccessControl;
+using WinPass.Shared.Models;
 
 namespace WinPass.Core.Services;
 
@@ -30,30 +31,14 @@ public class FsService : IService
 
     #region Public methods
 
-    public ResultStruct<byte, Error?> EditEntry(string name)
+    public ResultStruct<byte, Error?> EditEntry(string name, Password password)
     {
         if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
-
-        var (password, errorGetPassword) = AppService.Instance.GetPassword(name);
-        if (errorGetPassword is not null) return new ResultStruct<byte, Error?>(errorGetPassword);
-        if (password is null) return new ResultStruct<byte, Error?>(new GpgDecryptError("Password was null"));
-
-        var tmpFilePath = Path.GetTempFileName();
-        File.WriteAllText(tmpFilePath, password.ToString());
-        FileAccessHelper.PrepareTempFileAccess(tmpFilePath);
-
-        var (ok, _, stderror) = ProcessHelper.Exec("notepad", new[] { tmpFilePath });
-        FileAccessHelper.ResetTempFileAccess(tmpFilePath);
-        var data = File.ReadAllText(tmpFilePath);
-        File.Delete(tmpFilePath);
-
-        if (!ok || !string.IsNullOrEmpty(stderror) || string.IsNullOrWhiteSpace(data))
-            return new ResultStruct<byte, Error?>(new FsEditPasswordFailedError());
 
         var filePath = GetPath(name);
         var filePathBak = $"{filePath}.bak";
         File.Move(filePath, filePathBak);
-        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, data);
+        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password.ToString());
         if (errorInsertPassword is not null)
         {
             File.Move(filePathBak, filePath);
