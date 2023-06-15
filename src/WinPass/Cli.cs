@@ -262,6 +262,7 @@ public class Cli
         var customAlphabet = string.Empty;
         var copy = true;
         var dontClear = false;
+        var timeout = 10;
 
         for (var i = 0; i < args.Count - 1; ++i)
         {
@@ -290,6 +291,12 @@ public class Cli
             {
                 dontClear = true;
             }
+
+            if (args[i].StartsWith("-t="))
+            {
+                if (!int.TryParse(args[i].Split("-t=").Last(), out var intValue)) continue;
+                timeout = intValue;
+            }
         }
 
         var (password, error) = AppService.Instance.GeneratePassword(name, length, customAlphabet, copy);
@@ -303,7 +310,7 @@ public class Cli
         if (copy)
         {
             AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated and [yellow]copied[/]");
-            AnsiConsole.MarkupLine("[yellow]Clipboard will be cleared in 10 seconds[/]");
+            AnsiConsole.MarkupLine($"[yellow]Clipboard will be cleared in {timeout} second(s)[/]");
             return;
         }
 
@@ -322,9 +329,9 @@ public class Cli
         AnsiConsole.Write(passwordTable);
 
         if (dontClear) return;
-        AnsiConsole.MarkupLine("[yellow]Terminal will clear in 10 seconds[/]");
+        AnsiConsole.MarkupLine($"[yellow]Terminal will clear in {timeout} second(s)[/]");
 
-        Thread.Sleep(10 * 1000);
+        Thread.Sleep(timeout * 1000);
         Console.Clear();
     }
 
@@ -399,6 +406,8 @@ public class Cli
         var copy = false;
         var dontClear = false;
         var showMetadata = false;
+        var timeout = 10;
+
         foreach (var arg in args)
         {
             switch (arg)
@@ -412,6 +421,15 @@ public class Cli
 
                 case "-m":
                     showMetadata = true;
+                    break;
+
+                default:
+                    if (arg.StartsWith("-t="))
+                    {
+                        if (!int.TryParse(arg.Split("-t=").Last(), out var intValue)) continue;
+                        timeout = intValue;
+                    }
+
                     break;
             }
         }
@@ -427,7 +445,7 @@ public class Cli
         if (copy)
         {
             AnsiConsole.MarkupLine("Password copied");
-            AnsiConsole.MarkupLine("[yellow]Clipboard will be cleared in 10 seconds[/]");
+            AnsiConsole.MarkupLine($"[yellow]Clipboard will be cleared in {timeout} seconds[/]");
             return;
         }
 
@@ -441,7 +459,7 @@ public class Cli
 
         passwordTable.AddColumn(string.Empty);
         passwordTable.AddRow($"Password is [yellow]{password.Value.EscapeMarkup()}[/]");
-       
+
         if (showMetadata && password.Metadata.Any())
         {
             Table metadataTable = new()
@@ -458,14 +476,14 @@ public class Cli
 
             AnsiConsole.Write(metadataTable);
         }
-        
+
         AnsiConsole.Write(passwordTable);
 
         if (dontClear) return;
 
-        AnsiConsole.MarkupLine("[yellow]Terminal will clear in 10 seconds[/]");
+        AnsiConsole.MarkupLine($"[yellow]Terminal will clear in {timeout} seconds[/]");
 
-        Thread.Sleep(10 * 1000);
+        Thread.Sleep(timeout * 1000);
         Console.Clear();
     }
 
