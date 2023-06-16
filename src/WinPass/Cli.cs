@@ -598,7 +598,10 @@ public class Cli
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{error.Severity}]{error.Message}[/]");
+            return;
         }
+
+        AnsiConsole.MarkupLine("[green]Store initialized[/]");
     }
 
     #endregion
