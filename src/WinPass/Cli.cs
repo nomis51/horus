@@ -568,7 +568,7 @@ public class Cli
         var (entries, error) = AppService.Instance.ListStoreEntries();
         if (error is not null)
         {
-            AnsiConsole.MarkupLine($"[{error.Severity}]{error.Message}[/]");
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
             return;
         }
 
@@ -597,7 +597,7 @@ public class Cli
         var (_, error) = AppService.Instance.InitializeStoreFolder(args[0]);
         if (error is not null)
         {
-            AnsiConsole.MarkupLine($"[{error.Severity}]{error.Message}[/]");
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
             return;
         }
 
