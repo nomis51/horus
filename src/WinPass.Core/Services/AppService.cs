@@ -4,6 +4,7 @@ using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Fs;
+using WinPass.Shared.Models.Errors.Git;
 using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
 
@@ -55,14 +56,21 @@ public class AppService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> Verify()
+    {
+        if (!_gpgService.Verify()) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
+        if (!_gitService.Verify()) return new ResultStruct<byte, Error?>(new GitNotInstalledError());
+        return new ResultStruct<byte, Error?>(0);
+    }
+
     public string GetStorePath()
     {
         return _fsService.GetStorePath();
     }
-    
-    public void ExecuteGitCommand(string[] args)
+
+    public Tuple<string, string> ExecuteGitCommand(string[] args)
     {
-        _gitService.Execute(args);
+        return _gitService.Execute(args);
     }
 
     public ResultStruct<byte, Error?> EditPassword(string name, Password password)
@@ -113,11 +121,10 @@ public class AppService : IService
 
     public bool DoEntryExists(string name)
     {
-        var filePath = _fsService.GetPath(name);
-        return _fsService.DoEntryExists(filePath);
+        return _fsService.DoEntryExists(name);
     }
 
-    public ResultStruct<byte, Error?> InsertPassword(string name, string value)
+    public ResultStruct<byte, Error?> InsertPassword(string name, string value, bool dontCommit = false)
     {
         var gpgKeyId = _fsService.GetGpgId();
         if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
@@ -126,14 +133,28 @@ public class AppService : IService
             return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
 
         var filePath = _fsService.GetPath(name);
+        if (name.Contains('/') || name.Contains('\\'))
+        {
+            var dirName = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(dirName))
+            {
+                Directory.CreateDirectory(dirName);
+            }
+        }
+
         var (_, errorEncrypt) = _gpgService.Encrypt(gpgKeyId, filePath, value);
         if (!_fsService.DoEntryExists(name))
             return new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"));
 
         if (errorEncrypt is not null) return new ResultStruct<byte, Error?>(errorEncrypt);
 
-        var (_, errorGit) = GitCommit($"Insert password '{name}'");
-        return errorGit is not null ? new ResultStruct<byte, Error?>(errorGit) : new ResultStruct<byte, Error?>(0);
+        if (!dontCommit)
+        {
+            var (_, errorGit) = GitCommit($"Insert password '{name}'");
+            if (errorGit is not null) return new ResultStruct<byte, Error?>(errorGit);
+        }
+
+        return new ResultStruct<byte, Error?>(0);
     }
 
     public Result<Password?, Error?> GetPassword(string name, bool copy = false, int timeout = 10)
@@ -156,9 +177,15 @@ public class AppService : IService
         return _fsService.ListStoreEntries();
     }
 
-    public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey)
+    public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey, string gitUrl)
     {
-        return _fsService.InitializeStoreFolder(gpgKey);
+        if (!_gitService.Clone(gitUrl, GetStorePath()))
+            return new ResultStruct<byte, Error?>(new GitCloneFailedError());
+
+        var (_, error) = _fsService.InitializeStoreFolder(gpgKey);
+        if (error is not null) return new ResultStruct<byte, Error?>(error);
+
+        return _gitService.Commit("Add gpg-id file");
     }
 
     public bool DoGpgKeyExists(string key)

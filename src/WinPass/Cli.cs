@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Formats.Asn1;
+using System.Text.RegularExpressions;
 using Spectre.Console;
 using WinPass.Core.Services;
 using WinPass.Core.WinApi;
@@ -21,10 +22,16 @@ public class Cli
 
     public void Run(string[] args)
     {
+        var (_, error) = AppService.Instance.Verify();
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[red]{error.Message}[/]");
+            return;
+        }
+
         if (args.Length == 0)
         {
-            AnsiConsole.MarkupLine("[yellow]No arguments provided[/]");
-            return;
+            args = new[] { "ls" };
         }
 
         var commandArgs = args.Skip(1).ToList();
@@ -96,7 +103,9 @@ public class Cli
 
     private void Git(IEnumerable<string> args)
     {
-        AppService.Instance.ExecuteGitCommand(args.ToArray());
+        var (result, error) = AppService.Instance.ExecuteGitCommand(args.ToArray());
+        AnsiConsole.WriteLine(result);
+        AnsiConsole.WriteLine(error);
     }
 
     private void Help()
@@ -114,25 +123,30 @@ public class Cli
             "Initialize the password store using the GPG ID provided",
             "winpass init A034B347F727EAA5"
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (list|ls|*blank*)".EscapeMarkup(),
             "Show the list of passwords in the store",
             "winpass list"
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass show [args] [name]".EscapeMarkup(),
             "Show the password requested by [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
                 "-c : Copy the password to the clipboard instead of showing it",
-                "-m : Also show metadata of the password if any",
-                "-f : Don't automatically clear the terminal after a while"
+                "-m : Also show metadata of the password if any (Dont' show the password)",
+                "-f : Don't automatically clear the terminal after a while",
+                "-p : Show the password when -m is provided"
             ),
             "winpass show -c -m github/work"
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (insert|add) [name]".EscapeMarkup(),
-            "Insert a new password named [name]",
+            "Insert a new password named [name]".EscapeMarkup(),
             "winpass add -m github/work"
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass generate [args] [name]".EscapeMarkup(),
             "Generate a new password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
@@ -143,23 +157,27 @@ public class Cli
             ),
             "winpass generate -s=12 -a=abc123 -c github/work"
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (remove|delete) [name]".EscapeMarkup(),
-            "Delete the password named [name]",
+            "Delete the password named [name]".EscapeMarkup(),
             "winpass remove github/work"
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (rename|move) [args] [name]".EscapeMarkup(),
             "Rename or duplicate the password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
-                "-d : Duplicate the password named [name] instead of renaming it"
+                "-d : Duplicate the password named [name] instead of renaming it".EscapeMarkup()
             ),
             "winpass generate -s=12 -a=abc123 -c github/work"
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (find|search|grep) [text]".EscapeMarkup(),
-            "Find passwords or metadata containing [text]" +
+            "Find passwords or metadata containing [text]".EscapeMarkup() +
             "winpass find \"email: my-email@github.com\""
         );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass help",
             "Show the help (this)",
@@ -256,16 +274,36 @@ public class Cli
                         new SelectionPrompt<string>()
                             .Title("Which metadata do you want to edit?")
                             .AddChoices(
-                                items.Concat(new[] { "Cancel" })
+                                items.Concat(new[] { "Add new metadata", "Cancel" })
                             )
                     );
 
                     if (metadataChoice == "Cancel") continue;
 
+                    if (metadataChoice == "Add new metadata")
+                    {
+                        var newKey = AnsiConsole.Ask<string>("Key: ");
+                        var newValue = AnsiConsole.Ask<string>("Value: ");
+                        password.Metadata.Add(new Metadata(newKey, newValue));
+                        continue;
+                    }
+
                     var index = items.IndexOf(metadataChoice);
                     if (index == -1)
                     {
                         lastErrorMessage = "Metadata not found";
+                        continue;
+                    }
+
+                    var metadataActionChoice = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("What to do you with the metadata?")
+                            .AddChoices("Edit", "Delete")
+                    );
+
+                    if (metadataActionChoice == "Delete")
+                    {
+                        password.Metadata.RemoveAt(index);
                         continue;
                     }
 
@@ -306,13 +344,12 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine(
-            $"Are you sure you want to {(duplicate ? "duplicate" : "rename")} the password [blue]{name}[/] into [yellow]{newName}[/]?");
-        AnsiConsole.Write("(y/n) > ");
+        var choice =
+            AnsiConsole.Ask<string>(
+                $"Are you sure you want to [yellow]{(duplicate ? "duplicate" : "rename")}[/] the password [blue]{name}[/] into [yellow]{newName}[/]? [blue](y/n)[/]",
+                "n").ToLower();
 
-        var key = Console.ReadKey();
-        Console.WriteLine();
-        if (key.Key != ConsoleKey.Y) return;
+        if (choice != "y") return;
 
         var (_, error) = AppService.Instance.RenamePassword(name, newName, duplicate);
 
@@ -323,8 +360,8 @@ public class Cli
         }
 
         AnsiConsole.MarkupLine(duplicate
-            ? $"Password [blue]{name}[/] duplicated to [blue]{newName}[/]"
-            : $"Password [blue]{name}[/] renamed to [blue]{newName}[/]");
+            ? $"[green]Password [blue]{name}[/] duplicated to [blue]{newName}[/][/]"
+            : $"[green]Password [blue]{name}[/] renamed to [blue]{newName}[/][/]");
     }
 
     private void Delete(IReadOnlyCollection<string> args)
@@ -337,12 +374,11 @@ public class Cli
 
         var name = args.Last();
 
-        AnsiConsole.MarkupLine($"Are you sure you want to delete de password [blue]{name}[/]?");
-        AnsiConsole.Write("(y/n) > ");
+        var choice = AnsiConsole
+            .Ask<string>($"Are you sure you want to delete the password [blue]{name}[/]? [blue](y/n)[/]", "n")
+            .ToLower();
 
-        var key = Console.ReadKey();
-        Console.WriteLine();
-        if (key.Key != ConsoleKey.Y) return;
+        if (choice != "y") return;
 
         var (_, error) = AppService.Instance.DeletePassword(name);
 
@@ -352,7 +388,7 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"Password [blue]{name}[/] removed");
+        AnsiConsole.MarkupLine($"[green]Password [blue]{name}[/] removed[/]");
     }
 
     private void Generate(IReadOnlyList<string> args)
@@ -452,7 +488,7 @@ public class Cli
     {
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]password name argument required[/]");
+            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
             return;
         }
 
@@ -517,6 +553,7 @@ public class Cli
         var copy = false;
         var dontClear = false;
         var showMetadata = false;
+        var showPassword = false;
         var timeout = 10;
 
         foreach (var arg in args)
@@ -525,13 +562,18 @@ public class Cli
             {
                 case "-c":
                     copy = true;
-                    continue;
+                    break;
+
                 case "-f":
                     dontClear = true;
                     break;
 
                 case "-m":
                     showMetadata = true;
+                    break;
+
+                case "-p":
+                    showPassword = true;
                     break;
 
                 default:
@@ -545,6 +587,10 @@ public class Cli
             }
         }
 
+        if (copy && dontClear)
+        {
+            AnsiConsole.MarkupLine("[yellow]-f has no effect with -c[/]");
+        }
 
         var (password, error) = AppService.Instance.GetPassword(name, copy, timeout);
         if (error is not null)
@@ -555,7 +601,7 @@ public class Cli
 
         if (copy)
         {
-            AnsiConsole.MarkupLine("Password copied");
+            AnsiConsole.MarkupLine("[green]Password copied[/]");
             AnsiConsole.MarkupLine($"[yellow]Clipboard will be cleared in {timeout} seconds[/]");
             return;
         }
@@ -567,14 +613,17 @@ public class Cli
             DisplayMetadata(password.Metadata);
         }
 
-        DisplayPassword(password.Value);
+        if (!showMetadata || showPassword)
+        {
+            DisplayPassword(password.Value);
 
-        if (dontClear) return;
+            if (dontClear) return;
 
-        AnsiConsole.MarkupLine($"[yellow]Terminal will clear in {timeout} seconds[/]");
+            AnsiConsole.MarkupLine($"[yellow]Terminal will clear in {timeout} seconds[/]");
 
-        Thread.Sleep(timeout * 1000);
-        Console.Clear();
+            Thread.Sleep(timeout * 1000);
+            Console.Clear();
+        }
     }
 
     private void List()
@@ -595,20 +644,23 @@ public class Cli
 
     private void Init(IReadOnlyList<string> args)
     {
-        if (args.Count == 0 || string.IsNullOrEmpty(args[0]))
-        {
-            AnsiConsole.MarkupLine("[red]GPG key ID argument required[/]");
-            return;
-        }
+        var gpgId = AnsiConsole.Ask<string>("GPG ID: ");
 
-        var match = RegGpgKeyId.Match(args[0]);
-        if (!match.Success || match.Index != 0 || match.Length != args[0].Length)
+        var match = RegGpgKeyId.Match(gpgId);
+        if (!match.Success || match.Index != 0 || match.Length != gpgId.Length)
         {
             AnsiConsole.MarkupLine("[red]Invalid GPG key ID provided[/]");
             return;
         }
 
-        var (_, error) = AppService.Instance.InitializeStoreFolder(args[0]);
+        var gitUrl = AnsiConsole.Ask<string>("[bold yellow]Private[/] git remote URL (GitHub, GitLab, etc.): ");
+        if (string.IsNullOrEmpty(gitUrl))
+        {
+            AnsiConsole.MarkupLine("[red]Git URL was empty[/]");
+            return;
+        }
+
+        var (_, error) = AppService.Instance.InitializeStoreFolder(gpgId, gitUrl);
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");

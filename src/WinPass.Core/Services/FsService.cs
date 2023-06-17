@@ -42,10 +42,13 @@ public class FsService : IService
 
         var filePath = GetPath(name);
         var filePathBak = $"{filePath}.bak";
+        if (File.Exists(filePathBak)) File.Delete(filePathBak);
+
         File.Move(filePath, filePathBak);
-        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password.ToString());
+        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password.ToString(), true);
         if (errorInsertPassword is not null)
         {
+            if (File.Exists(filePath)) File.Delete(filePath);
             File.Move(filePathBak, filePath);
             return new ResultStruct<byte, Error?>(errorInsertPassword);
         }

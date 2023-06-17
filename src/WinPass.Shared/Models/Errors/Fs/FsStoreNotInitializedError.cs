@@ -5,7 +5,7 @@ namespace WinPass.Shared.Models.Errors.Fs;
 
 public class FsStoreNotInitializedError : Error
 {
-    public FsStoreNotInitializedError() : base("Store is not initialized", ErrorSeverity.Normal)
+    public FsStoreNotInitializedError() : base("Store is not initialized")
     {
     }
 }

@@ -15,17 +15,51 @@ public class GitService : IService
 
     #region Public methods
 
-    public void Execute(string[] args)
+    public bool Verify()
     {
-        ProcessHelper.Exec(Git, args, AppService.Instance.GetStorePath());
+        var (ok, result, error) = ProcessHelper.Exec(Git, new[] { "--version" });
+        return ok && result.StartsWith("git version") && string.IsNullOrEmpty(error);
+    }
+
+    public bool Clone(string url, string path)
+    {
+        var tmpPath = Path.GetTempPath();
+        var dirName = Path.GetFileName(url).Split(".git").FirstOrDefault() ?? string.Empty;
+        if (string.IsNullOrEmpty(dirName)) return false;
+
+        var dirPath = Path.Join(tmpPath, dirName);
+        if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
+
+        var (okClone, _, errorClone) = ProcessHelper.Exec(Git, new[] { "clone", url }, tmpPath);
+        if (!okClone || !errorClone.StartsWith("Cloning into"))
+        {
+            if (Directory.Exists(dirName)) Directory.Delete(dirName, true);
+        }
+
+        if (!Directory.Exists(dirPath)) return false;
+
+        Directory.Move(dirPath, path);
+        if (!Directory.Exists(Path.Join(path, ".git"))) return false;
+
+        var gpgIdFilePath = Path.Join(path, ".gpg-id");
+        if (File.Exists(gpgIdFilePath)) File.Delete(gpgIdFilePath);
+
+        return true;
+    }
+
+    public Tuple<string, string> Execute(string[] args)
+    {
+        var (_, result, error) = ProcessHelper.Exec(Git, args, AppService.Instance.GetStorePath());
+        return Tuple.Create(result, error);
     }
 
     public ResultStruct<byte, Error?> Commit(string message)
     {
-        var (okAdd, _, errorAdd) = ProcessHelper.Exec(Git, new[] { "add", "." });
+        var storePath = AppService.Instance.GetStorePath();
+        var (okAdd, _, errorAdd) = ProcessHelper.Exec(Git, new[] { "add", "." }, storePath);
         if (!okAdd || !string.IsNullOrEmpty(errorAdd)) return new ResultStruct<byte, Error?>(new GitAddFailedError());
 
-        var (okCommit, _, errorCommit) = ProcessHelper.Exec(Git, new[] { "commit", "-m", $"\"{message}\"" });
+        var (okCommit, _, errorCommit) = ProcessHelper.Exec(Git, new[] { "commit", "-m", $"\"{message}\"" }, storePath);
         if (!okCommit || !string.IsNullOrEmpty(errorCommit))
             return new ResultStruct<byte, Error?>(new GitCommitFailedError());
 

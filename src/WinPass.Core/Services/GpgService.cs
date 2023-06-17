@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using System.Diagnostics;
+using Spectre.Console;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
@@ -17,6 +18,12 @@ public class GpgService : IService
     #endregion
 
     #region Public methods
+
+    public bool Verify()
+    {
+        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[] { "--version" });
+        return ok && string.IsNullOrEmpty(error) && result.StartsWith("gpg (GnuPG)");
+    }
 
     public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
     {
@@ -55,7 +62,8 @@ public class GpgService : IService
 
         if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
-        var lines = result.FromBase64().Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var lines = result.FromBase64()
+            .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
 
         Password password = new(lines.First());
