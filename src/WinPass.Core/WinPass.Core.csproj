@@ -1,16 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <AssemblyVersion>1.0.0</AssemblyVersion>
-        <FileVersion>1.0.0</FileVersion>
-        <Authors>nomis51</Authors>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>nomis51</Authors>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
+  </ItemGroup>
 </Project>

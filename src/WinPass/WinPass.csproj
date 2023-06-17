@@ -1,29 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <AssemblyVersion>1.0.0</AssemblyVersion>
-        <FileVersion>1.0.0</FileVersion>
-        <Title>WinPass</Title>
-        <Authors>nomis51</Authors>
-        <Description>A Windows implementation of zx2c4 password-store</Description>
-        <PackageProjectUrl>https://github.com/nomis51/winpass</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/nomis51/winpass/LICENSE</PackageLicenseUrl>
-        <RepositoryUrl>https://github.com/nomis51/winpass</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>password manager store windows terminal pass</PackageTags>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\WinPass.Core\WinPass.Core.csproj" />
-      <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="squirrel.windows" Version="1.4.0" />
-    </ItemGroup>
-
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Title>WinPass</Title>
+    <Authors>nomis51</Authors>
+    <Description>A Windows implementation of zx2c4 password-store</Description>
+    <PackageProjectUrl>https://github.com/nomis51/winpass</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/nomis51/winpass/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/nomis51/winpass</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>password manager store windows terminal pass</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WinPass.Core\WinPass.Core.csproj" />
+    <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="squirrel.windows" Version="1.4.0" />
+  </ItemGroup>
 </Project>
