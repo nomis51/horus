@@ -22,8 +22,8 @@ foreach ($csprojFilePath in $csprojFilePaths) {
     $xmlDoc.Save($path)
 }
 
-# cd ..
-# git add .
-# $msg = "Version update $version"
-# git commit -m $msg
-# cd scripts
+cd ..
+git add .
+$msg = "Version update $version"
+git commit -m $msg
+cd scripts

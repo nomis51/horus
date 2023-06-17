@@ -10,6 +10,7 @@
     <license type="expression">GPL-3.0-only</license>
     <projectUrl>https://github.com/nomis51/winpass</projectUrl>
     <description>A Windows implementation of zx2c4 password-store</description>
+    <readme>lib\net45\README.md</readme>
   </metadata>
   <files>
     <file src="files\**" target="lib\net45" />
