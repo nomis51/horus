@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.Design;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Spectre.Console;
 using WinPass.Core.Services;
 using WinPass.Core.WinApi;
@@ -80,6 +78,10 @@ public class Cli
 
             case "cc":
                 ClearClipboard(commandArgs);
+                break;
+
+            default:
+                AnsiConsole.MarkupLine("[red]Invalid command[/]");
                 break;
         }
     }
