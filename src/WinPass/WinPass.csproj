@@ -21,6 +21,6 @@
     <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="squirrel.windows" Version="1.4.0" />
+    <PackageReference Include="squirrel.windows" Version="1.4.4" />
   </ItemGroup>
 </Project>

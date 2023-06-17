@@ -1,6 +1,4 @@
-﻿using Spectre.Console;
-
-namespace WinPass;
+﻿namespace WinPass;
 
 public static class Program
 {

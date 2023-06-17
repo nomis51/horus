@@ -34,7 +34,7 @@ if(Test-Path -Path ../release) {
 	Remove-Item -Force -Recurse ../release
 }
 
-&(Join-Path $env:USERPROFILE '.\.nuget\packages\squirrel.windows\1.4.0\tools\squirrel.exe') --releasify ("../build/WinPass." + $version + ".nupkg") --releaseDir "../release"
+&(Join-Path $env:USERPROFILE '.\.nuget\packages\squirrel.windows\1.4.4\tools\squirrel.exe') --releasify ("../build/WinPass." + $version + ".nupkg") --releaseDir "../release"
 
 Start-Sleep -s 7
 
