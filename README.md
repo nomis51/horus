@@ -1,2 +1,2 @@
-# winpass
-Windows implementation of password-store for the terminal
+# WinPass
+A Windows implementation of zx2c4 password-store
