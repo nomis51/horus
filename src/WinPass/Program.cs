@@ -8,13 +8,12 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        if (!args.Contains("update"))
+        {
+            Updater.Verify().Wait();
+        }
+
         new Cli().Run(args);
-        
-        // AnsiConsole.WriteLine("Enter arguments: ");
-        // var input = Console.ReadLine();
-        // if (string.IsNullOrEmpty(input)) return;
-        //
-        // new Cli().Run(input.Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));        
     }
 
     #endregion

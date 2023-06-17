@@ -87,6 +87,10 @@ public class Cli
                 Git(commandArgs);
                 break;
 
+            case "update":
+                Updater.Update().Wait();
+                break;
+
             case "cc":
                 ClearClipboard(commandArgs);
                 break;
