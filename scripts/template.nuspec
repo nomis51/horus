@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>WinPass</id>
+    <version>#{version}</version>
+    <title>WinPass</title>
+    <authors>nomis51</authors>
+    <owners>nomis51</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">GPL-3.0</license>
+    <projectUrl>https://github.com/nomis51/winpass</projectUrl>
+    <description>A Windows implementation of zx2c4 password-store</description>
+  </metadata>
+  <files>
+    <file src="files\**" target="lib\net45" />
+  </files>
+</package>
