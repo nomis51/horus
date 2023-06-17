@@ -7,7 +7,7 @@
     <authors>nomis51</authors>
     <owners>nomis51</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">GPL-3.0</license>
+    <license type="expression">GPL-3.0-only</license>
     <projectUrl>https://github.com/nomis51/winpass</projectUrl>
     <description>A Windows implementation of zx2c4 password-store</description>
   </metadata>
