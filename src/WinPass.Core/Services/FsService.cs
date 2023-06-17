@@ -31,6 +31,11 @@ public class FsService : IService
 
     #region Public methods
 
+    public string GetStorePath()
+    {
+        return _storeFolderPath;
+    }
+
     public ResultStruct<byte, Error?> EditEntry(string name, Password password)
     {
         if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());

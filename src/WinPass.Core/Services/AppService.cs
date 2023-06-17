@@ -38,6 +38,7 @@ public class AppService : IService
 
     private readonly FsService _fsService;
     private readonly GpgService _gpgService;
+    private readonly GitService _gitService;
 
     #endregion
 
@@ -47,28 +48,52 @@ public class AppService : IService
     {
         _fsService = new FsService();
         _gpgService = new GpgService();
+        _gitService = new GitService();
     }
 
     #endregion
 
     #region Public methods
 
+    public string GetStorePath()
+    {
+        return _fsService.GetStorePath();
+    }
+    
+    public void ExecuteGitCommand(string[] args)
+    {
+        _gitService.Execute(args);
+    }
+
     public ResultStruct<byte, Error?> EditPassword(string name, Password password)
     {
-        return _fsService.EditEntry(name, password);
+        var (_, error) = _fsService.EditEntry(name, password);
+        if (error is not null) return new ResultStruct<byte, Error?>(error);
+
+        var (_, errorGit) = GitCommit($"Edit password '{name}'");
+        return errorGit is not null ? new ResultStruct<byte, Error?>(errorGit) : new ResultStruct<byte, Error?>(0);
     }
 
     public ResultStruct<byte, Error?> RenamePassword(string name, string newName, bool duplicate = false)
     {
-        return _fsService.RenameEntry(name, newName, duplicate);
+        var (_, error) = _fsService.RenameEntry(name, newName, duplicate);
+        if (error is not null) return new ResultStruct<byte, Error?>(error);
+
+        var (_, errorGit) = GitCommit($"{(duplicate ? "Duplicate" : "Rename")} password '{name}' to '{newName}'");
+        return errorGit is not null ? new ResultStruct<byte, Error?>(errorGit) : new ResultStruct<byte, Error?>(0);
     }
 
     public ResultStruct<byte, Error?> DeletePassword(string name)
     {
-        return _fsService.DeleteEntry(name);
+        var (_, error) = _fsService.DeleteEntry(name);
+        if (error is not null) return new ResultStruct<byte, Error?>(error);
+
+        var (_, errorGit) = GitCommit($"Delete password '{name}'");
+        return errorGit is not null ? new ResultStruct<byte, Error?>(errorGit) : new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<string, Error?> GeneratePassword(string name, int length, string customAlphabet, bool copy)
+    public Result<string, Error?> GeneratePassword(string name, int length, string customAlphabet, bool copy,
+        int timeout)
     {
         var value = PasswordHelper.Generate(length, customAlphabet);
         var (_, error) = InsertPassword(name, value);
@@ -77,7 +102,7 @@ public class AppService : IService
         if (!copy) return new Result<string, Error?>(value);
         User32.SetClipboard(value);
 
-        ProcessHelper.Fork(new[] { "cc", "10" });
+        ProcessHelper.Fork(new[] { "cc", timeout.ToString() });
         return new Result<string, Error?>(value);
     }
 
@@ -101,13 +126,17 @@ public class AppService : IService
             return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
 
         var filePath = _fsService.GetPath(name);
-        var result = _gpgService.Encrypt(gpgKeyId, filePath, value);
-        return !_fsService.DoEntryExists(name)
-            ? new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"))
-            : result;
+        var (_, errorEncrypt) = _gpgService.Encrypt(gpgKeyId, filePath, value);
+        if (!_fsService.DoEntryExists(name))
+            return new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"));
+
+        if (errorEncrypt is not null) return new ResultStruct<byte, Error?>(errorEncrypt);
+
+        var (_, errorGit) = GitCommit($"Insert password '{name}'");
+        return errorGit is not null ? new ResultStruct<byte, Error?>(errorGit) : new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<Password?, Error?> GetPassword(string name, bool copy = false)
+    public Result<Password?, Error?> GetPassword(string name, bool copy = false, int timeout = 10)
     {
         if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
 
@@ -118,7 +147,7 @@ public class AppService : IService
 
         User32.SetClipboard(result.Item1.Value);
 
-        ProcessHelper.Fork(new[] { "cc", "10" });
+        ProcessHelper.Fork(new[] { "cc", timeout.ToString() });
         return result;
     }
 
@@ -140,6 +169,15 @@ public class AppService : IService
     public void Initialize()
     {
         _fsService.Initialize();
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private ResultStruct<byte, Error?> GitCommit(string message)
+    {
+        return _gitService.Commit(message);
     }
 
     #endregion

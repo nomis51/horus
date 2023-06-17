@@ -76,6 +76,10 @@ public class Cli
                 Help();
                 break;
 
+            case "git":
+                Git(commandArgs);
+                break;
+
             case "cc":
                 ClearClipboard(commandArgs);
                 break;
@@ -89,6 +93,11 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void Git(IEnumerable<string> args)
+    {
+        AppService.Instance.ExecuteGitCommand(args.ToArray());
+    }
 
     private void Help()
     {
@@ -168,7 +177,7 @@ public class Cli
             return;
         }
 
-        var name = args.Last();
+        var name = args[^1];
 
         var (password, error) = AppService.Instance.GetPassword(name);
         if (error is not null)
@@ -213,56 +222,59 @@ public class Cli
             }
 
             if (choice == "Cancel") break;
-            if (choice == "The password")
+            switch (choice)
             {
-                var newPassword = AnsiConsole.Prompt(
-                    new TextPrompt<string>("Enter the new password: ")
-                        .Secret(null)
-                );
-                if (string.IsNullOrWhiteSpace(newPassword))
+                case "The password":
                 {
-                    lastErrorMessage = "Password can't be empty";
+                    var newPassword = AnsiConsole.Prompt(
+                        new TextPrompt<string>("Enter the new password: ")
+                            .Secret(null)
+                    );
+                    if (string.IsNullOrWhiteSpace(newPassword))
+                    {
+                        lastErrorMessage = "Password can't be empty";
+                        continue;
+                    }
+
+                    var newPasswordConfirm = AnsiConsole.Prompt(
+                        new TextPrompt<string>("Confirm the new password: ")
+                            .Secret(null)
+                    );
+                    if (!newPassword.Equals(newPasswordConfirm))
+                    {
+                        lastErrorMessage = "Passwords don't match";
+                        continue;
+                    }
+
+                    password.Set(newPassword);
                     continue;
                 }
-
-                var newPasswordConfirm = AnsiConsole.Prompt(
-                    new TextPrompt<string>("Confirm the new password: ")
-                        .Secret(null)
-                );
-                if (!newPassword.Equals(newPasswordConfirm))
+                case "The metadata":
                 {
-                    lastErrorMessage = "Passwords don't match";
-                    continue;
+                    var items = password.Metadata.Select(m => $"[green]{m.Key}[/]: {m.Value}").ToList();
+                    var metadataChoice = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("Which metadata do you want to edit?")
+                            .AddChoices(
+                                items.Concat(new[] { "Cancel" })
+                            )
+                    );
+
+                    if (metadataChoice == "Cancel") continue;
+
+                    var index = items.IndexOf(metadataChoice);
+                    if (index == -1)
+                    {
+                        lastErrorMessage = "Metadata not found";
+                        continue;
+                    }
+
+                    password.Metadata[index].Key =
+                        AnsiConsole.Ask("Enter the [green]key[/]:", password.Metadata[index].Key);
+                    password.Metadata[index].Value =
+                        AnsiConsole.Ask("Enter the [green]value[/]:", password.Metadata[index].Value);
+                    break;
                 }
-
-                password.Set(newPassword);
-                continue;
-            }
-
-            if (choice == "The metadata")
-            {
-                var items = password.Metadata.Select(m => $"[green]{m.Key}[/]: {m.Value}").ToList();
-                var metadataChoice = AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title("Which metadata do you want to edit?")
-                        .AddChoices(
-                            items.Concat(new[] { "Cancel" })
-                        )
-                );
-
-                if (metadataChoice == "Cancel") continue;
-
-                var index = items.IndexOf(metadataChoice);
-                if (index == -1)
-                {
-                    lastErrorMessage = "Metadata not found";
-                    continue;
-                }
-
-                password.Metadata[index].Key =
-                    AnsiConsole.Ask("Enter the [green]key[/]:", password.Metadata[index].Key);
-                password.Metadata[index].Value =
-                    AnsiConsole.Ask("Enter the [green]value[/]:", password.Metadata[index].Value);
             }
         }
     }
@@ -275,7 +287,7 @@ public class Cli
             return;
         }
 
-        var name = args.Last();
+        var name = args[^1];
         var duplicate = false;
 
         for (var i = 0; i < args.Count - 1; ++i)
@@ -315,7 +327,7 @@ public class Cli
             : $"Password [blue]{name}[/] renamed to [blue]{newName}[/]");
     }
 
-    private void Delete(IReadOnlyList<string> args)
+    private void Delete(IReadOnlyCollection<string> args)
     {
         if (args.Count == 0)
         {
@@ -351,7 +363,7 @@ public class Cli
             return;
         }
 
-        var name = args.Last();
+        var name = args[^1];
         var length = 0;
         var customAlphabet = string.Empty;
         var copy = true;
@@ -393,7 +405,7 @@ public class Cli
             }
         }
 
-        var (password, error) = AppService.Instance.GeneratePassword(name, length, customAlphabet, copy);
+        var (password, error) = AppService.Instance.GeneratePassword(name, length, customAlphabet, copy, timeout);
 
         if (error is not null)
         {
@@ -534,7 +546,7 @@ public class Cli
         }
 
 
-        var (password, error) = AppService.Instance.GetPassword(name, copy);
+        var (password, error) = AppService.Instance.GetPassword(name, copy, timeout);
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
