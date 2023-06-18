@@ -5,24 +5,27 @@ A Windows implementation of zx2c4 password-store
 There are several implementations of `pass` targeting different platforms and needs, but the ones supporting Windows are either oudated, unmaintained, buggy or doesn't follow the philosophy of `pass` which is, being a simple, but efficient **terminal-based** password manager. This is why I created `winpass` : a pass-clone, zero configuration, terminal-based Windows password manager.
 
 ## Installation
-### Requirements
-- [Git](https://git-scm.com/download/win)
-- [GnuPG for Windows](https://gnupg.org/download/)
-- [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
-
-### Installation
+- Have [Git](https://git-scm.com/download/win) installed
+- Have [GnuPG for Windows](https://gnupg.org/download/) installed
+- Have [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) installed
 - Go to the [Release](https://github.com/nomis51/winpass/releases/latest) section
 - Download the `WinPass.zip` file
 - Extract anywhere you want
-- Execute `WinPass.exe` once
+- Execute `./WinPass.exe version`
 - Enjoy!
 
 Upon the first execution, `winpass` will add itself to the Windows `PATH` to make it globally available in the terminal. (You might need to restart your terminal)
 
+## Get started
+- Make sure you've created or imported your GPG keys
+- Make sure you have a **private** remote git repository created (e.g. GitHub, GitLab, etc.)
+- Make sure you have authenticated to that remote git repository (SSH, GPG, GitHub CLI, etc.)
+- Run `winpass init` and follow the instructions
+
 ## Update
 `winpass` will tell you if there's a new update available.
 
-To proceed, simply re-do the steps in the `Installation` section. You can simply replace the content of your *old* folder with the new update.
+To proceed, simply download the new version on [GitHub](https://github.com/nomis51/winpass/releases/latest) and replace the content of your *old* folder with the new update.
 
 ## Usage
 You can execute the command `winpass help` to see all the commands available.
