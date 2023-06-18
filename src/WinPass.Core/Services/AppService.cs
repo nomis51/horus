@@ -135,7 +135,7 @@ public class AppService : IService
         var filePath = _fsService.GetPath(name);
         if (name.Contains('/') || name.Contains('\\'))
         {
-            var dirName = Path.GetDirectoryName(filePath);
+            var dirName = Path.GetDirectoryName(filePath)!;
             if (!Directory.Exists(dirName))
             {
                 Directory.CreateDirectory(dirName);
