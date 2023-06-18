@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Newtonsoft.Json;
 using Spectre.Console;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Extensions;
@@ -47,7 +48,26 @@ public class GpgService : IService
         return !ok ? new ResultStruct<byte, Error?>(new GpgEncryptError(error)) : new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<Password?, Error?> Decrypt(string filePath)
+    public Result<Settings?, Error?> DecryptSettings(string filePath)
+    {
+        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
+        {
+            "--quiet",
+            "--yes",
+            "--compress-algo=none",
+            "--no-encrypt-to",
+            "-d",
+            filePath
+        });
+        if (!ok) return new Result<Settings?, Error?>(new GpgDecryptError(error));
+
+        if (string.IsNullOrWhiteSpace(result)) return new Result<Settings?, Error?>(new GpgDecryptError(error));
+
+        var data = result.FromBase64();
+        return new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data));
+    }
+
+    public Result<Password?, Error?> DecryptPassword(string filePath)
     {
         var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
         {

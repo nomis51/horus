@@ -5,6 +5,7 @@ using WinPass.Core.WinApi;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
+using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Fs;
 
 namespace WinPass;
@@ -95,6 +96,10 @@ public class Cli
                 ClearClipboard(commandArgs);
                 break;
 
+            case "config":
+                Config();
+                break;
+
             default:
                 AnsiConsole.MarkupLine("[red]Invalid command[/]");
                 break;
@@ -104,6 +109,69 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void Config()
+    {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{(new FsStoreNotInitializedError().Message)}[/]");
+            return;
+        }
+
+        var (settings, error) = AppService.Instance.GetSettings();
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
+
+        if (settings is null) return;
+
+        const string defaultLengthChoice = "Default generated password length";
+        const string defaultCustomAlphabet = "Default custom alphabet";
+        const string save = "Save";
+        const string cancel = "Cancel";
+
+        while (true)
+        {
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("What do you want to edit?")
+                    .AddChoices(
+                        defaultLengthChoice,
+                        defaultCustomAlphabet,
+                        save,
+                        cancel
+                    )
+            );
+
+            if (choice == cancel) return;
+
+            if (choice == save)
+            {
+                var (_, errorSave) = AppService.Instance.SaveSettings(settings);
+                if (errorSave is not null)
+                {
+                    AnsiConsole.MarkupLine($"[{GetErrorColor(errorSave.Severity)}]{errorSave.Message}[/]");
+                    return;
+                }
+
+                AnsiConsole.MarkupLine("[green]Settings saved[/]");
+                return;
+            }
+
+            if (choice == defaultLengthChoice)
+            {
+                settings.DefaultLength = AnsiConsole.Ask("Length (0 to reset to default): ", settings.DefaultLength);
+            }
+
+            if (choice == defaultCustomAlphabet)
+            {
+                var value = AnsiConsole.Ask("Alphabet (type r to reset to default", settings.DefaultCustomAlphabet);
+                settings.DefaultCustomAlphabet = value == "r" ? string.Empty : value;
+            }
+        }
+    }
 
     private void ShowVersion()
     {

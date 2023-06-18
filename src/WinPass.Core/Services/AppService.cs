@@ -56,6 +56,31 @@ public class AppService : IService
 
     #region Public methods
 
+    public bool IsStoreInitialized()
+    {
+        return _fsService.IsStoreInitialized();
+    }
+    
+    public ResultStruct<byte, Error?> SaveSettings(Settings settings)
+    {
+        return _fsService.SaveSettings(settings);
+    }
+
+    public Result<Settings?, Error?> GetSettings()
+    {
+        return _fsService.GetSettings();
+    }
+
+    public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
+    {
+        return _gpgService.Encrypt(key, filePath, value);
+    }
+
+    public Result<Settings?, Error?> DecryptSettings(string filePath)
+    {
+        return _gpgService.DecryptSettings(filePath);
+    }
+
     public ResultStruct<byte, Error?> Verify()
     {
         if (!_gpgService.Verify()) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
@@ -162,7 +187,7 @@ public class AppService : IService
         if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
 
         var filePath = _fsService.GetPath(name);
-        var result = _gpgService.Decrypt(filePath);
+        var result = _gpgService.DecryptPassword(filePath);
         if (!copy) return result;
         if (result.Item1 is null) return result;
 

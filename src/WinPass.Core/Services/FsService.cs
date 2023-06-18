@@ -5,6 +5,7 @@ using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
 using System.Security.AccessControl;
+using WinPass.Shared.Extensions;
 using WinPass.Shared.Models;
 
 namespace WinPass.Core.Services;
@@ -30,6 +31,22 @@ public class FsService : IService
     #endregion
 
     #region Public methods
+
+    public ResultStruct<byte, Error?> SaveSettings(Settings settings)
+    {
+        var filePath = Path.Join(_storeFolderPath, ".settings");
+        var value = settings.ToString();
+        var id = GetGpgId();
+        return AppService.Instance.Encrypt(id, filePath, value);
+    }
+
+    public Result<Settings?, Error?> GetSettings()
+    {
+        var filePath = Path.Join(_storeFolderPath, ".settings");
+        return !File.Exists(filePath)
+            ? new Result<Settings?, Error?>(new Settings())
+            : AppService.Instance.DecryptSettings(filePath);
+    }
 
     public string GetStorePath()
     {
@@ -139,17 +156,17 @@ public class FsService : IService
     {
     }
 
-    #endregion
-
-    #region Private methods
-
-    private bool IsStoreInitialized()
+    public bool IsStoreInitialized()
     {
         if (!Directory.Exists(_storeFolderPath)) return false;
 
         var gpgIdFilePath = Path.Join(_storeFolderPath, GpgIdFileName);
         return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
     }
+
+    #endregion
+
+    #region Private methods
 
     private void EnumerateGpgFiles(string path, List<StoreEntry> entries, string searchText = "")
     {
