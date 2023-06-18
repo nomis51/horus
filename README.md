@@ -37,6 +37,8 @@ You can execute the command `winpass help` to see all the commands available.
 | remove, delete [name]      | Remove the password named [name]                                  | None                                                                                                                                       | winpass remove github/work                       |      
 | rename, move [args] [name] | Rename or duplicate the pasword named [name]                      | -d : Duplicate the password instead of renaming it                                                                                         | winpass rename -d github/work                    |  
 | find, search, grep [text]  | Find passwords or metadata containing [text]                      | None                                                                                                                                       | winpass find "email: my-email@github.com"        |  
+| git | Execute git command on the password store repository | Any git arguments | winpass git status |
+| version | Show the version | None | winpass version |
 | help                       | Show the help                                                     | None                                                                                                                                       | winpass help                                     |
 
 
