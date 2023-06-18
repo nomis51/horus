@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Serilog;
 using Spectre.Console;
 using Squirrel;
 
@@ -18,7 +19,7 @@ public static class Updater
     {
         try
         {
-            using var updateManager = await UpdateManager.GitHubUpdateManager("https://github.com/nomis51/WinPass");
+            using var updateManager = await UpdateManager.GitHubUpdateManager("https://github.com/nomis51/winpass");
             var info = await updateManager.CheckForUpdate();
 
             if (!info.ReleasesToApply.Any())
@@ -29,6 +30,7 @@ public static class Updater
 
             AnsiConsole.MarkupLine("Updating...");
             await updateManager.UpdateApp();
+            Log.Information("Application updated");
             EnsureAppLinked();
         }
         catch (Exception e)
@@ -63,6 +65,7 @@ public static class Updater
 
         var newValue = oldValue + $";{path}";
         Environment.SetEnvironmentVariable(name, newValue, scope);
+        Log.Information("Application added to PATH");
     }
 
     private static async Task CheckForUpdate()
