@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using System.Reflection;
+using Serilog;
 using Serilog.Events;
 
 namespace WinPass;
@@ -9,8 +10,9 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        var dirName = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
         Log.Logger = new LoggerConfiguration()
-            .WriteTo.File("./logs/-.txt", LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+            .WriteTo.File(Path.Join(dirName, "..", "logs", ".txt"), LogEventLevel.Information, rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
         if (!args.Contains("update"))
