@@ -1,5 +1,5 @@
 # WinPass
-A Windows implementation of zx2c4 password-store
+A Windows implementation of [zx2c4 password-store](https://www.passwordstore.org/)
 
 ## Why?
 There are several implementations of `pass` targeting different platforms and needs, but the ones supporting Windows are either oudated, unmaintained, buggy or doesn't follow the philosophy of `pass` which is, being a simple, but efficient **terminal-based** password manager. This is why I created `winpass` : a pass-clone, zero configuration, terminal-based Windows password manager.
