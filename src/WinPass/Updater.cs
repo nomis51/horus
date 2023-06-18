@@ -45,10 +45,13 @@ public static class Updater
 
     private static void EnsureAppLinked()
     {
+#if (!DEBUG)
         var assembly = Assembly.GetEntryAssembly()!;
         var filePath = assembly.Location.Replace(".dll", ".exe");
 
-        AddToPath(Path.GetDirectoryName(filePath)!);
+        var dirName = Path.GetDirectoryName(filePath)!;
+        AddToPath(dirName);
+#endif
     }
 
     private static void AddToPath(string path)
@@ -62,6 +65,11 @@ public static class Updater
         }
 
         if (oldValue.Contains(path)) return;
+
+        oldValue = string.Join(";",
+            oldValue.Split(";", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Where(v => !v.Contains("WinPass")));
+
 
         var newValue = oldValue + $";{path}";
         Environment.SetEnvironmentVariable(name, newValue, scope);
