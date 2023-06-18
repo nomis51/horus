@@ -39,7 +39,7 @@ public class Cli
         switch (args[0])
         {
             case "init":
-                Init(commandArgs);
+                Init();
                 break;
 
             case "ls":
@@ -129,6 +129,7 @@ public class Cli
 
         const string defaultLengthChoice = "Default generated password length";
         const string defaultCustomAlphabet = "Default custom alphabet";
+        const string defaultClearTimeout = "Default clear timeout";
         const string save = "Save";
         const string cancel = "Cancel";
 
@@ -140,6 +141,7 @@ public class Cli
                     .AddChoices(
                         defaultLengthChoice,
                         defaultCustomAlphabet,
+                        defaultClearTimeout,
                         save,
                         cancel
                     )
@@ -162,13 +164,20 @@ public class Cli
 
             if (choice == defaultLengthChoice)
             {
-                settings.DefaultLength = AnsiConsole.Ask("Length (0 to reset to default): ", settings.DefaultLength);
+                settings.DefaultLength =
+                    AnsiConsole.Ask("Length (type 0 to reset to default): ", settings.DefaultLength);
             }
 
             if (choice == defaultCustomAlphabet)
             {
-                var value = AnsiConsole.Ask("Alphabet (type r to reset to default", settings.DefaultCustomAlphabet);
+                var value = AnsiConsole.Ask("Alphabet (type r to reset to default): ", settings.DefaultCustomAlphabet);
                 settings.DefaultCustomAlphabet = value == "r" ? string.Empty : value;
+            }
+
+            if (choice == defaultClearTimeout)
+            {
+                settings.ClearTimeout =
+                    AnsiConsole.Ask("Clear timeout (type 0 to reset to default): ", settings.ClearTimeout);
             }
         }
     }
@@ -181,6 +190,12 @@ public class Cli
 
     private void Git(IEnumerable<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{(new FsStoreNotInitializedError().Message)}[/]");
+            return;
+        }
+
         var (result, error) = AppService.Instance.ExecuteGitCommand(args.ToArray());
         AnsiConsole.WriteLine(result);
         AnsiConsole.WriteLine(error);
@@ -278,6 +293,12 @@ public class Cli
 
     private void Edit(IReadOnlyList<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         if (args.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]Password name argument required[/]");
@@ -408,6 +429,12 @@ public class Cli
 
     private void Rename(IReadOnlyList<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         if (args.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]Password name argument required[/]");
@@ -455,6 +482,12 @@ public class Cli
 
     private void Delete(IReadOnlyCollection<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         if (args.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]Password name argument required[/]");
@@ -482,17 +515,34 @@ public class Cli
 
     private void Generate(IReadOnlyList<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         if (args.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]Password name argument required[/]");
             return;
         }
 
+        var (settings, errorSettings) = AppService.Instance.GetSettings();
+        if (errorSettings is not null)
+        {
+            AnsiConsole.MarkupLine(
+                $"[yellow]Error while loading settings: {errorSettings.Message}. Using default settings instead.[/]");
+        }
+
         var name = args[^1];
-        var length = 0;
-        var customAlphabet = string.Empty;
+        var length = settings?.DefaultLength ?? 0;
+        var customAlphabet = settings?.DefaultCustomAlphabet ?? string.Empty;
         var copy = true;
-        var timeout = 10;
+        var timeout = settings?.ClearTimeout ?? 10;
+        if (timeout <= 0)
+        {
+            timeout = 10;
+        }
 
         for (var i = 0; i < args.Count - 1; ++i)
         {
@@ -520,11 +570,17 @@ public class Cli
             if (args[i].StartsWith("-t="))
             {
                 if (!int.TryParse(args[i].Split("-t=").Last(), out var intValue)) continue;
-                timeout = intValue;
+                timeout = intValue <= 0 ? 10 : intValue;
             }
         }
 
-        var (password, error) = AppService.Instance.GeneratePassword(name, length, customAlphabet, copy, timeout);
+        var (password, error) = AppService.Instance.GeneratePassword(
+            name,
+            length,
+            customAlphabet,
+            copy,
+            timeout
+        );
 
         if (error is not null)
         {
@@ -548,6 +604,12 @@ public class Cli
 
     private void Search(IReadOnlyList<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         if (args.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]Search term argument required[/]");
@@ -563,6 +625,12 @@ public class Cli
 
     private void Insert(IReadOnlyList<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         if (args.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]Password name argument required[/]");
@@ -618,6 +686,12 @@ public class Cli
 
     private void Show(List<string> args)
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         if (args.Count == 0 || string.IsNullOrEmpty(args[0]))
         {
             AnsiConsole.MarkupLine("[red]password name argument required[/]");
@@ -627,11 +701,22 @@ public class Cli
         var name = args[^1];
         args.RemoveAt(args.Count - 1);
 
+        var (settings, errorSettings) = AppService.Instance.GetSettings();
+        if (errorSettings is not null)
+        {
+            AnsiConsole.MarkupLine(
+                $"[yellow]Error while loading settings: {errorSettings.Message}. Using default settings instead.[/]");
+        }
+
         var copy = false;
         var dontClear = false;
         var showMetadata = false;
         var showPassword = false;
-        var timeout = 10;
+        var timeout = settings?.ClearTimeout ?? 10;
+        if (timeout <= 0)
+        {
+            timeout = 10;
+        }
 
         foreach (var arg in args)
         {
@@ -657,7 +742,7 @@ public class Cli
                     if (arg.StartsWith("-t="))
                     {
                         if (!int.TryParse(arg.Split("-t=").Last(), out var intValue)) continue;
-                        timeout = intValue;
+                        timeout = intValue <= 0 ? 10 : intValue;
                     }
 
                     break;
@@ -705,6 +790,12 @@ public class Cli
 
     private void List()
     {
+        if (!AppService.Instance.IsStoreInitialized())
+        {
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
+            return;
+        }
+
         var (entries, error) = AppService.Instance.ListStoreEntries();
         if (error is not null)
         {
@@ -719,7 +810,7 @@ public class Cli
         AnsiConsole.Write(tree);
     }
 
-    private void Init(IReadOnlyList<string> args)
+    private void Init()
     {
         var gpgId = AnsiConsole.Ask<string>("GPG ID: ");
 

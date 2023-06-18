@@ -60,7 +60,7 @@ public class AppService : IService
     {
         return _fsService.IsStoreInitialized();
     }
-    
+
     public ResultStruct<byte, Error?> SaveSettings(Settings settings)
     {
         return _fsService.SaveSettings(settings);
@@ -135,7 +135,7 @@ public class AppService : IService
         if (!copy) return new Result<string, Error?>(value);
         User32.SetClipboard(value);
 
-        ProcessHelper.Fork(new[] { "cc", timeout.ToString() });
+        ProcessHelper.Fork(new[] { "cc", timeout <= 0 ? "10" : timeout.ToString() });
         return new Result<string, Error?>(value);
     }
 
@@ -193,7 +193,7 @@ public class AppService : IService
 
         User32.SetClipboard(result.Item1.Value);
 
-        ProcessHelper.Fork(new[] { "cc", timeout.ToString() });
+        ProcessHelper.Fork(new[] { "cc", timeout <= 0 ? "10" : timeout.ToString() });
         return result;
     }
 
