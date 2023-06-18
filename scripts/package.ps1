@@ -16,3 +16,7 @@ New-Item -Name ../build -ItemType directory
 
 Copy-Item -Path ../src/WinPass/bin/Release/net6.0/* -Destination ../build -Include *.dll, *.exe, *.json
 Copy-Item -Path ../README.md -Destination ../build/README.md
+
+echo Packaging...
+Add-Type -Assembly "System.IO.Compression.FileSystem" ;
+[System.IO.Compression.ZipFile]::CreateFromDirectory("../build", "../build/WinPass.zip") ;
