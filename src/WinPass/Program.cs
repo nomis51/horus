@@ -18,14 +18,12 @@ public static class Program
                 rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
-        if (!args.Contains("update"))
+
+        var (hasUpdate, _, newVersion) = UpdateHelper.CheckForUpdate().Result;
+        if (hasUpdate)
         {
-            var (hasUpdate, _, newVersion) = UpdateHelper.CheckForUpdate().Result;
-            if (hasUpdate)
-            {
-                AnsiConsole.MarkupLine(
-                    $"[green]New version {newVersion} available! Go to https://github.com/nomis51/winpass to download the update[/]");
-            }
+            AnsiConsole.MarkupLine(
+                $"[green]New version {newVersion} available! Go to https://github.com/nomis51/winpass/releases/latest to download the update[/]");
         }
 
         UpdateHelper.EnsureAppLinked();
