@@ -461,12 +461,6 @@ public class Cli
         DisplayPassword(password);
         password = string.Empty;
         GC.Collect();
-
-        if (dontClear) return;
-        AnsiConsole.MarkupLine($"[yellow]Terminal will clear in {timeout} second(s)[/]");
-
-        Thread.Sleep(timeout * 1000);
-        Console.Clear();
     }
 
     private void Search(IReadOnlyList<string> args)
