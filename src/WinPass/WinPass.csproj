@@ -4,9 +4,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <FileVersion>1.0.0</FileVersion>
-    <PackageVersion>1.0.0</PackageVersion>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <FileVersion>0.1.0</FileVersion>
+    <PackageVersion>0.1.0</PackageVersion>
     <Title>WinPass</Title>
     <Authors>nomis51</Authors>
     <Description>A Windows implementation of zx2c4 password-store</Description>
