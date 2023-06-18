@@ -123,9 +123,9 @@ public class Cli
         table.AddColumn("Example");
 
         table.AddRow(
-            "winpass init [gpg-id]".EscapeMarkup(),
-            "Initialize the password store using the GPG ID provided",
-            "winpass init A034B347F727EAA5"
+            "winpass init".EscapeMarkup(),
+            "Initialize the password store",
+            "winpass init"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
@@ -148,7 +148,7 @@ public class Cli
         table.AddRow(
             "winpass (insert|add) [name]".EscapeMarkup(),
             "Insert a new password named [name]".EscapeMarkup(),
-            "winpass add -m github/work"
+            "winpass add github/work"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
@@ -173,12 +173,12 @@ public class Cli
             "Rename or duplicate the password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
                 "-d : Duplicate the password named [name] instead of renaming it".EscapeMarkup()
             ),
-            "winpass generate -s=12 -a=abc123 -c github/work"
+            "winpass rename github/work"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (find|search|grep) [text]".EscapeMarkup(),
-            "Find passwords or metadata containing [text]".EscapeMarkup() +
+            "Find passwords or metadata containing [text]".EscapeMarkup(),
             "winpass find \"email: my-email@github.com\""
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
