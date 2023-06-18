@@ -188,6 +188,12 @@ public class Cli
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
+            "winpass git [args]",
+            "Execute git command on the password store repository",
+            "winpass git status"
+        );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
+        table.AddRow(
             "winpass help",
             "Show the help (this)",
             "winpass help"
