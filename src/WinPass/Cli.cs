@@ -1,5 +1,4 @@
-﻿using System.Formats.Asn1;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Spectre.Console;
 using WinPass.Core.Services;
 using WinPass.Core.WinApi;
@@ -134,7 +133,7 @@ public class Cli
             "winpass show [args] [name]".EscapeMarkup(),
             "Show the password requested by [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
                 "-c : Copy the password to the clipboard instead of showing it",
-                "-m : Also show metadata of the password if any (Dont' show the password)",
+                "-m : Show metadata of the password if any (Don't show the password)",
                 "-f : Don't automatically clear the terminal after a while",
                 "-p : Show the password when -m is provided"
             ),
@@ -152,8 +151,7 @@ public class Cli
             "Generate a new password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
                 "-s : Size of the password (default: 20)",
                 "-a : Custom alphabet to generate the password",
-                "-c : Copy the password to the clipboard instead of showing it",
-                "-f : Don't automatically clear the terminal after a while"
+                "-c : Copy the password to the clipboard instead of showing it"
             ),
             "winpass generate -s=12 -a=abc123 -c github/work"
         );
@@ -403,7 +401,6 @@ public class Cli
         var length = 0;
         var customAlphabet = string.Empty;
         var copy = true;
-        var dontClear = false;
         var timeout = 10;
 
         for (var i = 0; i < args.Count - 1; ++i)
@@ -427,11 +424,6 @@ public class Cli
             if (args[i] == "-c")
             {
                 copy = false;
-            }
-
-            if (args[i] == "-f")
-            {
-                dontClear = true;
             }
 
             if (args[i].StartsWith("-t="))
