@@ -3,6 +3,7 @@ using Spectre.Console;
 using WinPass.Core.Services;
 using WinPass.Core.WinApi;
 using WinPass.Shared.Enums;
+using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Fs;
 
@@ -82,6 +83,10 @@ public class Cli
                 Help();
                 break;
 
+            case "version":
+                ShowVersion();
+                break;
+
             case "git":
                 Git(commandArgs);
                 break;
@@ -99,6 +104,12 @@ public class Cli
     #endregion
 
     #region Commands
+
+    private void ShowVersion()
+    {
+        var version = VersionHelper.GetVersion();
+        AnsiConsole.MarkupLine($"winpass version {version.Major}.{version.Minor}.{version.Build}");
+    }
 
     private void Git(IEnumerable<string> args)
     {
@@ -180,6 +191,12 @@ public class Cli
             "winpass help",
             "Show the help (this)",
             "winpass help"
+        );
+        table.AddRow(string.Empty, string.Empty, string.Empty);
+        table.AddRow(
+            "winpass version",
+            "Show the version",
+            "winpass version"
         );
 
         AnsiConsole.Write(table);
