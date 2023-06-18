@@ -14,7 +14,7 @@ public static class Program
     {
         var dirName = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
         Log.Logger = new LoggerConfiguration()
-            .WriteTo.File(Path.Join(dirName, "..", "logs", ".txt"), LogEventLevel.Information,
+            .WriteTo.File(Path.Join(dirName, "logs", ".txt"), LogEventLevel.Information,
                 rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
