@@ -598,7 +598,7 @@ public class Cli
         AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated");
 
         DisplayPassword(password);
-        password = string.Empty;
+        password = null;
         GC.Collect();
     }
 
@@ -754,7 +754,7 @@ public class Cli
             AnsiConsole.MarkupLine("[yellow]-f has no effect with -c[/]");
         }
 
-        var (password, error) = AppService.Instance.GetPassword(name, copy, timeout);
+        var (password, error) = AppService.Instance.GetPassword(name, copy, timeout, onlyMetadata: !showPassword);
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
@@ -778,6 +778,9 @@ public class Cli
         if (!showMetadata || showPassword)
         {
             DisplayPassword(password.Value);
+            password.Dispose();
+            password = null;
+            GC.Collect();
 
             if (dontClear) return;
 
@@ -871,6 +874,7 @@ public class Cli
         table.AddRow($"Password is [yellow]{value.EscapeMarkup()}[/]");
         AnsiConsole.Write(table);
         table.Rows.Clear();
+        table = null;
         GC.Collect();
     }
 

@@ -1,11 +1,8 @@
 ﻿using WinPass.Shared.Abstractions;
-using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
 using WinPass.Shared.Models.Fs;
-using System.Security.AccessControl;
-using WinPass.Shared.Extensions;
 using WinPass.Shared.Models;
 
 namespace WinPass.Core.Services;
@@ -66,6 +63,8 @@ public class FsService : IService
 
             password.Set(existingPassword.Value);
             existingPassword.Dispose();
+            existingPassword = null;
+            GC.Collect();
         }
 
         var filePathBak = $"{filePath}.bak";
@@ -75,6 +74,8 @@ public class FsService : IService
 
         var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password.ToString(), true);
         password.Dispose();
+        password = null;
+        GC.Collect();
         if (errorInsertPassword is not null)
         {
             if (File.Exists(filePath)) File.Delete(filePath);
