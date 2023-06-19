@@ -73,7 +73,7 @@ public class GpgService : IService
 
         if (string.IsNullOrWhiteSpace(result)) return new Result<Settings?, Error?>(new GpgDecryptError(error));
 
-        var data = result.FromBase64();
+        var data = result.IsBase64() ? result.FromBase64() : result;
         return new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data));
     }
 
@@ -92,7 +92,7 @@ public class GpgService : IService
 
         if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
-        var lines = result.FromBase64()
+        var lines = (result.IsBase64() ? result.FromBase64() : result)
             .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
 
