@@ -31,7 +31,6 @@ public static class Program
 
         try
         {
-        throw new StackOverflowException();
             new Cli().Run(args);
         }
         catch (Exception e)

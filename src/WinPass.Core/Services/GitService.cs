@@ -1,4 +1,5 @@
-﻿using WinPass.Shared.Abstractions;
+﻿using Serilog;
+using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Git;
@@ -17,8 +18,16 @@ public class GitService : IService
 
     public bool Verify()
     {
-        var (ok, result, error) = ProcessHelper.Exec(Git, new[] { "--version" });
-        return ok && result.StartsWith("git version") && string.IsNullOrEmpty(error);
+        try
+        {
+            var (ok, result, error) = ProcessHelper.Exec(Git, new[] { "--version" });
+            return ok && result.StartsWith("git version") && string.IsNullOrEmpty(error);
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Unable to verify git installation: {Message}", e.Message);
+            return false;
+        }
     }
 
     public bool Clone(string url, string path)

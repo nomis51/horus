@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Newtonsoft.Json;
+using Serilog;
 using Spectre.Console;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Extensions;
@@ -22,8 +23,17 @@ public class GpgService : IService
 
     public bool Verify()
     {
-        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[] { "--version" });
-        return ok && string.IsNullOrEmpty(error) && result.StartsWith("gpg (GnuPG)");
+        try
+        {
+            var (ok, result, error) = ProcessHelper.Exec(Gpg, new[] { "--version" });
+            return ok && string.IsNullOrEmpty(error) && result.StartsWith("gpg (GnuPG)");
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Unable to verify GnuPG installation: {Message}", e.Message);
+        }
+
+        return false;
     }
 
     public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
