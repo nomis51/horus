@@ -1,4 +1,4 @@
-![WinPass logo](./.assets/winpass.png)
+![WinPass logo](https://github.com/nomis51/winpass/blob/master/.assets/winpass.png)
 A Windows implementation of [zx2c4 password-store](https://www.passwordstore.org/)
 
 ## Why?
