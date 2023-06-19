@@ -15,8 +15,9 @@ public static class StringExtensions
 
     public static bool IsBase64(this string value)
     {
-        var match = RegBase64.Match(value);
-        return match is { Success: true, Index: 0 } && match.Length == value.Length;
+        var trimmedValue = value.TrimEnd('\n', '\r').Trim();
+        var match = RegBase64.Match(trimmedValue);
+        return match is { Success: true, Index: 0 } && match.Length == trimmedValue.Length;
     }
 
     public static string ToBase64(this string value)

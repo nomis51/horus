@@ -77,7 +77,7 @@ public class GpgService : IService
         return new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data));
     }
 
-    public Result<Password?, Error?> DecryptPassword(string filePath)
+    public Result<Password?, Error?> DecryptPassword(string filePath, bool onlyMetadata = false)
     {
         var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
         {
@@ -96,7 +96,7 @@ public class GpgService : IService
             .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
 
-        Password password = new(lines.First());
+        Password password = new(onlyMetadata ? string.Empty : lines.First());
 
         for (var i = 1; i < lines.Length; ++i)
         {
@@ -105,6 +105,9 @@ public class GpgService : IService
 
             password.Metadata.Add(new Metadata(parts[0], string.Join(string.Empty, parts.Skip(1))));
         }
+
+        lines[0] = string.Empty;
+        GC.Collect();
 
         return new Result<Password?, Error?>(password);
     }

@@ -307,7 +307,7 @@ public class Cli
 
         var name = args[^1];
 
-        var (password, error) = AppService.Instance.GetPassword(name);
+        var (password, error) = AppService.Instance.GetPassword(name, onlyMetadata: true);
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");

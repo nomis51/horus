@@ -182,12 +182,12 @@ public class AppService : IService
         return new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<Password?, Error?> GetPassword(string name, bool copy = false, int timeout = 10)
+    public Result<Password?, Error?> GetPassword(string name, bool copy = false, int timeout = 10, bool onlyMetadata = false)
     {
         if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
 
         var filePath = _fsService.GetPath(name);
-        var result = _gpgService.DecryptPassword(filePath);
+        var result = _gpgService.DecryptPassword(filePath, onlyMetadata);
         if (!copy) return result;
         if (result.Item1 is null) return result;
 

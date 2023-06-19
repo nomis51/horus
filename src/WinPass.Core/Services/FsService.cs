@@ -58,11 +58,23 @@ public class FsService : IService
         if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
 
         var filePath = GetPath(name);
+        if (string.IsNullOrEmpty(password.Value))
+        {
+            var (existingPassword, errorExistingPassword) = AppService.Instance.GetPassword(name);
+            if (errorExistingPassword is not null || existingPassword is null)
+                return new ResultStruct<byte, Error?>(new FsEditPasswordFailedError());
+
+            password.Set(existingPassword.Value);
+            existingPassword.Dispose();
+        }
+
         var filePathBak = $"{filePath}.bak";
         if (File.Exists(filePathBak)) File.Delete(filePathBak);
 
         File.Move(filePath, filePathBak);
+
         var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password.ToString(), true);
+        password.Dispose();
         if (errorInsertPassword is not null)
         {
             if (File.Exists(filePath)) File.Delete(filePath);
