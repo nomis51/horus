@@ -13,8 +13,9 @@ public static class Program
     public static void Main(string[] args)
     {
         var dirName = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
+        var logDir = Path.Join(dirName, "logs");
         Log.Logger = new LoggerConfiguration()
-            .WriteTo.File(Path.Join(dirName, "logs", ".txt"), LogEventLevel.Information,
+            .WriteTo.File(Path.Join(logDir, ".txt"), LogEventLevel.Information,
                 rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
@@ -30,12 +31,14 @@ public static class Program
 
         try
         {
+        throw new StackOverflowException();
             new Cli().Run(args);
         }
         catch (Exception e)
         {
             Log.Error("Unexpected error occured: {Message}{Skip}{CallStack}", e.Message, Environment.NewLine,
                 e.StackTrace);
+            AnsiConsole.MarkupLine($"[red]An error occured. Please see the logs at {logDir}[/]");
         }
     }
 
