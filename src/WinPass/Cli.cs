@@ -271,7 +271,7 @@ public class Cli
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
-            "winpass git [args]",
+            "winpass git [args]".EscapeMarkup(),
             "Execute git command on the password store repository",
             "winpass git status"
         );
