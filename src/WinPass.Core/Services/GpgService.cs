@@ -38,23 +38,10 @@ public class GpgService : IService
 
     public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
     {
-        var (ok, result, error) = ProcessHelper.Exec("cmd", new[]
-        {
-            "/c",
-            "echo",
-            value.ToBase64(),
-            "|",
-            Gpg,
-            "--quiet",
-            "--yes",
-            "--compress-algo=none",
-            "--no-encrypt-to",
-            "-e",
-            "-r",
-            key,
-            "-o",
-            filePath
-        });
+        var (ok, _, error) = ProcessHelper.Exec(
+            "cmd",
+            PrepareEncryptArgs(value, key, filePath)
+        );
         return !ok ? new ResultStruct<byte, Error?>(new GpgEncryptError(error)) : new ResultStruct<byte, Error?>(0);
     }
 
@@ -71,10 +58,9 @@ public class GpgService : IService
         });
         if (!ok) return new Result<Settings?, Error?>(new GpgDecryptError(error));
 
-        if (string.IsNullOrWhiteSpace(result)) return new Result<Settings?, Error?>(new GpgDecryptError(error));
-
-        var data = result.IsBase64() ? result.FromBase64() : result;
-        return new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data));
+        return string.IsNullOrWhiteSpace(result)
+            ? new Result<Settings?, Error?>(new GpgDecryptError(error))
+            : new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(result));
     }
 
     public Result<Password?, Error?> DecryptPassword(string filePath, bool onlyMetadata = false)
@@ -92,8 +78,8 @@ public class GpgService : IService
 
         if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
-        var lines = (result.IsBase64() ? result.FromBase64() : result)
-            .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var lines = result
+            .Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
         if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
 
         Password password = new(onlyMetadata ? string.Empty : lines.First());
@@ -124,6 +110,42 @@ public class GpgService : IService
 
     public void Initialize()
     {
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private string[] PrepareEncryptArgs(string value, string key, string filePath)
+    {
+        var parts = value.Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var args = new List<string> { "/c", "(" };
+
+        for (var i = 0; i < parts.Length; ++i)
+        {
+            args.Add($"echo {parts[i]}");
+            if (i + 1 < parts.Length)
+            {
+                args.Add(" & ");
+            }
+        }
+
+        args.Add(")");
+
+        return args.Concat(new[]
+        {
+            "|",
+            Gpg,
+            "--quiet",
+            "--yes",
+            "--compress-algo=none",
+            "--no-encrypt-to",
+            "-e",
+            "-r",
+            key,
+            "-o",
+            filePath
+        }).ToArray();
     }
 
     #endregion
