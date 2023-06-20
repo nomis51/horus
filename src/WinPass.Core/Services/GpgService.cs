@@ -77,12 +77,14 @@ public class GpgService : IService
         if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
         var lines = result
-            .Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Select(v => v.Trim('\r'))
+            .ToList();
         if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
 
         Password password = new(onlyMetadata ? string.Empty : lines.First());
 
-        for (var i = 1; i < lines.Length; ++i)
+        for (var i = 1; i < lines.Count; ++i)
         {
             var parts = lines[i].Split(":", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length < 2) continue;
@@ -90,7 +92,8 @@ public class GpgService : IService
             password.Metadata.Add(new Metadata(parts[0], string.Join(string.Empty, parts.Skip(1))));
         }
 
-        lines[0] = string.Empty;
+        lines.Clear();
+        lines = null;
         GC.Collect();
 
         return new Result<Password?, Error?>(password);
