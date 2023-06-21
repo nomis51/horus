@@ -96,8 +96,42 @@ public class GpgService : IService
 
         if (!result.IsBase64())
         {
-            // TODO: pass password
-            throw new NotImplementedException();
+            // Handles pass passwords
+            var lines = result
+                .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(v => v.Trim('\r'))
+                .ToList();
+            if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
+
+            var password = new Password
+            {
+                Value = lines.First(),
+                Metadata = lines.Skip(1)
+                    .Select(l =>
+                    {
+                        var index = l.IndexOf(":", StringComparison.Ordinal);
+                        if (index == -1 || index + 1 >= l.Length) return null;
+
+                        Metadata m = new(
+                            l[..index],
+                            l[(index + 1)..]
+                        );
+                        return m;
+                    })
+                    .Where(m => m is not null)
+                    .ToList()!
+            };
+
+            lines.Clear();
+            lines = null;
+            GC.Collect();
+
+            if (onlyMetadata)
+            {
+                password.Dispose();
+            }
+
+            return new Result<Password?, Error?>(password);
         }
 
         try
