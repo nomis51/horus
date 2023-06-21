@@ -544,7 +544,7 @@ public class Cli
 
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("cli.args.passwordNameRequired")}[/]");
             return;
         }
 
@@ -552,7 +552,7 @@ public class Cli
         if (errorSettings is not null)
         {
             AnsiConsole.MarkupLine(
-                $"[yellow]Error while loading settings: {errorSettings.Message}. Using default settings instead.[/]");
+                $"[yellow]{Locale.Get("error.loadingSettings", new[] { errorSettings.Message })}[/]");
         }
 
         var name = args[^1];
@@ -611,12 +611,12 @@ public class Cli
 
         if (copy)
         {
-            AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated and [yellow]copied[/]");
-            AnsiConsole.MarkupLine($"[yellow]Clipboard will be cleared in {timeout} second(s)[/]");
+            AnsiConsole.MarkupLine(Locale.Get("passwordGeneratedAndCopied", new[] { name }));
+            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("clipboardWillCleared", new[] { timeout.ToString() })}[/]");
             return;
         }
 
-        AnsiConsole.MarkupLine($"Password for [blue]{name}[/] generated");
+        AnsiConsole.MarkupLine(Locale.Get("passwordGenerated", new[] { name }));
 
         DisplayPassword(password);
         password = null;
@@ -633,7 +633,7 @@ public class Cli
 
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]Search term argument required[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("cli.args.searchTermRequired")}[/]");
             return;
         }
 
@@ -654,7 +654,7 @@ public class Cli
 
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("cli.args.passwordNameRequired")}[/]");
             return;
         }
 
@@ -662,27 +662,27 @@ public class Cli
 
         if (AppService.Instance.DoEntryExists(name))
         {
-            AnsiConsole.MarkupLine($"[red]Password for {name} already exists[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("passwordAlreadyExists", new[] { name })}[/]");
             return;
         }
 
         var password = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter the new password: ")
+            new TextPrompt<string>($"{Locale.Get("enterPassword")}: ")
                 .Secret(null)
         );
         if (string.IsNullOrWhiteSpace(password))
         {
-            AnsiConsole.MarkupLine("[red]Password can't be empty[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordEmpty")}[/]");
             return;
         }
 
         var passwordConfirm = AnsiConsole.Prompt(
-            new TextPrompt<string>("Confirm the new password: ")
+            new TextPrompt<string>($"{Locale.Get("confirmPassword")}: ")
                 .Secret(null)
         );
         if (!password.Equals(passwordConfirm))
         {
-            AnsiConsole.MarkupLine("[red]Passwords don't match[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordsDontMatch")}[/]");
             return;
         }
 
@@ -693,7 +693,7 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"Password for [blue]{name}[/] created");
+        AnsiConsole.MarkupLine(Locale.Get("passwordCreated", new[] { name }));
     }
 
     private void ClearClipboard(IReadOnlyList<string> args)
@@ -715,7 +715,7 @@ public class Cli
 
         if (args.Count == 0 || string.IsNullOrEmpty(args[0]))
         {
-            AnsiConsole.MarkupLine("[red]password name argument required[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("cli.args.passwordNameRequired")}[/]");
             return;
         }
 
@@ -726,7 +726,7 @@ public class Cli
         if (errorSettings is not null)
         {
             AnsiConsole.MarkupLine(
-                $"[yellow]Error while loading settings: {errorSettings.Message}. Using default settings instead.[/]");
+                $"[yellow]{Locale.Get("error.loadingSettings", new[] { errorSettings.Message })}[/]");
         }
 
         var copy = false;
@@ -772,7 +772,7 @@ public class Cli
 
         if (copy && dontClear)
         {
-            AnsiConsole.MarkupLine("[yellow]-f has no effect with -c[/]");
+            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("argfNoEfectWithArgc")}[/]");
         }
 
         var (password, error) =
@@ -785,8 +785,8 @@ public class Cli
 
         if (copy)
         {
-            AnsiConsole.MarkupLine("[green]Password copied[/]");
-            AnsiConsole.MarkupLine($"[yellow]Clipboard will be cleared in {timeout} seconds[/]");
+            AnsiConsole.MarkupLine($"[green]{Locale.Get("passwordCopied")}[/]");
+            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("clipboardWillCleared", new[] { timeout.ToString() })}[/]");
             return;
         }
 
@@ -806,7 +806,7 @@ public class Cli
 
             if (dontClear) return;
 
-            AnsiConsole.MarkupLine($"[yellow]Terminal will clear in {timeout} seconds[/]");
+            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("terminalWillCleared", new[] { timeout.ToString() })}[/]");
 
             Thread.Sleep(timeout * 1000);
             Console.Clear();
@@ -837,19 +837,19 @@ public class Cli
 
     private void Init()
     {
-        var gpgId = AnsiConsole.Ask<string>("GPG ID: ");
+        var gpgId = AnsiConsole.Ask<string>($"{Locale.Get("questions.gpgId")}: ");
 
         var match = RegGpgKeyId.Match(gpgId);
         if (!match.Success || match.Index != 0 || match.Length != gpgId.Length)
         {
-            AnsiConsole.MarkupLine("[red]Invalid GPG key ID provided[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.invalidGpgKey")}[/]");
             return;
         }
 
-        var gitUrl = AnsiConsole.Ask<string>("[bold yellow]Private[/] git remote URL (GitHub, GitLab, etc.): ");
+        var gitUrl = AnsiConsole.Ask<string>($"{Locale.Get("questions.gitRepositoryUrl")}: ");
         if (string.IsNullOrEmpty(gitUrl))
         {
-            AnsiConsole.MarkupLine("[red]Git URL was empty[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.gitUrlEmpty")}[/]");
             return;
         }
 
@@ -860,7 +860,7 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine("[green]Store initialized[/]");
+        AnsiConsole.MarkupLine($"[green]{Locale.Get("storeInitialized")}[/]");
     }
 
     #endregion

@@ -83,10 +83,32 @@ public static class Locale
                     "questions.confirmWantsToRenamePassword",
                     "Are you sure you want to [yellow]{0}[/] the password [blue]{1}[/] into [yellow]{2}[/]? [blue](y/n)[/]"
                 },
-                {"passwordDuplicated", "Password [blue]{0}[/] duplicated to [blue]{1}[/]"},
-                {"passwordRenamed", "Password [blue]{0}[/] renamed to [blue]{1}[/]"},
-                {"questions.confirmDeletePassword", "Are you sure you want to delete the password [blue]{0}[/]? [blue](y/n)[/]"},
-                {"passwordRemoved","Password [blue]{0}[/] removed"},
+                { "passwordDuplicated", "Password [blue]{0}[/] duplicated to [blue]{1}[/]" },
+                { "passwordRenamed", "Password [blue]{0}[/] renamed to [blue]{1}[/]" },
+                {
+                    "questions.confirmDeletePassword",
+                    "Are you sure you want to delete the password [blue]{0}[/]? [blue](y/n)[/]"
+                },
+                { "passwordRemoved", "Password [blue]{0}[/] removed" },
+                { "error.loadingSettings", "Error while loading settings: {0}. Using default settings instead" },
+                { "passwordGeneratedAndCopied", "Password for [blue]{0}[/] generated and [yellow]copied[/]" },
+                { "clipboardWillCleared", "Clipboard will be cleared in {0} second(s)" },
+                { "passwordGenerated", "Password for [blue]{0}[/] generated" },
+                { "cli.args.searchTermRequired", "Search term argument required" },
+                { "passwordAlreadyExists", "Password for {0} already exists" },
+                { "enterPassword", "Enter the new password" },
+                { "error.passwordEmpty", "Password can't be empty" },
+                { "confirmPassword", "Confirm the new password" },
+                { "error.passwordsDontMatch", "Passwords don't match" },
+                { "passwordCreated", "Password for [blue]{0}[/] created" },
+                { "argfNoEfectWithArgc", "-f has no effect with -c" },
+                { "passwordCopied", "Password copied" },
+                { "terminalWillCleared", "Terminal will clear in {0} second(s)" },
+                { "error.invalidGpgKey", "Invalid GPG key ID provide" },
+                { "questions.gpgId", "GPG ID" },
+                { "questions.gitRepositoryUrl", "[bold yellow]Private[/] git remote URL (GitHub, GitLab, etc.)" },
+                { "error.gitUrlEmpty", "Git URL was empty" },
+                { "storeInitialized", "Store initialized" },
             }
         },
 
@@ -106,12 +128,14 @@ public static class Locale
 
     #region Public methods
 
-    public static string Get(string name, string[]? args = null, string language = English)
+    public static string Get(string name, object[]? args = null, string language = English)
     {
         if (!Translations.ContainsKey(language)) return $"('{language}' translations missing)";
         return !Translations[language].ContainsKey(name)
             ? $"('{language}' translation missing for '{name}')"
-            : string.Format(Translations[language][name], args);
+            : args is null
+                ? Translations[language][name]
+                : string.Format(Translations[language][name], args);
     }
 
     #endregion
