@@ -155,14 +155,33 @@ public class GpgService : IService
         }
     }
 
-    public bool DoKeyExists(string key)
+    public bool IsKeyValid(string key)
     {
         var (ok, result, error) = ProcessHelper.Exec(Gpg, new[] { "--list-keys", key });
         if (error.StartsWith("gpg: error reading key: No public key")) return false;
-        if (ok) return string.IsNullOrEmpty(error) && result.StartsWith("pub");
+        if (!ok || !string.IsNullOrEmpty(error) || !result.StartsWith("pub"))
+        {
+            AnsiConsole.MarkupLine("[red]Unable to verify GPG key[/]");
+            return false;
+        }
 
-        AnsiConsole.MarkupLine("[red]Unable to verify GPG key[/]");
-        return false;
+        const string expireLabel = "[E] [expire : ";
+        var expireLine = result.Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault(l => l.Contains(expireLabel));
+        if (string.IsNullOrEmpty(expireLine)) return false;
+
+        var startIndex = expireLine.IndexOf(expireLabel, StringComparison.Ordinal);
+        if (startIndex == -1) return false;
+
+        startIndex += expireLabel.Length;
+
+        var endIndex = expireLine.LastIndexOf("]", StringComparison.Ordinal);
+        if (endIndex == -1 || endIndex <= startIndex) return false;
+
+        var date = expireLine[startIndex..endIndex];
+        if (!DateTime.TryParse(date, out var dateTime)) return false;
+
+        return dateTime > DateTime.Now;
     }
 
     public void Initialize()

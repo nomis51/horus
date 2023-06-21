@@ -206,8 +206,8 @@ public class FsService : IService
         var result = CreateStoreFolder();
         if (result.Item2 is not null) return result;
 
-        if (!AppService.Instance.DoGpgKeyExists(gpgKey))
-            return new ResultStruct<byte, Error?>(new GpgKeyNotFoundError());
+        if (!AppService.Instance.IsKeyValid(gpgKey))
+            return new ResultStruct<byte, Error?>(new GpgInvalidKeyError());
 
         File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgKey);
         return new ResultStruct<byte, Error?>(0);

@@ -195,9 +195,9 @@ public class AppService : IService
         return _gitService.Commit("Add gpg-id file");
     }
 
-    public bool DoGpgKeyExists(string key)
+    public bool IsKeyValid(string key)
     {
-        return _gpgService.DoKeyExists(key);
+        return _gpgService.IsKeyValid(key);
     }
 
     public void Initialize()
