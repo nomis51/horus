@@ -1,4 +1,5 @@
 ﻿using WinPass.Shared.Abstractions;
+using WinPass.Shared.Enums;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
@@ -50,6 +51,41 @@ public class FsService : IService
         return _storeFolderPath;
     }
 
+    public ResultStruct<byte, Error?> InsertEntry(string name, Password password)
+    {
+        var gpgKeyId = GetGpgId();
+        if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+
+        if (DoEntryExists(name))
+            return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
+
+        var filePath = GetPath(name);
+        if (name.Contains('/') || name.Contains('\\'))
+        {
+            var dirName = Path.GetDirectoryName(filePath)!;
+            if (!Directory.Exists(dirName))
+            {
+                Directory.CreateDirectory(dirName);
+            }
+        }
+
+        var createdMetadata =
+            password.Metadata.FirstOrDefault(m => m is { Type: MetadataType.Internal, Key: "created" });
+        if (createdMetadata is null)
+        {
+            password.Metadata.Add(new Metadata("created", $"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss}",
+                MetadataType.Internal));
+        }
+
+        var (_, errorEncrypt) = AppService.Instance.Encrypt(gpgKeyId, filePath, password.ToString());
+        if (!DoEntryExists(name))
+            return new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"));
+
+        return errorEncrypt is not null
+            ? new ResultStruct<byte, Error?>(errorEncrypt)
+            : new ResultStruct<byte, Error?>(0);
+    }
+
     public ResultStruct<byte, Error?> EditEntry(string name, Password password)
     {
         if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
@@ -72,7 +108,19 @@ public class FsService : IService
 
         File.Move(filePath, filePathBak);
 
-        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password.ToString(), true);
+        var modifiedMetadata =
+            password.Metadata.FirstOrDefault(m => m is { Type: MetadataType.Internal, Key: "modified" });
+        if (modifiedMetadata is not null)
+        {
+            modifiedMetadata.Value = $"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss}";
+        }
+        else
+        {
+            password.Metadata.Add(new Metadata("modified", $"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss}",
+                MetadataType.Internal));
+        }
+
+        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password, true);
         password.Dispose();
         password = null;
         GC.Collect();

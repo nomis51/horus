@@ -2,6 +2,7 @@
 using Serilog;
 using Spectre.Console;
 using WinPass.Shared.Abstractions;
+using WinPass.Shared.Enums;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
@@ -86,10 +87,22 @@ public class GpgService : IService
 
         for (var i = 1; i < lines.Count; ++i)
         {
-            var parts = lines[i].Split(":", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length < 2) continue;
+            var index = lines[i].IndexOf(":", StringComparison.Ordinal);
+            if (index == -1 || index + 1 >= lines[i].Length) continue;
 
-            password.Metadata.Add(new Metadata(parts[0], string.Join(string.Empty, parts.Skip(1))));
+            var type = lines[i][0] switch
+            {
+                '#' => MetadataType.Internal,
+                _ => MetadataType.Normal
+            };
+
+            password.Metadata.Add(
+                new Metadata(
+                    type == MetadataType.Normal ? lines[i][..index] : lines[i][1..index],
+                    lines[i][(index + 1)..],
+                    type
+                )
+            );
         }
 
         lines.Clear();

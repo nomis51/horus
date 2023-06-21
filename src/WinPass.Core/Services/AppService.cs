@@ -129,7 +129,7 @@ public class AppService : IService
         int timeout)
     {
         var value = PasswordHelper.Generate(length, customAlphabet);
-        var (_, error) = InsertPassword(name, value);
+        var (_, error) = InsertPassword(name, new Password(value));
         if (error is not null) return new Result<string, Error?>(error);
 
         if (!copy) return new Result<string, Error?>(value);
@@ -149,29 +149,10 @@ public class AppService : IService
         return _fsService.DoEntryExists(name);
     }
 
-    public ResultStruct<byte, Error?> InsertPassword(string name, string value, bool dontCommit = false)
+    public ResultStruct<byte, Error?> InsertPassword(string name, Password password, bool dontCommit = false)
     {
-        var gpgKeyId = _fsService.GetGpgId();
-        if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
-
-        if (_fsService.DoEntryExists(name))
-            return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
-
-        var filePath = _fsService.GetPath(name);
-        if (name.Contains('/') || name.Contains('\\'))
-        {
-            var dirName = Path.GetDirectoryName(filePath)!;
-            if (!Directory.Exists(dirName))
-            {
-                Directory.CreateDirectory(dirName);
-            }
-        }
-
-        var (_, errorEncrypt) = _gpgService.Encrypt(gpgKeyId, filePath, value);
-        if (!_fsService.DoEntryExists(name))
-            return new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"));
-
-        if (errorEncrypt is not null) return new ResultStruct<byte, Error?>(errorEncrypt);
+        var (_, error) = _fsService.InsertEntry(name, password);
+        if (error is not null) return new ResultStruct<byte, Error?>(error);
 
         if (!dontCommit)
         {
@@ -182,7 +163,8 @@ public class AppService : IService
         return new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<Password?, Error?> GetPassword(string name, bool copy = false, int timeout = 10, bool onlyMetadata = false)
+    public Result<Password?, Error?> GetPassword(string name, bool copy = false, int timeout = 10,
+        bool onlyMetadata = false)
     {
         if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
 

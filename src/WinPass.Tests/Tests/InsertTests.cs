@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using WinPass.Core.Services;
+using WinPass.Shared.Models;
 
 namespace WinPass.Tests.Tests;
 
@@ -65,7 +66,7 @@ public class InsertTests : Test
         _sut.Run(new[] { "init", GpgId });
 
         // Act
-        var (_, error) = AppService.Instance.InsertPassword("test", "test");
+        var (_, error) = AppService.Instance.InsertPassword("test", new Password("test"));
 
         // Assert
         Debug.Assert(error is null);

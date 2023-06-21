@@ -17,6 +17,8 @@ public class Cli
     private static readonly Regex RegGpgKeyId =
         new("[a-z0-9]{40}|[a-z0-9]{16}", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    private static readonly Regex RegMetadataKey = new("[a-z0-9]{1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     #endregion
 
     #region Public methods
@@ -379,12 +381,19 @@ public class Cli
                 }
                 case "The metadata":
                 {
-                    var items = password.Metadata.Select(m => $"[green]{m.Key}[/]: {m.Value}").ToList();
+                    Dictionary<string, int> items = new();
+                    for (var i = 0; i < password.Metadata.Count; ++i)
+                    {
+                        if (password.Metadata[i].Type != MetadataType.Normal) continue;
+
+                        items.Add($"[green]{password.Metadata[i].Key}[/]: {password.Metadata[i].Value}", i);
+                    }
+
                     var metadataChoice = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("Which metadata do you want to edit?")
                             .AddChoices(
-                                items.Concat(new[] { "Add new metadata", "Cancel" })
+                                items.Keys.Concat(new[] { "Add new metadata", "Cancel" })
                             )
                     );
 
@@ -392,24 +401,38 @@ public class Cli
 
                     if (metadataChoice == "Add new metadata")
                     {
-                        var newKey = AnsiConsole.Ask<string>("Key: ");
-                        var newValue = AnsiConsole.Ask<string>("Value: ");
+                        var newKey = AnsiConsole.Prompt(
+                            new TextPrompt<string>("Enter the [green]key[/]: ")
+                                .Validate(e =>
+                                {
+                                    if (string.IsNullOrEmpty(e)) return false;
+
+                                    var match = RegMetadataKey.Match(e[..1]);
+                                    return match.Success & match.Index == 0 && match.Length == 1;
+                                })
+                                .ValidationErrorMessage(
+                                    "The key cannot be empty or start with a symbol")
+                        );
+                        var newValue = AnsiConsole.Ask<string>("Enter the [green]value[/]: ");
                         password.Metadata.Add(new Metadata(newKey, newValue));
                         continue;
                     }
 
-                    var index = items.IndexOf(metadataChoice);
-                    if (index == -1)
+                    if (!items.ContainsKey(metadataChoice))
                     {
                         lastErrorMessage = "Metadata not found";
                         continue;
                     }
 
+                    var index = items[metadataChoice];
+
                     var metadataActionChoice = AnsiConsole.Prompt(
                         new SelectionPrompt<string>()
                             .Title("What to do you with the metadata?")
-                            .AddChoices("Edit", "Delete")
+                            .AddChoices("Edit", "Delete", "Cancel")
                     );
+
+                    if (metadataActionChoice == "Cancel") continue;
 
                     if (metadataActionChoice == "Delete")
                     {
@@ -417,10 +440,22 @@ public class Cli
                         continue;
                     }
 
-                    password.Metadata[index].Key =
-                        AnsiConsole.Ask("Enter the [green]key[/]:", password.Metadata[index].Key);
+                    password.Metadata[index].Key = AnsiConsole.Prompt(
+                        new TextPrompt<string>("Enter the [green]key[/]: ")
+                            .Validate(e =>
+                            {
+                                if (string.IsNullOrEmpty(e)) return false;
+
+                                var reg = new Regex("[a-z0-9]{1}", RegexOptions.IgnoreCase);
+                                var match = reg.Match(e[..1]);
+                                return match.Success & match.Index == 0 && match.Length == 1;
+                            })
+                            .ValidationErrorMessage(
+                                "The key cannot be empty or start with a symbol")
+                            .DefaultValue(password.Metadata[index].Key)
+                    );
                     password.Metadata[index].Value =
-                        AnsiConsole.Ask("Enter the [green]value[/]:", password.Metadata[index].Value);
+                        AnsiConsole.Ask("Enter the [green]value[/]: ", password.Metadata[index].Value);
                     break;
                 }
             }
@@ -665,7 +700,7 @@ public class Cli
             return;
         }
 
-        var (_, error) = AppService.Instance.InsertPassword(name, password);
+        var (_, error) = AppService.Instance.InsertPassword(name, new Password(password));
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
@@ -854,9 +889,16 @@ public class Cli
         table.AddColumn("Key");
         table.AddColumn("Value");
 
-        foreach (var m in metadata)
+        foreach (var m in metadata.OrderBy(m => m.Type))
         {
-            table.AddRow(m.Key, m.Value);
+            table.AddRow(
+                m.Type switch
+                {
+                    MetadataType.Internal => $"[red]{m.Key}[/]",
+                    _ => m.Key
+                },
+                m.Value.Trim()
+            );
         }
 
         AnsiConsole.Write(table);
