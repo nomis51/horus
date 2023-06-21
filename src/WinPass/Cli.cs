@@ -376,7 +376,7 @@ public class Cli
                         continue;
                     }
 
-                    password.Set(newPassword);
+                    password.Value = newPassword;
                     continue;
                 }
                 case "The metadata":

@@ -97,7 +97,7 @@ public class FsService : IService
             if (errorExistingPassword is not null || existingPassword is null)
                 return new ResultStruct<byte, Error?>(new FsEditPasswordFailedError());
 
-            password.Set(existingPassword.Value);
+            password.Value = existingPassword.Value;
             existingPassword.Dispose();
             existingPassword = null;
             GC.Collect();

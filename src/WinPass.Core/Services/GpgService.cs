@@ -3,6 +3,7 @@ using Serilog;
 using Spectre.Console;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Enums;
+using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
@@ -39,7 +40,23 @@ public class GpgService : IService
     {
         var (ok, _, error) = ProcessHelper.Exec(
             "cmd",
-            PrepareEncryptArgs(value, key, filePath)
+            new[]
+            {
+                "/c",
+                "echo",
+                value.ToBase64(),
+                "|",
+                Gpg,
+                "--quiet",
+                "--yes",
+                "--compress-algo=none",
+                "--no-encrypt-to",
+                "-e",
+                "-r",
+                key,
+                "-o",
+                filePath
+            }
         );
         return !ok ? new ResultStruct<byte, Error?>(new GpgEncryptError(error)) : new ResultStruct<byte, Error?>(0);
     }
@@ -59,7 +76,7 @@ public class GpgService : IService
 
         return string.IsNullOrWhiteSpace(result)
             ? new Result<Settings?, Error?>(new GpgDecryptError(error))
-            : new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(result));
+            : new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(result.FromBase64()));
     }
 
     public Result<Password?, Error?> DecryptPassword(string filePath, bool onlyMetadata = false)
@@ -77,39 +94,31 @@ public class GpgService : IService
 
         if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
 
-        var lines = result
-            .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Select(v => v.Trim('\r'))
-            .ToList();
-        if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
-
-        Password password = new(onlyMetadata ? string.Empty : lines.First());
-
-        for (var i = 1; i < lines.Count; ++i)
+        if (!result.IsBase64())
         {
-            var index = lines[i].IndexOf(":", StringComparison.Ordinal);
-            if (index == -1 || index + 1 >= lines[i].Length) continue;
-
-            var type = lines[i][0] switch
-            {
-                '#' => MetadataType.Internal,
-                _ => MetadataType.Normal
-            };
-
-            password.Metadata.Add(
-                new Metadata(
-                    type == MetadataType.Normal ? lines[i][..index] : lines[i][1..index],
-                    lines[i][(index + 1)..],
-                    type
-                )
-            );
+            // TODO: pass password
+            throw new NotImplementedException();
         }
 
-        lines.Clear();
-        lines = null;
-        GC.Collect();
+        try
+        {
+            var password = JsonConvert.DeserializeObject<Password>(result.FromBase64());
+            if (onlyMetadata)
+            {
+                password!.Dispose();
+            }
 
-        return new Result<Password?, Error?>(password);
+            return new Result<Password?, Error?>(password);
+        }
+        catch (Exception e)
+        {
+            return new Result<Password?, Error?>(new GpgDecryptError(e.Message));
+        }
+        finally
+        {
+            result = null;
+            GC.Collect();
+        }
     }
 
     public bool DoKeyExists(string key)
@@ -132,22 +141,10 @@ public class GpgService : IService
 
     private string[] PrepareEncryptArgs(string value, string key, string filePath)
     {
-        var parts = value.Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        var args = new List<string> { "/c", "(" };
-
-        for (var i = 0; i < parts.Length; ++i)
+        return new[]
         {
-            args.Add($"echo {parts[i]}");
-            if (i + 1 < parts.Length)
-            {
-                args.Add(" & ");
-            }
-        }
-
-        args.Add(")");
-
-        return args.Concat(new[]
-        {
+            "echo",
+            value.ToBase64(),
             "|",
             Gpg,
             "--quiet",
@@ -159,7 +156,7 @@ public class GpgService : IService
             key,
             "-o",
             filePath
-        }).ToArray();
+        };
     }
 
     #endregion
