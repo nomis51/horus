@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Spectre.Console;
 using WinPass.Core.Services;
+using WinPass.Shared;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
@@ -115,7 +116,7 @@ public class Cli
     {
         if (!AppService.Instance.IsStoreInitialized())
         {
-            AnsiConsole.MarkupLine($"[red]{(new FsStoreNotInitializedError().Message)}[/]");
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
             return;
         }
 
@@ -128,29 +129,23 @@ public class Cli
 
         if (settings is null) return;
 
-        const string defaultLengthChoice = "Default generated password length";
-        const string defaultCustomAlphabet = "Default custom alphabet";
-        const string defaultClearTimeout = "Default clear timeout";
-        const string save = "Save";
-        const string cancel = "Cancel";
-
         while (true)
         {
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("What do you want to edit?")
+                    .Title(Locale.Get("questions.whatToEdit") + "?")
                     .AddChoices(
-                        defaultLengthChoice,
-                        defaultCustomAlphabet,
-                        defaultClearTimeout,
-                        save,
-                        cancel
+                        Locale.Get("settings.defaultPasswordLength"),
+                        Locale.Get("settings.defaultCustomAlphabet"),
+                        Locale.Get("settings.defaultClearTimeout"),
+                        Locale.Get("save"),
+                        Locale.Get("cancel")
                     )
             );
 
-            if (choice == cancel) return;
+            if (choice == Locale.Get("cancel")) return;
 
-            if (choice == save)
+            if (choice == Locale.Get("save"))
             {
                 var (_, errorSave) = AppService.Instance.SaveSettings(settings);
                 if (errorSave is not null)
@@ -159,26 +154,27 @@ public class Cli
                     return;
                 }
 
-                AnsiConsole.MarkupLine("[green]Settings saved[/]");
+                AnsiConsole.MarkupLine($"[green]{Locale.Get("settings.saved")}[/]");
                 return;
             }
 
-            if (choice == defaultLengthChoice)
+            if (choice == Locale.Get("settings.defaultPasswordLength"))
             {
                 settings.DefaultLength =
-                    AnsiConsole.Ask("Length (type 0 to reset to default): ", settings.DefaultLength);
+                    AnsiConsole.Ask($"{Locale.Get("questions.passwordLength")}: ", settings.DefaultLength);
             }
 
-            if (choice == defaultCustomAlphabet)
+            if (choice == Locale.Get("settings.defaultCustomAlphabet"))
             {
-                var value = AnsiConsole.Ask("Alphabet (type r to reset to default): ", settings.DefaultCustomAlphabet);
+                var value = AnsiConsole.Ask($"{Locale.Get("questions.customAlphabet")}: ",
+                    settings.DefaultCustomAlphabet);
                 settings.DefaultCustomAlphabet = value == "r" ? string.Empty : value;
             }
 
-            if (choice == defaultClearTimeout)
+            if (choice == Locale.Get("settings.defaultClearTimeout"))
             {
                 settings.ClearTimeout =
-                    AnsiConsole.Ask("Clear timeout (type 0 to reset to default): ", settings.ClearTimeout);
+                    AnsiConsole.Ask($"{Locale.Get("questions.clearTimeout")}: ", settings.ClearTimeout);
             }
         }
     }
@@ -186,14 +182,14 @@ public class Cli
     private void ShowVersion()
     {
         var version = VersionHelper.GetVersion();
-        AnsiConsole.MarkupLine($"winpass version {version.Major}.{version.Minor}.{version.Build}");
+        AnsiConsole.MarkupLine($"{Locale.Get("version")} {version.Major}.{version.Minor}.{version.Build}");
     }
 
     private void Git(IEnumerable<string> args)
     {
         if (!AppService.Instance.IsStoreInitialized())
         {
-            AnsiConsole.MarkupLine($"[red]{(new FsStoreNotInitializedError().Message)}[/]");
+            AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
             return;
         }
 
@@ -208,84 +204,73 @@ public class Cli
         {
             Border = TableBorder.Rounded
         };
-        table.AddColumn("Command");
-        table.AddColumn("Description");
-        table.AddColumn("Example");
+        table.AddColumn(Locale.Get("help.command"));
+        table.AddColumn(Locale.Get("help.description"));
+        table.AddColumn(Locale.Get("help.example"));
 
         table.AddRow(
             "winpass init".EscapeMarkup(),
-            "Initialize the password store",
+            Locale.Get("help.description.init"),
             "winpass init"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (list|ls|*blank*)".EscapeMarkup(),
-            "Show the list of passwords in the store",
+            Locale.Get("help.description.ls"),
             "winpass list"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass show [args] [name]".EscapeMarkup(),
-            "Show the password requested by [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
-                "-c : Copy the password to the clipboard instead of showing it",
-                "-m : Show metadata of the password if any (Don't show the password)",
-                "-f : Don't automatically clear the terminal after a while",
-                "-p : Show the password when -m is provided"
-            ),
+            Locale.Get("help.description.show"),
             "winpass show -c -m github/work"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (insert|add) [name]".EscapeMarkup(),
-            "Insert a new password named [name]".EscapeMarkup(),
+            Locale.Get("help.description.insert"),
             "winpass add github/work"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass generate [args] [name]".EscapeMarkup(),
-            "Generate a new password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
-                "-s : Size of the password (default: 20)",
-                "-a : Custom alphabet to generate the password",
-                "-c : Copy the password to the clipboard instead of showing it"
-            ),
+            Locale.Get("help.description.generate"),
             "winpass generate -s=12 -a=abc123 -c github/work"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (remove|delete) [name]".EscapeMarkup(),
-            "Delete the password named [name]".EscapeMarkup(),
+            Locale.Get("help.description.delete"),
             "winpass remove github/work"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (rename|move) [args] [name]".EscapeMarkup(),
-            "Rename or duplicate the password named [name]\n\nArguments:\n".EscapeMarkup() + string.Join("\n",
-                "-d : Duplicate the password named [name] instead of renaming it".EscapeMarkup()
-            ),
+            Locale.Get("help.description.rename"),
             "winpass rename github/work"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass (find|search|grep) [text]".EscapeMarkup(),
-            "Find passwords or metadata containing [text]".EscapeMarkup(),
+            Locale.Get("help.description.find"),
             "winpass find \"email: my-email@github.com\""
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass git [args]".EscapeMarkup(),
-            "Execute git command on the password store repository",
+            Locale.Get("help.description.git"),
             "winpass git status"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass help",
-            "Show the help (this)",
+            Locale.Get("help.description.help"),
             "winpass help"
         );
         table.AddRow(string.Empty, string.Empty, string.Empty);
         table.AddRow(
             "winpass version",
-            "Show the version",
+            Locale.Get("help.description.version"),
             "winpass version"
         );
 
@@ -302,7 +287,7 @@ public class Cli
 
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("cli.args.passwordNameRequired")}[/]");
             return;
         }
 
@@ -329,134 +314,132 @@ public class Cli
 
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title($"What do you want to edit on [blue]{name}[/]?")
+                    .Title($"{Locale.Get("questions.whatToEditOn")} [blue]{name}[/]?")
                     .AddChoices(
-                        "Save and quit",
-                        "The password",
-                        "The metadata",
-                        "Cancel"
+                        Locale.Get("saveAndQuit"),
+                        Locale.Get("thePassword"),
+                        Locale.Get("theMetadata"),
+                        Locale.Get("cancel")
                     )
             );
 
-            if (choice == "Save and quit")
+            if (choice == Locale.Get("saveAndQuit"))
             {
                 var (_, errorEditPassword) = AppService.Instance.EditPassword(name, password);
 
                 AnsiConsole.MarkupLine(
                     errorEditPassword is not null
                         ? $"[{GetErrorColor(errorEditPassword.Severity)}]{errorEditPassword.Message}[/]"
-                        : "[green]Changes saved[/]");
+                        : $"[green]{Locale.Get("changesSaved")}[/]");
 
                 break;
             }
 
-            if (choice == "Cancel") break;
-            switch (choice)
+            if (choice == Locale.Get("cancel")) break;
+            if (choice == Locale.Get("thePassword"))
             {
-                case "The password":
+                var newPassword = AnsiConsole.Prompt(
+                    new TextPrompt<string>("Enter the new password: ")
+                        .Secret(null)
+                );
+                if (string.IsNullOrWhiteSpace(newPassword))
                 {
-                    var newPassword = AnsiConsole.Prompt(
-                        new TextPrompt<string>("Enter the new password: ")
-                            .Secret(null)
-                    );
-                    if (string.IsNullOrWhiteSpace(newPassword))
-                    {
-                        lastErrorMessage = "Password can't be empty";
-                        continue;
-                    }
-
-                    var newPasswordConfirm = AnsiConsole.Prompt(
-                        new TextPrompt<string>("Confirm the new password: ")
-                            .Secret(null)
-                    );
-                    if (!newPassword.Equals(newPasswordConfirm))
-                    {
-                        lastErrorMessage = "Passwords don't match";
-                        continue;
-                    }
-
-                    password.Value = newPassword;
+                    lastErrorMessage = "Password can't be empty";
                     continue;
                 }
-                case "The metadata":
+
+                var newPasswordConfirm = AnsiConsole.Prompt(
+                    new TextPrompt<string>("Confirm the new password: ")
+                        .Secret(null)
+                );
+                if (!newPassword.Equals(newPasswordConfirm))
                 {
-                    Dictionary<string, int> items = new();
-                    for (var i = 0; i < password.Metadata.Count; ++i)
-                    {
-                        if (password.Metadata[i].Type != MetadataType.Normal) continue;
+                    lastErrorMessage = "Passwords don't match";
+                    continue;
+                }
 
-                        items.Add($"[green]{password.Metadata[i].Key}[/]: {password.Metadata[i].Value}", i);
-                    }
+                password.Value = newPassword;
+                continue;
+            }
 
-                    var metadataChoice = AnsiConsole.Prompt(
-                        new SelectionPrompt<string>()
-                            .Title("Which metadata do you want to edit?")
-                            .AddChoices(
-                                items.Keys.Concat(new[] { "Add new metadata", "Cancel" })
-                            )
-                    );
+            if (choice == Locale.Get("theMetadata"))
+            {
+                Dictionary<string, int> items = new();
+                for (var i = 0; i < password.Metadata.Count; ++i)
+                {
+                    if (password.Metadata[i].Type != MetadataType.Normal) continue;
 
-                    if (metadataChoice == "Cancel") continue;
+                    items.Add($"[green]{password.Metadata[i].Key}[/]: {password.Metadata[i].Value}", i);
+                }
 
-                    if (metadataChoice == "Add new metadata")
-                    {
-                        var newKey = AnsiConsole.Prompt(
-                            new TextPrompt<string>("Enter the [green]key[/]: ")
-                                .Validate(e =>
-                                {
-                                    if (string.IsNullOrEmpty(e)) return false;
+                var metadataChoice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title($"{Locale.Get("questions.whatMetadataToEdit")}?")
+                        .AddChoices(
+                            items.Keys.Concat(new[] { Locale.Get("addNewMetadata"), Locale.Get("cancel") })
+                        )
+                );
 
-                                    var match = RegMetadataKey.Match(e[..1]);
-                                    return match.Success & match.Index == 0 && match.Length == 1;
-                                })
-                                .ValidationErrorMessage(
-                                    "The key cannot be empty or start with a symbol")
-                        );
-                        var newValue = AnsiConsole.Ask<string>("Enter the [green]value[/]: ");
-                        password.Metadata.Add(new Metadata(newKey, newValue));
-                        continue;
-                    }
+                if (metadataChoice == Locale.Get("cancel")) continue;
 
-                    if (!items.ContainsKey(metadataChoice))
-                    {
-                        lastErrorMessage = "Metadata not found";
-                        continue;
-                    }
-
-                    var index = items[metadataChoice];
-
-                    var metadataActionChoice = AnsiConsole.Prompt(
-                        new SelectionPrompt<string>()
-                            .Title("What to do you with the metadata?")
-                            .AddChoices("Edit", "Delete", "Cancel")
-                    );
-
-                    if (metadataActionChoice == "Cancel") continue;
-
-                    if (metadataActionChoice == "Delete")
-                    {
-                        password.Metadata.RemoveAt(index);
-                        continue;
-                    }
-
-                    password.Metadata[index].Key = AnsiConsole.Prompt(
-                        new TextPrompt<string>("Enter the [green]key[/]: ")
+                if (metadataChoice == Locale.Get("addNewMetadata"))
+                {
+                    var newKey = AnsiConsole.Prompt(
+                        new TextPrompt<string>($"{Locale.Get("questions.enterTheKey")}: ")
                             .Validate(e =>
                             {
                                 if (string.IsNullOrEmpty(e)) return false;
 
-                                var reg = new Regex("[a-z0-9]{1}", RegexOptions.IgnoreCase);
-                                var match = reg.Match(e[..1]);
+                                var match = RegMetadataKey.Match(e[..1]);
                                 return match.Success & match.Index == 0 && match.Length == 1;
                             })
                             .ValidationErrorMessage(
-                                "The key cannot be empty or start with a symbol")
-                            .DefaultValue(password.Metadata[index].Key)
+                                Locale.Get("error.metadataKeyInvalid"))
                     );
-                    password.Metadata[index].Value =
-                        AnsiConsole.Ask("Enter the [green]value[/]: ", password.Metadata[index].Value);
-                    break;
+                    var newValue = AnsiConsole.Ask<string>($"{Locale.Get("questions.enterTheValue")}: ");
+                    password.Metadata.Add(new Metadata(newKey, newValue));
+                    continue;
                 }
+
+                if (!items.ContainsKey(metadataChoice))
+                {
+                    lastErrorMessage = Locale.Get("error.metadataNotFound");
+                    continue;
+                }
+
+                var index = items[metadataChoice];
+
+                var metadataActionChoice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title($"{Locale.Get("questions.whatToDoWithMetadata")}?")
+                        .AddChoices(Locale.Get("edit"), Locale.Get("delete"), Locale.Get("cancel"))
+                );
+
+                if (metadataActionChoice == Locale.Get("cancel")) continue;
+
+                if (metadataActionChoice == Locale.Get("delete"))
+                {
+                    password.Metadata.RemoveAt(index);
+                    continue;
+                }
+
+                password.Metadata[index].Key = AnsiConsole.Prompt(
+                    new TextPrompt<string>($"{Locale.Get("questions.enterTheKey")}: ")
+                        .Validate(e =>
+                        {
+                            if (string.IsNullOrEmpty(e)) return false;
+
+                            var reg = new Regex("[a-z0-9]{1}", RegexOptions.IgnoreCase);
+                            var match = reg.Match(e[..1]);
+                            return match.Success & match.Index == 0 && match.Length == 1;
+                        })
+                        .ValidationErrorMessage(
+                            Locale.Get("error.metadataKeyInvalid"))
+                        .DefaultValue(password.Metadata[index].Key)
+                );
+                password.Metadata[index].Value =
+                    AnsiConsole.Ask($"{Locale.Get("questions.enterTheValue")}: ", password.Metadata[index].Value);
+                break;
             }
         }
     }
@@ -471,7 +454,7 @@ public class Cli
 
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("cli.args.passwordNameRequired")}[/]");
             return;
         }
 
@@ -486,17 +469,21 @@ public class Cli
             }
         }
 
-        AnsiConsole.Write("Enter the new name: ");
+        AnsiConsole.Write($"{Locale.Get("questions.enterNewName")}: ");
         var newName = Console.ReadLine();
         if (string.IsNullOrWhiteSpace(newName))
         {
-            AnsiConsole.MarkupLine("[red]The name was empty[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.nameIsEmpty")}[/]");
             return;
         }
 
         var choice =
             AnsiConsole.Ask<string>(
-                $"Are you sure you want to [yellow]{(duplicate ? "duplicate" : "rename")}[/] the password [blue]{name}[/] into [yellow]{newName}[/]? [blue](y/n)[/]",
+                Locale.Get("questions.confirmWantsToRenamePassword", new[]
+                {
+                    duplicate ? "duplicate" : "rename",
+                    name, newName
+                }),
                 "n").ToLower();
 
         if (choice != "y") return;
@@ -510,8 +497,8 @@ public class Cli
         }
 
         AnsiConsole.MarkupLine(duplicate
-            ? $"[green]Password [blue]{name}[/] duplicated to [blue]{newName}[/][/]"
-            : $"[green]Password [blue]{name}[/] renamed to [blue]{newName}[/][/]");
+            ? $"[green]{Locale.Get("passwordDuplicated", new[] { name, newName })}[/]"
+            : $"[green]{Locale.Get("passwordRenamed", new[] { name, newName })}[/]");
     }
 
     private void Delete(IReadOnlyCollection<string> args)
@@ -524,14 +511,14 @@ public class Cli
 
         if (args.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]Password name argument required[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("cli.args.passwordNameRequired")}[/]");
             return;
         }
 
         var name = args.Last();
 
         var choice = AnsiConsole
-            .Ask<string>($"Are you sure you want to delete the password [blue]{name}[/]? [blue](y/n)[/]", "n")
+            .Ask<string>(Locale.Get("questions.confirmDeletePassword", new[] { name }), "n")
             .ToLower();
 
         if (choice != "y") return;
@@ -544,7 +531,7 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"[green]Password [blue]{name}[/] removed[/]");
+        AnsiConsole.MarkupLine($"[green]{Locale.Get("passwordRemoved", new[] { name })}[/]");
     }
 
     private void Generate(IReadOnlyList<string> args)
@@ -788,7 +775,8 @@ public class Cli
             AnsiConsole.MarkupLine("[yellow]-f has no effect with -c[/]");
         }
 
-        var (password, error) = AppService.Instance.GetPassword(name, copy, timeout, onlyMetadata: !showPassword && showMetadata);
+        var (password, error) =
+            AppService.Instance.GetPassword(name, copy, timeout, onlyMetadata: !showPassword && showMetadata);
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
