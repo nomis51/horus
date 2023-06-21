@@ -1,5 +1,4 @@
-﻿using WinPass.Core.WinApi;
-using WinPass.Shared.Abstractions;
+﻿using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
 using WinPass.Shared.Models.Abstractions;
@@ -133,7 +132,7 @@ public class AppService : IService
         if (error is not null) return new Result<string, Error?>(error);
 
         if (!copy) return new Result<string, Error?>(value);
-        User32.SetClipboard(value);
+        ClipboardHelper.Copy(value);
 
         ProcessHelper.Fork(new[] { "cc", timeout <= 0 ? "10" : timeout.ToString() });
         return new Result<string, Error?>(value);
@@ -173,7 +172,7 @@ public class AppService : IService
         if (!copy) return result;
         if (result.Item1 is null) return result;
 
-        User32.SetClipboard(result.Item1.Value);
+        ClipboardHelper.Copy(result.Item1.Value);
 
         ProcessHelper.Fork(new[] { "cc", timeout <= 0 ? "10" : timeout.ToString() });
         return result;

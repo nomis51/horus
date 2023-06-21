@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Spectre.Console;
 using WinPass.Core.Services;
-using WinPass.Core.WinApi;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
@@ -716,7 +715,7 @@ public class Cli
         if (!int.TryParse(args[0], out var intValue)) return;
 
         Thread.Sleep(1000 * intValue);
-        User32.ClearClipboard();
+        ClipboardHelper.Clear();
     }
 
     private void Show(List<string> args)
@@ -789,7 +788,7 @@ public class Cli
             AnsiConsole.MarkupLine("[yellow]-f has no effect with -c[/]");
         }
 
-        var (password, error) = AppService.Instance.GetPassword(name, copy, timeout, onlyMetadata: !showPassword);
+        var (password, error) = AppService.Instance.GetPassword(name, copy, timeout, onlyMetadata: !showPassword && showMetadata);
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
@@ -963,42 +962,6 @@ public class Cli
             ErrorSeverity.Warning => "yellow",
             _ => "white",
         };
-    }
-
-    private string ReadPassword()
-    {
-        var password = string.Empty;
-        ConsoleKey key;
-        AnsiConsole.WriteLine("Enter the password: ");
-        do
-        {
-            var keyInfo = Console.ReadKey(intercept: true);
-            key = keyInfo.Key;
-
-            if (key == ConsoleKey.Backspace && password.Length > 0)
-            {
-                Console.Write("\b \b");
-                password = password[..^1];
-            }
-            else if (!char.IsControl(keyInfo.KeyChar))
-            {
-                Console.Write("*");
-                password += keyInfo.KeyChar;
-            }
-        } while (key != ConsoleKey.Enter);
-
-        var (_, top) = Console.GetCursorPosition();
-        Console.SetCursorPosition(0, top - 2 < 0 ? 0 : top - 2);
-
-        for (var i = 0; i < 2; ++i)
-        {
-            for (var k = 0; k < Console.WindowWidth; ++k)
-            {
-                Console.Write(" ");
-            }
-        }
-
-        return password;
     }
 
     #endregion
