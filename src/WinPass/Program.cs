@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text;
 using Serilog;
 using Serilog.Events;
 using Spectre.Console;
@@ -14,6 +15,8 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        
         var dirName = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
         var logDir = Path.Join(dirName, "logs");
         Log.Logger = new LoggerConfiguration()
