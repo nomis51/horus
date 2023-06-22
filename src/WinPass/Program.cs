@@ -2,6 +2,8 @@
 using Serilog;
 using Serilog.Events;
 using Spectre.Console;
+using WinPass.Core.Services;
+using WinPass.Shared;
 using WinPass.Shared.Helpers;
 
 namespace WinPass;
@@ -31,6 +33,12 @@ public static class Program
 
         try
         {
+            var (settings, error) = AppService.Instance.GetSettings();
+            if (error is null && settings is not null)
+            {
+                Locale.SetLanguage(settings.Language);
+            }
+
             new Cli().Run(args);
         }
         catch (Exception e)

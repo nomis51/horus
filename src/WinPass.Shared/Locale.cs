@@ -18,6 +18,8 @@ public static class Locale
                 { "settings.defaultPasswordLength", "Default generated password length" },
                 { "settings.defaultCustomAlphabet", "Default custom alphabet" },
                 { "settings.defaultClearTimeout", "Default clear timeout" },
+                { "settings.language", "Language of the application" },
+                { "questions.language", "Language" },
                 { "save", "Save" },
                 { "cancel", "Cancel" },
                 { "questions.whatToEdit", "What do you want to edit" },
@@ -109,12 +111,139 @@ public static class Locale
                 { "questions.gitRepositoryUrl", "[bold yellow]Private[/] git remote URL (GitHub, GitLab, etc.)" },
                 { "error.gitUrlEmpty", "Git URL was empty" },
                 { "storeInitialized", "Store initialized" },
+                { "key", "Key" },
+                { "value", "Value" },
+                { "passwordIs", "Password is" },
+                { "metadata.created", "created" },
+                { "metadata.modified", "modified" },
+                { "duplicate", "duplicate" },
+                { "rename", "rename" },
+                { "y", "y" },
+                { "n", "n" },
             }
         },
 
         {
             French, new Dictionary<string, string>
             {
+                { "settings.defaultPasswordLength", "Longueur par défaut des mots de passe générés" },
+                { "settings.defaultCustomAlphabet", "Alphabet par défaut pour générer les mots de passe" },
+                { "settings.defaultClearTimeout", "Délai par défaut avant d'effacer le terminal ou le presse-papier" },
+                { "settings.language", "Langage de l'application" },
+                { "questions.language", "Langage" },
+                { "save", "Sauvegarder" },
+                { "cancel", "Annuler" },
+                { "questions.whatToEdit", "Que voulez-vous modifier" },
+                { "settings.saved", "Paramètres sauvegardés" },
+                { "questions.passwordLength", "Longueur (Entrer 0 pour remettre la valeur par défaut)" },
+                { "questions.customAlphabet", "Alphabet (Entrer r pour remettre la valeur par défaut)" },
+                { "questions.clearTimeout", "Délai avant d'effacer (Entrer 0 pour remettre la valeur par défaut)" },
+                { "version", "Version de winpass" },
+                { "help.command", "Commande" },
+                { "help.description", "Description" },
+                { "help.example", "Exemple" },
+                { "help.description.init", "Initialiser le magasin de mots de passe" },
+                { "help.description.ls", "Lister les mots de passe" },
+                {
+                    "help.description.show",
+                    "Afficher le mot de passe [name]\n\nArguments:\n".EscapeMarkup() +
+                    string.Join("\n",
+                        "-c : Copier le mot de passe dans le presse-papier au lieu de l'afficher",
+                        "-m : Afficher les métadonnées du mot de passe s'il y a lieu (N'affiche pas le mot de passe)",
+                        "-f : Ne pas effacer automatiquement le terminal après un délai",
+                        "-p : Afficher le mot de passe même si -m est passé en argument"
+                    )
+                },
+                { "help.description.insert", "Ajouter le mot de passe [name]".EscapeMarkup() },
+                {
+                    "help.description.generate",
+                    "Générer un nouveau mot de passe nommé [name]\n\nArguments:\n".EscapeMarkup() +
+                    string.Join("\n",
+                        "-s : Longueur du mot de passe (par défaut: 20)",
+                        "-a : Alphabet personnalisé pour générer le mot de passe",
+                        "-c : Copier le mot de passe dans le presse-papier au lieu de l'afficher"
+                    )
+                },
+                { "help.description.delete", "Supprimer le mot de passe nommé [name]".EscapeMarkup() },
+                {
+                    "help.description.rename",
+                    "Renommer ou dupliquer le mot de passe nommé [name]\n\nArguments:\n".EscapeMarkup() + string.Join(
+                        "\n",
+                        "-d : Dupliquer le mot de passe nommé [name] au lieu de le renommer".EscapeMarkup()
+                    )
+                },
+                {
+                    "help.description.find",
+                    "Rechercher des mots de passe ou métadonnées contenant la valeur [text]".EscapeMarkup()
+                },
+                { "help.description.git", "Exécute une command git sur le dépôt du magasin de mot de passe" },
+                { "help.description.help", "Afficher l'aide (cette page)" },
+                { "help.description.version", "Afficher la version" },
+                { "cli.args.passwordNameRequired", "Le nom du mot de passe est requis en argument" },
+                { "questions.whatToEditOn", "Que voulez-vous modifier sur" },
+                { "saveAndQuit", "Sauvegarder et quitter" },
+                { "thePassword", "Le mot de passe" },
+                { "theMetadata", "Les métadonnées" },
+                { "changesSaved", "Changements sauvegardés" },
+                { "questions.whatMetadataToEdit", "Quelle métadonnée voulez-vous modifier" },
+                { "addNewMetadata", "Une nouvelle métadonnée" },
+                { "questions.enterTheKey", "Entrer le [green]nom[/]" },
+                { "questions.enterTheValue", "Entrer la [green]valeur[/]" },
+                { "error.metadataKeyInvalid", "La clé ne peut pas être vide, ni commencer avec un symbole" },
+                { "error.metadataNotFound", "Métadonnée introuvable" },
+                { "questions.whatToDoWithMetadata", "Que voulez-vous faire la métadonnée" },
+                { "edit", "Modifier" },
+                { "delete", "Supprimer" },
+                { "questions.enterNewName", "Entrer le nouveau nom" },
+                { "error.nameIsEmpty", "Le nom était vide" },
+                {
+                    "questions.confirmWantsToRenamePassword",
+                    "Êtes-vous sûr de vouloir [yellow]{0}[/] le mot de passe [blue]{1}[/] vers [yellow]{2}[/]? [blue](o/n)[/]"
+                },
+                { "passwordDuplicated", "Le mot de passe [blue]{0}[/] a été dupliqué vers [blue]{1}[/]" },
+                { "passwordRenamed", "Le mot de passe [blue]{0}[/] a été renomm vers [blue]{1}[/]" },
+                {
+                    "questions.confirmDeletePassword",
+                    "Êtes-vous sûr de vouloir supprimer le mot de passe [blue]{0}[/]? [blue](o/n)[/]"
+                },
+                { "passwordRemoved", "Le mot de passe [blue]{0}[/] a été supprimé" },
+                {
+                    "error.loadingSettings",
+                    "Une erreur est survenue lors de la lecture des paramètres: {0}. Les paramètres par défaut seront utilisés"
+                },
+                {
+                    "passwordGeneratedAndCopied",
+                    "Le mot de passe [blue]{0}[/] a été généré et [yellow]copié[/] dans le presse-papier"
+                },
+                { "clipboardWillCleared", "Le presse-papier sera vidé dans {0} seconde(s)" },
+                { "passwordGenerated", "Le mot de passe [blue]{0}[/] a été généré" },
+                { "cli.args.searchTermRequired", "Le terme de recherche est requis en argument" },
+                { "passwordAlreadyExists", "Le mot de passe {0} existe déjà" },
+                { "enterPassword", "Entrer le mot de passe" },
+                { "error.passwordEmpty", "Le mot de passe ne peut pas être vide" },
+                { "confirmPassword", "Confirmer le mot de passe" },
+                { "error.passwordsDontMatch", "Les mots de passe ne correspondent pas" },
+                { "passwordCreated", "Le mot de passe [blue]{0}[/] a été créé" },
+                { "argfNoEfectWithArgc", "L'argument -f n'a pas d'effet avec l'argument -c" },
+                { "passwordCopied", "Mot de passe copié dans le presse-papier" },
+                { "terminalWillCleared", "Le terminal va être effacé dans {0} seconde(s)" },
+                { "error.invalidGpgKey", "L'identifiant de la clé GPG est invalide" },
+                { "questions.gpgId", "Identifiant de la clé GPG" },
+                {
+                    "questions.gitRepositoryUrl",
+                    "URL du dépôt [bold yellow]privé[/] git distant (GitHub, GitLab, etc.)"
+                },
+                { "error.gitUrlEmpty", "L'URL du dépôt est vide" },
+                { "storeInitialized", "Magasin de mot de passe initialisé" },
+                { "key", "Nom" },
+                { "value", "Valeur" },
+                { "passwordIs", "Le mot de passe est" },
+                { "metadata.created", "Créé le" },
+                { "metadata.modified", "Modifié le" },
+                { "duplicate", "dupliquer" },
+                { "rename", "renommer" },
+                { "y", "o" },
+                { "n", "n" },
             }
         },
         {
@@ -126,10 +255,26 @@ public static class Locale
 
     #endregion
 
+    #region Members
+
+    private static string _selectedLanguage = English;
+
+    #endregion
+
     #region Public methods
 
-    public static string Get(string name, object[]? args = null, string language = English)
+    public static void SetLanguage(string value)
     {
+        _selectedLanguage = value;
+    }
+
+    public static string Get(string name, object[]? args = null, string language = "")
+    {
+        if (string.IsNullOrEmpty(language))
+        {
+            language = _selectedLanguage;
+        }
+
         if (!Translations.ContainsKey(language)) return $"('{language}' translations missing)";
         return !Translations[language].ContainsKey(name)
             ? $"('{language}' translation missing for '{name}')"

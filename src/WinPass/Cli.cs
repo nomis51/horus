@@ -138,6 +138,7 @@ public class Cli
                         Locale.Get("settings.defaultPasswordLength"),
                         Locale.Get("settings.defaultCustomAlphabet"),
                         Locale.Get("settings.defaultClearTimeout"),
+                        Locale.Get("settings.language"),
                         Locale.Get("save"),
                         Locale.Get("cancel")
                     )
@@ -175,6 +176,23 @@ public class Cli
             {
                 settings.ClearTimeout =
                     AnsiConsole.Ask($"{Locale.Get("questions.clearTimeout")}: ", settings.ClearTimeout);
+            }
+
+            if (choice == Locale.Get("settings.language"))
+            {
+                settings.Language = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title(Locale.Get("questions.language"))
+                            .AddChoices(
+                                "English",
+                                "French"
+                                // TODO: add more
+                            )
+                    ) switch
+                    {
+                        "French" => Locale.French,
+                        _ => Locale.English
+                    };
             }
         }
     }
@@ -478,15 +496,16 @@ public class Cli
         }
 
         var choice =
-            AnsiConsole.Ask<string>(
+            AnsiConsole.Ask(
                 Locale.Get("questions.confirmWantsToRenamePassword", new[]
                 {
-                    duplicate ? "duplicate" : "rename",
-                    name, newName
+                    duplicate ? Locale.Get("duplicate") : Locale.Get("rename"),
+                    name,
+                    newName
                 }),
-                "n").ToLower();
+                Locale.Get("n")).ToLower();
 
-        if (choice != "y") return;
+        if (choice != Locale.Get("y")) return;
 
         var (_, error) = AppService.Instance.RenamePassword(name, newName, duplicate);
 
@@ -521,7 +540,7 @@ public class Cli
             .Ask<string>(Locale.Get("questions.confirmDeletePassword", new[] { name }), "n")
             .ToLower();
 
-        if (choice != "y") return;
+        if (choice != Locale.Get("y")) return;
 
         var (_, error) = AppService.Instance.DeletePassword(name);
 
@@ -873,15 +892,15 @@ public class Cli
         {
             Border = TableBorder.Rounded,
         };
-        table.AddColumn("Key");
-        table.AddColumn("Value");
+        table.AddColumn(Locale.Get("key"));
+        table.AddColumn(Locale.Get("value"));
 
         foreach (var m in metadata.OrderBy(m => m.Type))
         {
             table.AddRow(
                 m.Type switch
                 {
-                    MetadataType.Internal => $"[red]{m.Key}[/]",
+                    MetadataType.Internal => $"[red]{Locale.Get($"metadata.{m.Key}")}[/]",
                     _ => m.Key
                 },
                 m.Value.Trim()
@@ -900,7 +919,7 @@ public class Cli
         };
 
         table.AddColumn(string.Empty);
-        table.AddRow($"Password is [yellow]{value.EscapeMarkup()}[/]");
+        table.AddRow($"{Locale.Get("passwordIs")} [yellow]{value.EscapeMarkup()}[/]");
         AnsiConsole.Write(table);
         table.Rows.Clear();
         table = null;
