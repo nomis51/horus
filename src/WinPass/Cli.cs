@@ -211,9 +211,15 @@ public class Cli
             return;
         }
 
-        var (result, error) = AppService.Instance.ExecuteGitCommand(args.ToArray());
-        AnsiConsole.WriteLine(result);
-        AnsiConsole.WriteLine(error);
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .SpinnerStyle(Style.Parse("blue"))
+            .Start("Running git command...", _ =>
+            {
+                var (result, error) = AppService.Instance.ExecuteGitCommand(args.ToArray());
+                AnsiConsole.WriteLine(result);
+                AnsiConsole.WriteLine(error);
+            });
     }
 
     private void Help()
@@ -657,7 +663,13 @@ public class Cli
         }
 
         var term = args[0];
-        var entries = AppService.Instance.Search(term);
+        List<StoreEntry> entries = new();
+
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .SpinnerStyle(Style.Parse("blue"))
+            .Start("Searching...", _ => { entries = AppService.Instance.Search(term); });
+
         var tree = new Tree(string.Empty);
         RenderEntries(entries, tree);
         AnsiConsole.Write(tree);
@@ -872,14 +884,20 @@ public class Cli
             return;
         }
 
-        var (_, error) = AppService.Instance.InitializeStoreFolder(gpgId, gitUrl);
-        if (error is not null)
-        {
-            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
-            return;
-        }
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .SpinnerStyle(Style.Parse("blue"))
+            .Start("Initializing...", _ =>
+            {
+                var (_, error) = AppService.Instance.InitializeStoreFolder(gpgId, gitUrl);
+                if (error is not null)
+                {
+                    AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+                    return;
+                }
 
-        AnsiConsole.MarkupLine($"[green]{Locale.Get("storeInitialized")}[/]");
+                AnsiConsole.MarkupLine($"[green]{Locale.Get("storeInitialized")}[/]");
+            });
     }
 
     #endregion
