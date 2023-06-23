@@ -14,7 +14,10 @@ public class FsService : IService
 
     private const string StoreFolderName = ".password-store";
     private const string GpgIdFileName = ".gpg-id";
-    private const string StoreFolderPathTemplate = $"%USERPROFILE%\\{StoreFolderName}\\";
+
+    private readonly string _storeFolderPathTemplate =
+        $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{StoreFolderName}/";
+
     private readonly string _storeFolderPath;
 
     #endregion
@@ -23,7 +26,7 @@ public class FsService : IService
 
     public FsService()
     {
-        _storeFolderPath = Environment.ExpandEnvironmentVariables(StoreFolderPathTemplate);
+        _storeFolderPath = Environment.ExpandEnvironmentVariables(_storeFolderPathTemplate);
     }
 
     #endregion
