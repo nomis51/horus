@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
@@ -38,13 +39,16 @@ public static class UpdateHelper
         AddToPath(dirName);
 #endif
     }
+
     #endregion
 
     #region Private methods
-    
 
     private static void AddToPath(string path)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+            !RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
+
         var name = "PATH";
         var scope = EnvironmentVariableTarget.User;
         var oldValue = Environment.GetEnvironmentVariable(name, scope);
@@ -55,11 +59,15 @@ public static class UpdateHelper
 
         if (oldValue.Contains(path)) return;
 
-        oldValue = string.Join(";",
-            oldValue.Split(";", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                .Where(v => !v.Contains("WinPass")));
+        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        var separator = isWindows ? ";" : ":";
 
-        var newValue = oldValue + $";{path}";
+        oldValue = string.Join(separator,
+            oldValue.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Where(v => !v.Contains(isWindows ? "WinPass" : "winpass")));
+
+        var newValue = oldValue + $"{separator}{path}";
+
         Environment.SetEnvironmentVariable(name, newValue, scope);
         Log.Information("Application added to PATH");
     }
