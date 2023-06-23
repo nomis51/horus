@@ -184,13 +184,15 @@ public class Cli
                         new SelectionPrompt<string>()
                             .Title(Locale.Get("questions.language"))
                             .AddChoices(
-                                "English",
-                                "French"
+                                nameof(Locale.English),
+                                nameof(Locale.French),
+                                nameof(Locale.German)
                                 // TODO: add more
                             )
                     ) switch
                     {
                         "French" => Locale.French,
+                        "German" => Locale.German,
                         _ => Locale.English
                     };
             }
