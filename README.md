@@ -7,15 +7,15 @@ There are several implementations of `pass` targeting different platforms and ne
 
 ## Installation
 - Have [Git](https://git-scm.com/download/win) installed
-- Have [GnuPG for Windows](https://gnupg.org/download/) installed
+- Have [GnuPG for Windows](https://gnupg.org/download/) or GPG (linux) installed
 - Have [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) installed
 - Go to the [Release](https://github.com/nomis51/winpass/releases/latest) section
-- Download the `WinPass.zip` file
+- Download the `WinPass.zip` file of your OS (e.g. `WinPass-win.zip` for Windows or `WinPass-linux.zip` for Linux)
 - Extract anywhere you want
-- Execute `./WinPass.exe version`
+- Execute `./winpass version`
 - Enjoy!
 
-Upon the first execution, `winpass` will add itself to the Windows `PATH` to make it globally available in the terminal. (You might need to restart your terminal)
+Upon the first execution, `winpass` will add itself to the `PATH` variable to make it globally available in the terminal. (You might need to restart your terminal)
 
 ## Get started
 - Make sure you've created or imported your GPG keys
