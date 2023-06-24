@@ -10,7 +10,7 @@ There are several implementations of `pass` targeting different platforms and ne
 - Have [GnuPG for Windows](https://gnupg.org/download/) or GPG (linux) installed
 - Have [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) installed (for linux follow the instructions [here](https://learn.microsoft.com/en-us/dotnet/core/install/linux) or use `pacman` on Arch)
 - Go to the [Release](https://github.com/nomis51/winpass/releases/latest) section
-- Download the `WinPass.zip` file of your OS (e.g. `WinPass-win.zip` for Windows or `WinPass-linux.zip` for Linux)
+- Download the `WinPass.zip` file for your OS (e.g. `WinPass-win.zip` for Windows or `WinPass-linux.zip` for Linux)
 - Extract anywhere you want
 - Execute `./winpass version`
 - Enjoy!
@@ -20,7 +20,7 @@ Upon the first execution, `winpass` will add itself to the `PATH` variable to ma
 ## Get started
 - Make sure you've created or imported your GPG keys
 - Make sure you have a **private** remote git repository created (e.g. GitHub, GitLab, etc.)
-- Make sure you have authenticated to that remote git repository (SSH, GPG, GitHub CLI, etc.)
+- Make sure you have authenticated to that remote git repository (SSH, GPG, [GitHub CLI](https://cli.github.com/manual/installation), etc.)
 - Run `winpass init` and follow the instructions
 
 ## Update
