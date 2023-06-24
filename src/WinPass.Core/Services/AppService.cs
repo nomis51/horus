@@ -185,13 +185,18 @@ public class AppService : IService
 
     public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey, string gitUrl)
     {
-        if (!_gitService.Clone(gitUrl, GetStorePath()))
+        var storePath = GetStorePath();
+        if (!_gitService.Clone(gitUrl, storePath))
             return new ResultStruct<byte, Error?>(new GitCloneFailedError());
 
         var (_, error) = _fsService.InitializeStoreFolder(gpgKey);
-        if (error is not null) return new ResultStruct<byte, Error?>(error);
+        if (error is not null)
+        {
+            _gitService.DeleteRepository(storePath);
+            return new ResultStruct<byte, Error?>(error);
+        }
 
-        return _gitService.Commit("Add gpg-id file");
+        return _gitService.Commit("Add '.gpg-id' file");
     }
 
     public bool IsKeyValid(string key)

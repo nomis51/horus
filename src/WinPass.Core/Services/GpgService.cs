@@ -165,11 +165,14 @@ public class GpgService : IService
             return false;
         }
 
-        const string expireLabel = "[E] [expire : ";
+        const string expireTag = "[E]";
+        const string expireLabel = "[expires: ";
         var expireLine = result.Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .FirstOrDefault(l => l.Contains(expireLabel));
+            .FirstOrDefault(l => l.Contains(expireTag));
         if (string.IsNullOrEmpty(expireLine)) return false;
 
+        if(!expireLine.Contains(expireLabel)) return true;
+        
         var startIndex = expireLine.IndexOf(expireLabel, StringComparison.Ordinal);
         if (startIndex == -1) return false;
 
@@ -181,6 +184,7 @@ public class GpgService : IService
         var date = expireLine[startIndex..endIndex];
         if (!DateTime.TryParse(date, out var dateTime)) return false;
 
+        return false;
         return dateTime > DateTime.Now;
     }
 
