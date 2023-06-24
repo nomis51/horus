@@ -20,7 +20,7 @@ Upon the first execution, `winpass` will add itself to the `PATH` variable to ma
 ## Get started
 - Make sure you've created or imported your GPG keys
 - Make sure you have a **private** remote git repository created (e.g. GitHub, GitLab, etc.)
-- Make sure you have authenticated to that remote git repository (SSH, GPG, GitHub CLI, etc.)
+- Make sure you have authenticated to that remote git repository (SSH, GPG, [GitHub CLI)(https://cli.github.com/manual/installation), etc.)
 - Run `winpass init` and follow the instructions
 
 ## Update
