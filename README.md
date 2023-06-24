@@ -10,7 +10,7 @@ There are several implementations of `pass` targeting different platforms and ne
 - Have [GnuPG for Windows](https://gnupg.org/download/) or GPG (linux) installed
 - Have [.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) installed (for linux follow the instructions [here](https://learn.microsoft.com/en-us/dotnet/core/install/linux) or use `pacman` on Arch)
 - Go to the [Release](https://github.com/nomis51/winpass/releases/latest) section
-- Download the `WinPass.zip` file of your OS (e.g. `WinPass-win.zip` for Windows or `WinPass-linux.zip` for Linux)
+- Download the `WinPass.zip` file for your OS (e.g. `WinPass-win.zip` for Windows or `WinPass-linux.zip` for Linux)
 - Extract anywhere you want
 - Execute `./winpass version`
 - Enjoy!
