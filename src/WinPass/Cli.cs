@@ -524,8 +524,8 @@ public class Cli
         }
 
         AnsiConsole.MarkupLine(duplicate
-            ? $"[green]{Locale.Get("passwordDuplicated", new[] { name, newName })}[/]"
-            : $"[green]{Locale.Get("passwordRenamed", new[] { name, newName })}[/]");
+            ? $"[green]{Locale.Get("passwordDuplicated", new object[] { name, newName })}[/]"
+            : $"[green]{Locale.Get("passwordRenamed", new object[] { name, newName })}[/]");
     }
 
     private void Delete(IReadOnlyCollection<string> args)
@@ -545,7 +545,7 @@ public class Cli
         var name = args.Last();
 
         var choice = AnsiConsole
-            .Ask<string>(Locale.Get("questions.confirmDeletePassword", new[] { name }), "n")
+            .Ask<string>(Locale.Get("questions.confirmDeletePassword", new object[] { name }), "n")
             .ToLower();
 
         if (choice != Locale.Get("y")) return;
@@ -558,7 +558,7 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine($"[green]{Locale.Get("passwordRemoved", new[] { name })}[/]");
+        AnsiConsole.MarkupLine($"[green]{Locale.Get("passwordRemoved", new object[] { name })}[/]");
     }
 
     private void Generate(IReadOnlyList<string> args)
@@ -579,7 +579,7 @@ public class Cli
         if (errorSettings is not null)
         {
             AnsiConsole.MarkupLine(
-                $"[yellow]{Locale.Get("error.loadingSettings", new[] { errorSettings.Message })}[/]");
+                $"[yellow]{Locale.Get("error.loadingSettings", new object[] { errorSettings.Message })}[/]");
         }
 
         var name = args[^1];
@@ -638,12 +638,13 @@ public class Cli
 
         if (copy)
         {
-            AnsiConsole.MarkupLine(Locale.Get("passwordGeneratedAndCopied", new[] { name }));
-            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("clipboardWillCleared", new[] { timeout.ToString() })}[/]");
+            AnsiConsole.MarkupLine(Locale.Get("passwordGeneratedAndCopied", new object[] { name }));
+            AnsiConsole.MarkupLine(
+                $"[yellow]{Locale.Get("clipboardWillCleared", new object[] { timeout.ToString() })}[/]");
             return;
         }
 
-        AnsiConsole.MarkupLine(Locale.Get("passwordGenerated", new[] { name }));
+        AnsiConsole.MarkupLine(Locale.Get("passwordGenerated", new object[] { name }));
 
         DisplayPassword(password);
         password = null;
@@ -695,7 +696,7 @@ public class Cli
 
         if (AppService.Instance.DoEntryExists(name))
         {
-            AnsiConsole.MarkupLine($"[red]{Locale.Get("passwordAlreadyExists", new[] { name })}[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("passwordAlreadyExists", new object[] { name })}[/]");
             return;
         }
 
@@ -726,7 +727,7 @@ public class Cli
             return;
         }
 
-        AnsiConsole.MarkupLine(Locale.Get("passwordCreated", new[] { name }));
+        AnsiConsole.MarkupLine(Locale.Get("passwordCreated", new object[] { name }));
     }
 
     private void ClearClipboard(IReadOnlyList<string> args)
@@ -759,7 +760,7 @@ public class Cli
         if (errorSettings is not null)
         {
             AnsiConsole.MarkupLine(
-                $"[yellow]{Locale.Get("error.loadingSettings", new[] { errorSettings.Message })}[/]");
+                $"[yellow]{Locale.Get("error.loadingSettings", new object[] { errorSettings.Message })}[/]");
         }
 
         var copy = false;
@@ -819,7 +820,8 @@ public class Cli
         if (copy)
         {
             AnsiConsole.MarkupLine($"[green]{Locale.Get("passwordCopied")}[/]");
-            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("clipboardWillCleared", new[] { timeout.ToString() })}[/]");
+            AnsiConsole.MarkupLine(
+                $"[yellow]{Locale.Get("clipboardWillCleared", new object[] { timeout.ToString() })}[/]");
             return;
         }
 
@@ -839,7 +841,8 @@ public class Cli
 
             if (dontClear) return;
 
-            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("terminalWillCleared", new[] { timeout.ToString() })}[/]");
+            AnsiConsole.MarkupLine(
+                $"[yellow]{Locale.Get("terminalWillCleared", new object[] { timeout.ToString() })}[/]");
 
             Thread.Sleep(timeout * 1000);
             Console.Clear();
