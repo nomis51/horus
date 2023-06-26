@@ -19,14 +19,6 @@ public class Cli
 
     private static readonly Regex RegMetadataKey = new("[a-z0-9]{1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    private static readonly IEnumerable<string> _whiteListCommands = new[]
-    {
-        "init",
-        "version",
-        "cc",
-        "help"
-    };
-
     #endregion
 
     #region Public methods
@@ -43,16 +35,6 @@ public class Cli
         if (args.Length == 0)
         {
             args = new[] { "ls" };
-        }
-
-        if (!_whiteListCommands.Contains(args[0]))
-        {
-            if (!AppService.Instance.AcquireLock())
-            {
-                AnsiConsole.MarkupLine(
-                    "[red]Unable to acquire lock. There must be another instance of winpass currently running[/]");
-                return;
-            }
         }
 
         var commandArgs = args.Skip(1).ToList();
@@ -138,6 +120,8 @@ public class Cli
 
     private void Terminate()
     {
+        if (!AcquireLock()) return;
+        
         var choice =
             AnsiConsole.Ask($"{Locale.Get("questions.confirmTerminateStore")}?",
                 Locale.Get("n"));
@@ -155,6 +139,7 @@ public class Cli
 
     private void Config()
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -248,6 +233,7 @@ public class Cli
 
     private void Git(IEnumerable<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -346,6 +332,7 @@ public class Cli
 
     private void Edit(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -513,6 +500,7 @@ public class Cli
 
     private void Rename(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -571,6 +559,7 @@ public class Cli
 
     private void Delete(IReadOnlyCollection<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -604,6 +593,7 @@ public class Cli
 
     private void Generate(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -721,6 +711,8 @@ public class Cli
 
     private void Insert(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
+
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -949,6 +941,15 @@ public class Cli
     #endregion
 
     #region Private methods
+
+    private bool AcquireLock()
+    {
+        if (AppService.Instance.AcquireLock()) return true;
+
+        AnsiConsole.MarkupLine(
+            "[red]Unable to acquire lock. There must be another instance of winpass currently running[/]");
+        return false;
+    }
 
     private void DisplayMetadata(List<Metadata> metadata)
     {
