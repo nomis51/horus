@@ -55,6 +55,16 @@ public class AppService : IService
 
     #region Public methods
 
+    public bool AcquireLock()
+    {
+        return _fsService.AcquireLock();
+    }
+
+    public void ReleaseLock()
+    {
+        _fsService.ReleaseLock();
+    }
+
     public void DeleteRepository(string path)
     {
         _gitService.DeleteRepository(path);
@@ -88,6 +98,11 @@ public class AppService : IService
     public Result<Settings?, Error?> DecryptSettings(string filePath)
     {
         return _gpgService.DecryptSettings(filePath);
+    }
+
+    public ResultStruct<byte, Error?> DecryptLock(string filePath)
+    {
+        return _gpgService.DecryptLock(filePath);
     }
 
     public ResultStruct<byte, Error?> Verify()

@@ -19,6 +19,14 @@ public class Cli
 
     private static readonly Regex RegMetadataKey = new("[a-z0-9]{1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+    private static readonly IEnumerable<string> _whiteListCommands = new[]
+    {
+        "init",
+        "version",
+        "cc",
+        "help"
+    };
+
     #endregion
 
     #region Public methods
@@ -35,6 +43,16 @@ public class Cli
         if (args.Length == 0)
         {
             args = new[] { "ls" };
+        }
+
+        if (!_whiteListCommands.Contains(args[0]))
+        {
+            if (!AppService.Instance.AcquireLock())
+            {
+                AnsiConsole.MarkupLine(
+                    "[red]Unable to acquire lock. There must be another instance of winpass currently running[/]");
+                return;
+            }
         }
 
         var commandArgs = args.Skip(1).ToList();
@@ -101,7 +119,7 @@ public class Cli
             case "config":
                 Config();
                 break;
-            
+
             case "terminate":
                 Terminate();
                 break;
@@ -110,6 +128,8 @@ public class Cli
                 AnsiConsole.MarkupLine("[red]Invalid command[/]");
                 break;
         }
+
+        AppService.Instance.ReleaseLock();
     }
 
     #endregion
@@ -129,10 +149,10 @@ public class Cli
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
             return;
         }
-        
+
         AnsiConsole.MarkupLine($"[green]{Locale.Get("storeTerminated")}[/]");
     }
-    
+
     private void Config()
     {
         if (!AppService.Instance.IsStoreInitialized())

@@ -14,11 +14,19 @@ public class FsService : IService
 
     private const string StoreFolderName = ".password-store";
     private const string GpgIdFileName = ".gpg-id";
+    private const string GpgLockFileName = ".gpg-lock";
+    public const string GpgLockContent = "lock";
 
     private readonly string _storeFolderPathTemplate =
         $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{StoreFolderName}/";
 
     private readonly string _storeFolderPath;
+
+    #endregion
+
+    #region Members
+
+    private FileStream? _lockFileStream;
 
     #endregion
 
@@ -33,8 +41,43 @@ public class FsService : IService
 
     #region Public methods
 
+    public bool AcquireLock()
+    {
+        if (_lockFileStream is not null) return false;
+
+        var filePath = Path.Join(StoreFolderName, GpgLockFileName);
+        if (!File.Exists(filePath))
+        {
+            var (_, error) = AppService.Instance.Encrypt(GetGpgId(), filePath, GpgLockContent);
+            if (error is not null) return false;
+        }
+        else
+        {
+            try
+            {
+                _lockFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void ReleaseLock()
+    {
+        if (_lockFileStream is null) return;
+        _lockFileStream.Close();
+        _lockFileStream = null;
+    }
+
+
     public ResultStruct<byte, Error?> TerminateStore()
     {
+        if (!VerifyLock()) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
+
         AppService.Instance.DeleteRepository(GetStorePath());
         return new ResultStruct<byte, Error?>(0);
     }
@@ -237,6 +280,17 @@ public class FsService : IService
     #endregion
 
     #region Private methods
+
+    private bool VerifyLock()
+    {
+        if (_lockFileStream is null) return false;
+
+        var filePath = Path.Join(StoreFolderName, GpgLockFileName);
+        if (!File.Exists(filePath)) return false;
+
+        var (_, error) = AppService.Instance.DecryptLock(filePath);
+        return error is null;
+    }
 
     private void EnumerateGpgFiles(string path, List<StoreEntry> entries, string searchText = "")
     {

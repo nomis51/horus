@@ -79,6 +79,25 @@ public class GpgService : IService
             : new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(result.FromBase64()));
     }
 
+    public ResultStruct<byte, Error?> DecryptLock(string filePath)
+    {
+        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
+        {
+            "--quiet",
+            "--yes",
+            "--compress-algo=none",
+            "--no-encrypt-to",
+            "-d",
+            filePath
+        });
+        if (!ok) return new ResultStruct<byte, Error?>(new GpgDecryptError(error));
+        if (string.IsNullOrWhiteSpace(result)) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
+        
+        return result.FromBase64() != FsService.GpgLockContent
+            ? new ResultStruct<byte, Error?>(new GpgDecryptLockFileError())
+            : new ResultStruct<byte, Error?>(0);
+    }
+
     public Result<Password?, Error?> DecryptPassword(string filePath, bool onlyMetadata = false)
     {
         var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
@@ -171,8 +190,8 @@ public class GpgService : IService
             .FirstOrDefault(l => l.Contains(expireTag));
         if (string.IsNullOrEmpty(expireLine)) return false;
 
-        if(!expireLine.Contains(expireLabel)) return true;
-        
+        if (!expireLine.Contains(expireLabel)) return true;
+
         var startIndex = expireLine.IndexOf(expireLabel, StringComparison.Ordinal);
         if (startIndex == -1) return false;
 
