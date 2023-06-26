@@ -91,7 +91,7 @@ public static class Locale
                     "questions.confirmDeletePassword",
                     "Are you sure you want to delete the password [blue]{0}[/]? [blue](y/n)[/]"
                 },
-                { "passwordRemoved", "Password [blue]{0}[/] removed" },
+                { "passwordRemoved", "Password [blue]{0}[/] removed. You can revert this action using git" },
                 { "error.loadingSettings", "Error while loading settings: {0}. Using default settings instead" },
                 { "passwordGeneratedAndCopied", "Password for [blue]{0}[/] generated and [yellow]copied[/]" },
                 { "clipboardWillCleared", "Clipboard will be cleared in {0} second(s)" },
@@ -206,7 +206,10 @@ public static class Locale
                     "questions.confirmDeletePassword",
                     "Êtes-vous sûr de vouloir supprimer le mot de passe [blue]{0}[/]? [blue](o/n)[/]"
                 },
-                { "passwordRemoved", "Le mot de passe [blue]{0}[/] a été supprimé" },
+                {
+                    "passwordRemoved",
+                    "Le mot de passe [blue]{0}[/] a été supprimé. Vous pouvez annuler cette opération en utilisant git"
+                },
                 {
                     "error.loadingSettings",
                     "Une erreur est survenue lors de la lecture des paramètres: {0}. Les paramètres par défaut seront utilisés"
@@ -259,8 +262,14 @@ public static class Locale
                 { "questions.whatToEdit", "Was möchten Sie bearbeiten" },
                 { "settings.saved", "Einstellungen werden gespeichert" },
                 { "questions.passwordLength", "Länge (Geben Sie 0 ein auf die Standardeinstellungen zurücksetzen)" },
-                { "questions.customAlphabet", "Alphabet (Geben Sie 'r' ein auf die Standardeinstellungen zurücksetzen)" },
-                { "questions.clearTimeout", "Klare Auszeit (Geben Sie 0 ein auf die Standardeinstellungen zurücksetzen)" },
+                {
+                    "questions.customAlphabet",
+                    "Alphabet (Geben Sie 'r' ein auf die Standardeinstellungen zurücksetzen)"
+                },
+                {
+                    "questions.clearTimeout",
+                    "Klare Auszeit (Geben Sie 0 ein auf die Standardeinstellungen zurücksetzen)"
+                },
                 { "version", "winpass ausgabe" },
                 { "help.command", "Befehl" },
                 { "help.description", "Beschreibung" },
@@ -290,7 +299,8 @@ public static class Locale
                 { "help.description.delete", "Löschen Sie das Passwort mit dem Namen [name]".EscapeMarkup() },
                 {
                     "help.description.rename",
-                    "Benennen Sie das Passwort mit dem Namen [name] um oder duplizieren Sie es\n\nArgumente:\n".EscapeMarkup() + string.Join("\n",
+                    "Benennen Sie das Passwort mit dem Namen [name] um oder duplizieren Sie es\n\nArgumente:\n"
+                        .EscapeMarkup() + string.Join("\n",
                         "-d : Duplizieren Sie das Passwort mit dem Namen [name], anstatt es umzubenennen".EscapeMarkup()
                     )
                 },
@@ -325,8 +335,14 @@ public static class Locale
                     "questions.confirmDeletePassword",
                     "Sind Sie sicher, dass Sie das Passwort [blue]{0}[/] löschen möchten? [blue](j/n)[/]"
                 },
-                { "passwordRemoved", "Passwort [blue]{0}[/] entfernt" },
-                { "error.loadingSettings", "Fehler beim Laden der Einstellungen: {0}. Stattdessen werden Standardeinstellungen verwendet" },
+                {
+                    "passwordRemoved",
+                    "Passwort [blue]{0}[/] entfernt. Sie können diese aktion mit git rückgängig machen"
+                },
+                {
+                    "error.loadingSettings",
+                    "Fehler beim Laden der Einstellungen: {0}. Stattdessen werden Standardeinstellungen verwendet"
+                },
                 { "passwordGeneratedAndCopied", "Passwort für [blue]{0}[/] generiert und [yellow]kopiert[/]" },
                 { "clipboardWillCleared", "Die Zwischenablage wird in {0} Sekunde(n) geleert" },
                 { "passwordGenerated", "Passwort für [blue]{0}[/] generiert" },
