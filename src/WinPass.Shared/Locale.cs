@@ -262,6 +262,14 @@ public static class Locale
                     "Êtes-vous sûr de vouloir [red]supprimer[/] complètement le magasin de mot de passe courant"
                 },
                 { "storeDestroyed", "Magasin de mot de passe supprimé" },
+                {
+                    "repositoryAhead",
+                    "Vous avez des changements locaux qui n'ont pas été sauvegardés sur le dépôt distant"
+                },
+                {
+                    "questions.syncChangesBeforeDelete",
+                    "Voulez-vous sauvegarder les changements sur le dépôt distant avant de supprimer le magasin de mot de passe? (o/n)"
+                }
             }
         },
         {
