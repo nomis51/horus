@@ -33,6 +33,12 @@ public class FsService : IService
 
     #region Public methods
 
+    public ResultStruct<byte, Error?> TerminateStore()
+    {
+        AppService.Instance.DeleteRepository(GetStorePath());
+        return new ResultStruct<byte, Error?>(0);
+    }
+
     public ResultStruct<byte, Error?> SaveSettings(Settings settings)
     {
         var filePath = Path.Join(_storeFolderPath, ".settings");

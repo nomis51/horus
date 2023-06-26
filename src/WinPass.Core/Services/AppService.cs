@@ -55,6 +55,16 @@ public class AppService : IService
 
     #region Public methods
 
+    public void DeleteRepository(string path)
+    {
+        _gitService.DeleteRepository(path);
+    }
+    
+    public ResultStruct<byte, Error?> TerminateStore()
+    {
+        return _fsService.TerminateStore();
+    }
+
     public bool IsStoreInitialized()
     {
         return _fsService.IsStoreInitialized();

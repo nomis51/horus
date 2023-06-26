@@ -101,6 +101,10 @@ public class Cli
             case "config":
                 Config();
                 break;
+            
+            case "terminate":
+                Terminate();
+                break;
 
             default:
                 AnsiConsole.MarkupLine("[red]Invalid command[/]");
@@ -112,6 +116,23 @@ public class Cli
 
     #region Commands
 
+    private void Terminate()
+    {
+        var choice =
+            AnsiConsole.Ask($"{Locale.Get("questions.confirmTerminateStore")}?",
+                Locale.Get("n"));
+        if (choice != Locale.Get("y")) return;
+
+        var (_, error) = AppService.Instance.TerminateStore();
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
+        
+        AnsiConsole.MarkupLine($"[green]{Locale.Get("storeTerminated")}[/]");
+    }
+    
     private void Config()
     {
         if (!AppService.Instance.IsStoreInitialized())

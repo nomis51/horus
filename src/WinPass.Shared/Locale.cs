@@ -120,6 +120,11 @@ public static class Locale
                 { "rename", "rename" },
                 { "y", "y" },
                 { "n", "n" },
+                {
+                    "questions.confirmTerminateStore",
+                    "Are you sure you want to [red]delete[/] completely the current password store"
+                },
+                { "storeTerminated", "Store removed" },
             }
         },
 
@@ -247,6 +252,11 @@ public static class Locale
                 { "rename", "renommer" },
                 { "y", "o" },
                 { "n", "n" },
+                {
+                    "questions.confirmTerminateStore",
+                    "Êtes-vous sûr de vouloir [red]supprimer[/] complètement le magasin de mot de passe courant"
+                },
+                { "storeTerminated", "Magasin de mot de passe supprimé" },
             }
         },
         {
@@ -370,6 +380,11 @@ public static class Locale
                 { "rename", "umbenennen" },
                 { "y", "j" },
                 { "n", "n" },
+                {
+                    "questions.confirmTerminateStore",
+                    "Sind sie sicher, dass sie den aktuellen passwortspeicher vollständig [red]entfernen[/] möchten"
+                },
+                { "storeTerminated", "Passwortspeicher entfernt" },
             }
         },
     };
