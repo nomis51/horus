@@ -14,7 +14,7 @@ public class FsService : IService
 
     private const string StoreFolderName = ".password-store";
     private const string GpgIdFileName = ".gpg-id";
-    private const string GpgLockFileName = ".gpg-lock";
+    private const string AppLockFileName = ".lock";
     public const string GpgLockContent = "lock";
 
     private readonly string _storeFolderPathTemplate =
@@ -45,22 +45,22 @@ public class FsService : IService
     {
         if (_lockFileStream is not null) return false;
 
-        var filePath = Path.Join(StoreFolderName, GpgLockFileName);
+        var filePath = Path.Join(GetStorePath(), AppLockFileName);
         if (!File.Exists(filePath))
         {
             var (_, error) = AppService.Instance.Encrypt(GetGpgId(), filePath, GpgLockContent);
             if (error is not null) return false;
+
+            AppService.Instance.GitCommit($"Add lock file");
         }
-        else
+
+        try
         {
-            try
-            {
-                _lockFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            _lockFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
+        }
+        catch (Exception)
+        {
+            return false;
         }
 
         return true;
@@ -74,7 +74,7 @@ public class FsService : IService
     }
 
 
-    public ResultStruct<byte, Error?> TerminateStore()
+    public ResultStruct<byte, Error?> DestroyStore()
     {
         if (!VerifyLock()) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
 
@@ -285,7 +285,7 @@ public class FsService : IService
     {
         if (_lockFileStream is null) return false;
 
-        var filePath = Path.Join(StoreFolderName, GpgLockFileName);
+        var filePath = Path.Join(StoreFolderName, AppLockFileName);
         if (!File.Exists(filePath)) return false;
 
         _lockFileStream.Position = 0;

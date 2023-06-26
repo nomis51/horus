@@ -102,8 +102,8 @@ public class Cli
                 Config();
                 break;
 
-            case "terminate":
-                Terminate();
+            case "destroy":
+                Destroy();
                 break;
 
             default:
@@ -118,23 +118,67 @@ public class Cli
 
     #region Commands
 
-    private void Terminate()
+    private void Destroy()
     {
         if (!AcquireLock()) return;
-        
-        var choice =
-            AnsiConsole.Ask($"{Locale.Get("questions.confirmTerminateStore")}?",
-                Locale.Get("n"));
-        if (choice != Locale.Get("y")) return;
 
-        var (_, error) = AppService.Instance.TerminateStore();
+        var (isAhead, isAheadError) = AppService.Instance.IsAheadOfRemote();
+        if (isAheadError is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(isAheadError.Severity)}]{isAheadError.Message}[/]");
+            return;
+        }
+
+        var choiceSync = Locale.Get("y");
+        if (isAhead)
+        {
+            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("repositoryAhead")}[/]");
+            choiceSync =
+                AnsiConsole.Ask(Locale.Get("questions.syncChangesBeforeDelete"), Locale.Get("y"));
+            if (choiceSync == Locale.Get("y"))
+            {
+                var (_, pushError) = AppService.Instance.GitPush();
+                if (pushError is not null)
+                {
+                    AnsiConsole.MarkupLine($"[{GetErrorColor(pushError.Severity)}]{pushError.Message}[/]");
+                    return;
+                }
+            }
+        }
+
+        var choiceConfirmDelete =
+            AnsiConsole.Ask($"{Locale.Get("questions.confirmDestroyStore")}?",
+                Locale.Get("n"));
+        if (choiceConfirmDelete != Locale.Get("y")) return;
+
+        if (isAhead && choiceSync != Locale.Get("y"))
+        {
+            var (repositoryName, repositoryNameError) = AppService.Instance.GetRemoteRepositoryName();
+            if (repositoryNameError is not null)
+            {
+                AnsiConsole.MarkupLine(
+                    $"[{GetErrorColor(repositoryNameError.Severity)}]{repositoryNameError.Message}[/]");
+                return;
+            }
+
+            AnsiConsole.MarkupLine(
+                "Are you [yellow]really[/] sure you want to delete the store and [yellow]NOT[/] push local changes to the remote repository?");
+            _ = AnsiConsole.Prompt(
+                new TextPrompt<string>(
+                        $"If yes, please confirm by typing the name of the remote repository [green]({repositoryName})[/]: ")
+                    .Validate(v => v == repositoryName)
+                    .ValidationErrorMessage("Repository name doesn't match")
+            );
+        }
+
+        var (_, error) = AppService.Instance.DestroyStore();
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
             return;
         }
 
-        AnsiConsole.MarkupLine($"[green]{Locale.Get("storeTerminated")}[/]");
+        AnsiConsole.MarkupLine($"[green]{Locale.Get("storeDestroyed")}[/]");
     }
 
     private void Config()
