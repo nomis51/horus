@@ -288,7 +288,15 @@ public class FsService : IService
         var filePath = Path.Join(StoreFolderName, GpgLockFileName);
         if (!File.Exists(filePath)) return false;
 
-        var (_, error) = AppService.Instance.DecryptLock(filePath);
+        _lockFileStream.Position = 0;
+        using StreamReader reader = new(_lockFileStream);
+        var content = reader.ReadToEnd();
+        var tmpFile = Path.GetTempFileName();
+        File.WriteAllText(tmpFile, content);
+
+        var (_, error) = AppService.Instance.DecryptLock(tmpFile);
+        File.Delete(tmpFile);
+
         return error is null;
     }
 
