@@ -55,6 +55,21 @@ public class AppService : IService
 
     #region Public methods
 
+    public Result<string, Error?> GetRemoteRepositoryName()
+    {
+        return _gitService.GetRemoteRepositoryName(_fsService.GetStorePath());
+    }
+
+    public ResultStruct<byte, Error?> GitPush()
+    {
+        return _gitService.Push(_fsService.GetStorePath());
+    }
+
+    public ResultStruct<bool, Error?> IsAheadOfRemote()
+    {
+        return _gitService.IsAheadOfRemote(_fsService.GetStorePath());
+    }
+
     public bool AcquireLock()
     {
         return _fsService.AcquireLock();
@@ -69,10 +84,10 @@ public class AppService : IService
     {
         _gitService.DeleteRepository(path);
     }
-    
-    public ResultStruct<byte, Error?> TerminateStore()
+
+    public ResultStruct<byte, Error?> DestroyStore()
     {
-        return _fsService.TerminateStore();
+        return _fsService.DestroyStore();
     }
 
     public bool IsStoreInitialized()
@@ -221,7 +236,12 @@ public class AppService : IService
             return new ResultStruct<byte, Error?>(error);
         }
 
-        return _gitService.Commit("Add '.gpg-id' file");
+        return _gitService.Commit("Add '.gpg-id' file", storePath);
+    }
+
+    public ResultStruct<byte, Error?> GitCommit(string message)
+    {
+        return _gitService.Commit(message, GetStorePath());
     }
 
     public bool IsKeyValid(string key)
@@ -232,15 +252,6 @@ public class AppService : IService
     public void Initialize()
     {
         _fsService.Initialize();
-    }
-
-    #endregion
-
-    #region Private methods
-
-    private ResultStruct<byte, Error?> GitCommit(string message)
-    {
-        return _gitService.Commit(message);
     }
 
     #endregion

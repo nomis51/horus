@@ -49,6 +49,10 @@ public static class Program
                 e.StackTrace);
             AnsiConsole.MarkupLine($"[red]An error occured. Please see the logs at {logDir}[/]");
         }
+        finally
+        {
+            AppService.Instance.ReleaseLock();
+        }
     }
 
     #endregion

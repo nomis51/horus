@@ -19,14 +19,6 @@ public class Cli
 
     private static readonly Regex RegMetadataKey = new("[a-z0-9]{1}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-    private static readonly IEnumerable<string> _whiteListCommands = new[]
-    {
-        "init",
-        "version",
-        "cc",
-        "help"
-    };
-
     #endregion
 
     #region Public methods
@@ -43,16 +35,6 @@ public class Cli
         if (args.Length == 0)
         {
             args = new[] { "ls" };
-        }
-
-        if (!_whiteListCommands.Contains(args[0]))
-        {
-            if (!AppService.Instance.AcquireLock())
-            {
-                AnsiConsole.MarkupLine(
-                    "[red]Unable to acquire lock. There must be another instance of winpass currently running[/]");
-                return;
-            }
         }
 
         var commandArgs = args.Skip(1).ToList();
@@ -120,8 +102,8 @@ public class Cli
                 Config();
                 break;
 
-            case "terminate":
-                Terminate();
+            case "destroy":
+                Destroy();
                 break;
 
             default:
@@ -136,25 +118,72 @@ public class Cli
 
     #region Commands
 
-    private void Terminate()
+    private void Destroy()
     {
-        var choice =
-            AnsiConsole.Ask($"{Locale.Get("questions.confirmTerminateStore")}?",
-                Locale.Get("n"));
-        if (choice != Locale.Get("y")) return;
+        if (!AcquireLock()) return;
 
-        var (_, error) = AppService.Instance.TerminateStore();
+        var (isAhead, isAheadError) = AppService.Instance.IsAheadOfRemote();
+        if (isAheadError is not null)
+        {
+            AnsiConsole.MarkupLine($"[{GetErrorColor(isAheadError.Severity)}]{isAheadError.Message}[/]");
+            return;
+        }
+
+        var choiceSync = Locale.Get("y");
+        if (isAhead)
+        {
+            AnsiConsole.MarkupLine($"[yellow]{Locale.Get("repositoryAhead")}[/]");
+            choiceSync =
+                AnsiConsole.Ask(Locale.Get("questions.syncChangesBeforeDelete"), Locale.Get("y"));
+            if (choiceSync == Locale.Get("y"))
+            {
+                var (_, pushError) = AppService.Instance.GitPush();
+                if (pushError is not null)
+                {
+                    AnsiConsole.MarkupLine($"[{GetErrorColor(pushError.Severity)}]{pushError.Message}[/]");
+                    return;
+                }
+            }
+        }
+
+        var choiceConfirmDelete =
+            AnsiConsole.Ask($"{Locale.Get("questions.confirmDestroyStore")}?",
+                Locale.Get("n"));
+        if (choiceConfirmDelete != Locale.Get("y")) return;
+
+        if (isAhead && choiceSync != Locale.Get("y"))
+        {
+            var (repositoryName, repositoryNameError) = AppService.Instance.GetRemoteRepositoryName();
+            if (repositoryNameError is not null)
+            {
+                AnsiConsole.MarkupLine(
+                    $"[{GetErrorColor(repositoryNameError.Severity)}]{repositoryNameError.Message}[/]");
+                return;
+            }
+
+            AnsiConsole.MarkupLine(
+                "Are you [yellow]really[/] sure you want to delete the store and [yellow]NOT[/] push local changes to the remote repository?");
+            _ = AnsiConsole.Prompt(
+                new TextPrompt<string>(
+                        $"If yes, please confirm by typing the name of the remote repository [green]({repositoryName})[/]: ")
+                    .Validate(v => v == repositoryName)
+                    .ValidationErrorMessage("Repository name doesn't match")
+            );
+        }
+
+        var (_, error) = AppService.Instance.DestroyStore();
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
             return;
         }
 
-        AnsiConsole.MarkupLine($"[green]{Locale.Get("storeTerminated")}[/]");
+        AnsiConsole.MarkupLine($"[green]{Locale.Get("storeDestroyed")}[/]");
     }
 
     private void Config()
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -248,6 +277,7 @@ public class Cli
 
     private void Git(IEnumerable<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -346,6 +376,7 @@ public class Cli
 
     private void Edit(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -513,6 +544,7 @@ public class Cli
 
     private void Rename(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -571,6 +603,7 @@ public class Cli
 
     private void Delete(IReadOnlyCollection<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -604,6 +637,7 @@ public class Cli
 
     private void Generate(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -721,6 +755,8 @@ public class Cli
 
     private void Insert(IReadOnlyList<string> args)
     {
+        if (!AcquireLock()) return;
+
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -949,6 +985,15 @@ public class Cli
     #endregion
 
     #region Private methods
+
+    private bool AcquireLock()
+    {
+        if (AppService.Instance.AcquireLock()) return true;
+
+        AnsiConsole.MarkupLine(
+            "[red]Unable to acquire lock. There must be another instance of winpass currently running[/]");
+        return false;
+    }
 
     private void DisplayMetadata(List<Metadata> metadata)
     {

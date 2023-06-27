@@ -121,10 +121,15 @@ public static class Locale
                 { "y", "y" },
                 { "n", "n" },
                 {
-                    "questions.confirmTerminateStore",
+                    "questions.confirmDestroyStore",
                     "Are you sure you want to [red]delete[/] completely the current password store"
                 },
-                { "storeTerminated", "Store removed" },
+                { "storeDestroyed", "Store removed" },
+                { "repositoryAhead", "You have local changes that haven't been pushed to the remote repository" },
+                {
+                    "questions.syncChangesBeforeDelete",
+                    "Do you want to push those changes before deleting the store? (y/n)"
+                }
             }
         },
 
@@ -253,10 +258,18 @@ public static class Locale
                 { "y", "o" },
                 { "n", "n" },
                 {
-                    "questions.confirmTerminateStore",
+                    "questions.confirmDestroyStore",
                     "Êtes-vous sûr de vouloir [red]supprimer[/] complètement le magasin de mot de passe courant"
                 },
-                { "storeTerminated", "Magasin de mot de passe supprimé" },
+                { "storeDestroyed", "Magasin de mot de passe supprimé" },
+                {
+                    "repositoryAhead",
+                    "Vous avez des changements locaux qui n'ont pas été sauvegardés sur le dépôt distant"
+                },
+                {
+                    "questions.syncChangesBeforeDelete",
+                    "Voulez-vous sauvegarder les changements sur le dépôt distant avant de supprimer le magasin de mot de passe? (o/n)"
+                }
             }
         },
         {
@@ -381,10 +394,10 @@ public static class Locale
                 { "y", "j" },
                 { "n", "n" },
                 {
-                    "questions.confirmTerminateStore",
+                    "questions.confirmDestroyStore",
                     "Sind sie sicher, dass sie den aktuellen passwortspeicher vollständig [red]entfernen[/] möchten"
                 },
-                { "storeTerminated", "Passwortspeicher entfernt" },
+                { "storeDestroyed", "Passwortspeicher entfernt" },
             }
         },
     };
