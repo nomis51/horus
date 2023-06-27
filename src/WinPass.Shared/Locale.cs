@@ -275,110 +275,110 @@ public static class Locale
         {
             German, new Dictionary<string, string>
             {
-                { "settings.defaultPasswordLength", "Die Standardkennwortlänge" },
-                { "settings.defaultCustomAlphabet", "Das standardmäßige benutzerdefinierte Alphabet" },
-                { "settings.defaultClearTimeout", "Das Standard-Löschzeitlimit" },
-                { "settings.language", "Sprache der Bewerbung" },
+                { "settings.defaultPasswordLength", "Die standardkennwortlänge" },
+                { "settings.defaultCustomAlphabet", "Das standardmäßige benutzerdefinierte alphabet" },
+                { "settings.defaultClearTimeout", "Das standard-löschzeitlimit" },
+                { "settings.language", "Sprache der bewerbung" },
                 { "questions.language", "Sprache" },
                 { "save", "Speichern" },
                 { "cancel", "Stornieren" },
                 { "questions.whatToEdit", "Was möchten Sie bearbeiten" },
                 { "settings.saved", "Einstellungen werden gespeichert" },
-                { "questions.passwordLength", "Länge (Geben Sie 0 ein auf die Standardeinstellungen zurücksetzen)" },
+                { "questions.passwordLength", "Länge (Geben sie 0 ein auf die standardeinstellungen zurücksetzen)" },
                 {
                     "questions.customAlphabet",
-                    "Alphabet (Geben Sie 'r' ein auf die Standardeinstellungen zurücksetzen)"
+                    "Alphabet (Geben sie 'r' ein auf die standardeinstellungen zurücksetzen)"
                 },
                 {
                     "questions.clearTimeout",
-                    "Klare Auszeit (Geben Sie 0 ein auf die Standardeinstellungen zurücksetzen)"
+                    "Klare auszeit (Geben sie 0 ein auf die standardeinstellungen zurücksetzen)"
                 },
                 { "version", "winpass ausgabe" },
                 { "help.command", "Befehl" },
                 { "help.description", "Beschreibung" },
                 { "help.example", "Beispiel" },
-                { "help.description.init", "Initialisieren Sie den Passwortspeicher" },
-                { "help.description.ls", "Zeigen Sie die Liste der Passwörter im Store an" },
+                { "help.description.init", "Initialisieren Sie den passwortspeicher" },
+                { "help.description.ls", "Zeigen sie die liste der passwörter im store an" },
                 {
                     "help.description.show",
-                    "Zeigen Sie das von [name] angeforderte Passwort an\n\nArgumente:\n".EscapeMarkup() +
+                    "Zeigen Sie das von [name] angeforderte passwort an\n\nArgumente:\n".EscapeMarkup() +
                     string.Join("\n",
-                        "-c : Kopieren Sie das Passwort in die Zwischenablage, anstatt es anzuzeigen",
-                        "-m : Zeigen Sie ggf. die Metadaten des Passworts an (Passwort nicht anzeigen)",
+                        "-c : Kopieren Sie das passwort in die zwischenablage, anstatt es anzuzeigen",
+                        "-m : Zeigen Sie ggf die metadaten des passworts an (passwort nicht anzeigen)",
                         "-f : Leeren Sie das Terminal nicht automatisch nach einer Weile",
-                        "-p : Zeigt das Passwort an, wenn -m angegeben ist"
+                        "-p : Zeigt das passwort an, wenn -m angegeben ist"
                     )
                 },
-                { "help.description.insert", "Geben Sie ein neues Passwort mit dem Namen [name] ein".EscapeMarkup() },
+                { "help.description.insert", "Geben sie ein neues passwort mit dem namen [name] ein".EscapeMarkup() },
                 {
                     "help.description.generate",
-                    "Generieren Sie ein neues Passwort mit dem Namen [name]\n\nArgumente:\n".EscapeMarkup() +
+                    "Generieren sie ein neues passwort mit dem namen [name]\n\nArgumente:\n".EscapeMarkup() +
                     string.Join("\n",
-                        "-s : Größe des Passworts (standard: 20)",
-                        "-a : Das benutzerdefinierte Alphabet zum Generieren des Passworts",
-                        "-c : Kopieren Sie das Passwort in die Zwischenablage, anstatt es anzuzeigen"
+                        "-s : Größe des passworts (standard: 20)",
+                        "-a : Das benutzerdefinierte alphabet zum generieren des passworts",
+                        "-c : Kopieren sie das passwort in die zwischenablage, anstatt es anzuzeigen"
                     )
                 },
-                { "help.description.delete", "Löschen Sie das Passwort mit dem Namen [name]".EscapeMarkup() },
+                { "help.description.delete", "Löschen sie das passwort mit dem namen [name]".EscapeMarkup() },
                 {
                     "help.description.rename",
-                    "Benennen Sie das Passwort mit dem Namen [name] um oder duplizieren Sie es\n\nArgumente:\n"
+                    "Benennen sie das passwort mit dem namen [name] um oder duplizieren sie es\n\nArgumente:\n"
                         .EscapeMarkup() + string.Join("\n",
-                        "-d : Duplizieren Sie das Passwort mit dem Namen [name], anstatt es umzubenennen".EscapeMarkup()
+                        "-d : Duplizieren sie das passwort mit dem namen [name], anstatt es umzubenennen".EscapeMarkup()
                     )
                 },
-                { "help.description.find", "Passwörter oder Metadaten finden, die [text] enthalten".EscapeMarkup() },
-                { "help.description.git", "Führen Sie den Git-Befehl im Passwortspeicher-Repository aus" },
-                { "help.description.help", "Zeigen Sie die Hilfe an (dieses)" },
+                { "help.description.find", "Passwörter oder metadaten finden, die [text] enthalten".EscapeMarkup() },
+                { "help.description.git", "Führen sie den Git-befehl im passwortspeicher-repository aus" },
+                { "help.description.help", "Zeigen sie die hilfe an (dieses)" },
                 { "help.description.version", "Version anzeigen" },
-                { "cli.args.passwordNameRequired", "Argument für den Passwortnamen erforderlich" },
-                { "questions.whatToEditOn", "Was möchten Sie bearbeiten" },
-                { "saveAndQuit", "Speichern und Beenden" },
-                { "thePassword", "Das Passwort" },
-                { "theMetadata", "Die Metadaten" },
+                { "cli.args.passwordNameRequired", "Argument für den passwortnamen erforderlich" },
+                { "questions.whatToEditOn", "Was möchten sie bearbeiten" },
+                { "saveAndQuit", "Speichern und beenden" },
+                { "thePassword", "Das passwort" },
+                { "theMetadata", "Die metadaten" },
                 { "changesSaved", "Änderungen gespeichert" },
-                { "questions.whatMetadataToEdit", "Welche Metadaten möchten Sie bearbeiten" },
-                { "addNewMetadata", "Fügen Sie neue Metadaten hinzu" },
-                { "questions.enterTheKey", "Geben Sie den [green]schlüssel[/] ein" },
-                { "questions.enterTheValue", "Geben Sie den [green]wert[/] ein" },
-                { "error.metadataKeyInvalid", "Der Schlüssel darf nicht leer sein oder mit einem Symbol beginnen" },
+                { "questions.whatMetadataToEdit", "Welche metadaten möchten sie bearbeiten" },
+                { "addNewMetadata", "Fügen sie neue metadaten hinzu" },
+                { "questions.enterTheKey", "Geben sie den [green]schlüssel[/] ein" },
+                { "questions.enterTheValue", "Geben sie den [green]wert[/] ein" },
+                { "error.metadataKeyInvalid", "Der schlüssel darf nicht leer sein oder mit einem symbol beginnen" },
                 { "error.metadataNotFound", "Metadaten nicht gefunden" },
-                { "questions.whatToDoWithMetadata", "Was tun mit den Metadaten" },
+                { "questions.whatToDoWithMetadata", "Was tun mit den metadaten" },
                 { "edit", "Bearbeiten" },
                 { "delete", "Löschen" },
-                { "questions.enterNewName", "Geben Sie den neuen Namen ein" },
-                { "error.nameIsEmpty", "Der Name war leer" },
+                { "questions.enterNewName", "Geben sie den neuen namen ein" },
+                { "error.nameIsEmpty", "Der name war leer" },
                 {
                     "questions.confirmWantsToRenamePassword",
-                    "Are you sure you want to the password [blue]{1}[/] into [yellow]{2}[/]? [blue](j/n)[/]"
+                    "Sind sie sicher, dass Sie das passwort haben möchten [blue]{1}[/] hinein [yellow]{2}[/]? [blue](j/n)[/]"
                 },
-                { "passwordDuplicated", "Passwort [blue]{0}[/] dupliziert nach [blue]{1}[/]" },
-                { "passwordRenamed", "Passwort [blue]{0}[/] umbenannt in [blue]{1}[/]" },
+                { "passwordDuplicated", "passwort [blue]{0}[/] dupliziert nach [blue]{1}[/]" },
+                { "passwordRenamed", "passwort [blue]{0}[/] umbenannt in [blue]{1}[/]" },
                 {
                     "questions.confirmDeletePassword",
-                    "Sind Sie sicher, dass Sie das Passwort [blue]{0}[/] löschen möchten? [blue](j/n)[/]"
+                    "Sind sie sicher, dass sie das passwort [blue]{0}[/] löschen möchten? [blue](j/n)[/]"
                 },
                 {
                     "passwordRemoved",
-                    "Passwort [blue]{0}[/] entfernt. Sie können diese aktion mit git rückgängig machen"
+                    "passwort [blue]{0}[/] entfernt. Sie können diese aktion mit git rückgängig machen"
                 },
                 {
                     "error.loadingSettings",
-                    "Fehler beim Laden der Einstellungen: {0}. Stattdessen werden Standardeinstellungen verwendet"
+                    "Fehler beim laden der einstellungen: {0}. Stattdessen werden standardeinstellungen verwendet"
                 },
-                { "passwordGeneratedAndCopied", "Passwort für [blue]{0}[/] generiert und [yellow]kopiert[/]" },
-                { "clipboardWillCleared", "Die Zwischenablage wird in {0} Sekunde(n) geleert" },
-                { "passwordGenerated", "Passwort für [blue]{0}[/] generiert" },
+                { "passwordGeneratedAndCopied", "passwort für [blue]{0}[/] generiert und [yellow]kopiert[/]" },
+                { "clipboardWillCleared", "Die zwischenablage wird in {0} sekunde(n) geleert" },
+                { "passwordGenerated", "passwort für [blue]{0}[/] generiert" },
                 { "cli.args.searchTermRequired", "Suchbegriffargument erforderlich" },
-                { "passwordAlreadyExists", "Das Passwort für {0} existiert bereits" },
-                { "enterPassword", "Geben Sie das neue Passwort ein" },
-                { "error.passwordEmpty", "Das Passwort darf nicht leer sein" },
-                { "confirmPassword", "Bestätigen Sie das neue Passwort" },
+                { "passwordAlreadyExists", "Das passwort für {0} existiert bereits" },
+                { "enterPassword", "Geben sie das neue passwort ein" },
+                { "error.passwordEmpty", "Das passwort darf nicht leer sein" },
+                { "confirmPassword", "Bestätigen sie das neue passwort" },
                 { "error.passwordsDontMatch", "Passwörter stimmen nicht überein" },
-                { "passwordCreated", "Passwort für [blue]{0}[/] erstellt" },
-                { "argfNoEfectWithArgc", "-f hat keine Wirkung mit -c" },
-                { "passwordCopied", "Passwort kopiert" },
-                { "terminalWillCleared", "Das Terminal wird in {0} Sekunde(n) gelöscht." },
+                { "passwordCreated", "passwort für [blue]{0}[/] erstellt" },
+                { "argfNoEfectWithArgc", "-f hat keine wirkung mit -c" },
+                { "passwordCopied", "passwort kopiert" },
+                { "terminalWillCleared", "Das terminal wird in {0} sekunde(n) gelöscht." },
                 { "error.invalidGpgKey", "Ungültige GPG-Schlüssel-ID angegeben" },
                 { "questions.gpgId", "GPG ID" },
                 { "questions.gitRepositoryUrl", "[bold yellow]Private[/] git entfernt URL (GitHub, GitLab, usw.)" },
@@ -386,7 +386,7 @@ public static class Locale
                 { "storeInitialized", "Store initialisiert" },
                 { "key", "Schlüssel" },
                 { "value", "Wert" },
-                { "passwordIs", "Passwort ist" },
+                { "passwordIs", "passwort ist" },
                 { "metadata.created", "created" },
                 { "metadata.modified", "modified" },
                 { "duplicate", "duplikat" },
@@ -397,7 +397,15 @@ public static class Locale
                     "questions.confirmDestroyStore",
                     "Sind sie sicher, dass sie den aktuellen passwortspeicher vollständig [red]entfernen[/] möchten"
                 },
-                { "storeDestroyed", "Passwortspeicher entfernt" },
+                { "storeDestroyed", "passwortspeicher entfernt" },
+                {
+                    "repositoryAhead",
+                    "Sie haben lokale änderungen, die nicht an das remote-repository übertragen wurden"
+                },
+                {
+                    "questions.syncChangesBeforeDelete",
+                    "Möchten sie diese änderungen vor dem löschen des shops übernehmen? (j/n)"
+                }
             }
         },
     };
