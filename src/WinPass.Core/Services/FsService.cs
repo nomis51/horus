@@ -78,6 +78,7 @@ public class FsService : IService
     {
         if (!VerifyLock()) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
 
+        AppService.Instance.ReleaseLock();
         AppService.Instance.DeleteRepository(GetStorePath());
         return new ResultStruct<byte, Error?>(0);
     }
@@ -285,14 +286,14 @@ public class FsService : IService
     {
         if (_lockFileStream is null) return false;
 
-        var filePath = Path.Join(StoreFolderName, AppLockFileName);
+        var filePath = Path.Join(_storeFolderPath, AppLockFileName);
         if (!File.Exists(filePath)) return false;
 
         _lockFileStream.Position = 0;
-        using StreamReader reader = new(_lockFileStream);
-        var content = reader.ReadToEnd();
+        using var ms = new MemoryStream();
+        _lockFileStream.CopyTo(ms);
         var tmpFile = Path.GetTempFileName();
-        File.WriteAllText(tmpFile, content);
+        File.WriteAllBytes(tmpFile, ms.ToArray());
 
         var (_, error) = AppService.Instance.DecryptLock(tmpFile);
         File.Delete(tmpFile);

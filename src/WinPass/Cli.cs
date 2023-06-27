@@ -162,7 +162,7 @@ public class Cli
             }
 
             AnsiConsole.MarkupLine(
-                "Are you [yellow]really[/] sure you want to delete the store and [yellow]NOT[/] push local changes to the remote repository?");
+                "Are you [yellow]really[/] sure you want to [red]delete[/] the store and [yellow]NOT[/] push local changes to the remote repository?");
             _ = AnsiConsole.Prompt(
                 new TextPrompt<string>(
                         $"If yes, please confirm by typing the name of the remote repository [green]({repositoryName})[/]: ")
@@ -285,7 +285,7 @@ public class Cli
         }
 
         AnsiConsole.Status()
-            .Spinner(new BinarySpinner())
+            .Spinner(Spinner.Known.Dots)
             .SpinnerStyle(Style.Parse("blue"))
             .Start("Running git command...", _ =>
             {
@@ -744,7 +744,7 @@ public class Cli
         List<StoreEntry> entries = new();
 
         AnsiConsole.Status()
-            .Spinner(new BinarySpinner())
+            .Spinner(Spinner.Known.Dots)
             .SpinnerStyle(Style.Parse("blue"))
             .Start("Searching...", _ => { entries = AppService.Instance.Search(term); });
 
@@ -967,7 +967,7 @@ public class Cli
         }
 
         AnsiConsole.Status()
-            .Spinner(new BinarySpinner())
+            .Spinner(Spinner.Known.Dots)
             .SpinnerStyle(Style.Parse("blue"))
             .Start("Initializing...", _ =>
             {
