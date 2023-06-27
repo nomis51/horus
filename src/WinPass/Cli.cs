@@ -255,7 +255,7 @@ public class Cli
         }
 
         AnsiConsole.Status()
-            .Spinner(Spinner.Known.Dots)
+            .Spinner(new BinarySpinner())
             .SpinnerStyle(Style.Parse("blue"))
             .Start("Running git command...", _ =>
             {
@@ -710,7 +710,7 @@ public class Cli
         List<StoreEntry> entries = new();
 
         AnsiConsole.Status()
-            .Spinner(Spinner.Known.Dots)
+            .Spinner(new BinarySpinner())
             .SpinnerStyle(Style.Parse("blue"))
             .Start("Searching...", _ => { entries = AppService.Instance.Search(term); });
 
@@ -931,7 +931,7 @@ public class Cli
         }
 
         AnsiConsole.Status()
-            .Spinner(Spinner.Known.Dots)
+            .Spinner(new BinarySpinner())
             .SpinnerStyle(Style.Parse("blue"))
             .Start("Initializing...", _ =>
             {

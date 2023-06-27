@@ -24,7 +24,6 @@ public static class Program
                 rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
-
         var (hasUpdate, _, newVersion) = UpdateHelper.CheckForUpdate().Result;
         if (hasUpdate)
         {
