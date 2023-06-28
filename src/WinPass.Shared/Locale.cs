@@ -277,12 +277,12 @@ public static class Locale
             {
                 { "settings.defaultPasswordLength", "Die standardkennwortlänge" },
                 { "settings.defaultCustomAlphabet", "Das standardmäßige benutzerdefinierte alphabet" },
-                { "settings.defaultClearTimeout", "Das standard-löschzeitlimit" },
+                { "settings.defaultClearTimeout", "Das standard löschzeitlimit" },
                 { "settings.language", "Sprache der bewerbung" },
                 { "questions.language", "Sprache" },
                 { "save", "Speichern" },
                 { "cancel", "Stornieren" },
-                { "questions.whatToEdit", "Was möchten Sie bearbeiten" },
+                { "questions.whatToEdit", "Was möchten sie bearbeiten" },
                 { "settings.saved", "Einstellungen werden gespeichert" },
                 { "questions.passwordLength", "Länge (Geben sie 0 ein auf die standardeinstellungen zurücksetzen)" },
                 {
@@ -293,19 +293,19 @@ public static class Locale
                     "questions.clearTimeout",
                     "Klare auszeit (Geben sie 0 ein auf die standardeinstellungen zurücksetzen)"
                 },
-                { "version", "winpass ausgabe" },
+                { "version", "winpass version" },
                 { "help.command", "Befehl" },
                 { "help.description", "Beschreibung" },
                 { "help.example", "Beispiel" },
-                { "help.description.init", "Initialisieren Sie den passwortspeicher" },
+                { "help.description.init", "Initialisieren sie den passwortspeicher" },
                 { "help.description.ls", "Zeigen sie die liste der passwörter im store an" },
                 {
                     "help.description.show",
-                    "Zeigen Sie das von [name] angeforderte passwort an\n\nArgumente:\n".EscapeMarkup() +
+                    "Zeigen sie das von [name] angeforderte passwort an\n\nArgumente:\n".EscapeMarkup() +
                     string.Join("\n",
-                        "-c : Kopieren Sie das passwort in die zwischenablage, anstatt es anzuzeigen",
-                        "-m : Zeigen Sie ggf die metadaten des passworts an (passwort nicht anzeigen)",
-                        "-f : Leeren Sie das Terminal nicht automatisch nach einer Weile",
+                        "-c : Kopieren sie das passwort in die zwischenablage, anstatt es anzuzeigen",
+                        "-m : Zeigen sie ggf die metadaten des passworts an (passwort nicht anzeigen)",
+                        "-f : Leeren sie das terminal nicht automatisch nach einer weile",
                         "-p : Zeigt das passwort an, wenn -m angegeben ist"
                     )
                 },
@@ -314,7 +314,7 @@ public static class Locale
                     "help.description.generate",
                     "Generieren sie ein neues passwort mit dem namen [name]\n\nArgumente:\n".EscapeMarkup() +
                     string.Join("\n",
-                        "-s : Größe des passworts (standard: 20)",
+                        "-s : Passwortlänge (standard: 20)",
                         "-a : Das benutzerdefinierte alphabet zum generieren des passworts",
                         "-c : Kopieren sie das passwort in die zwischenablage, anstatt es anzuzeigen"
                     )
@@ -328,7 +328,7 @@ public static class Locale
                     )
                 },
                 { "help.description.find", "Passwörter oder metadaten finden, die [text] enthalten".EscapeMarkup() },
-                { "help.description.git", "Führen sie den Git-befehl im passwortspeicher-repository aus" },
+                { "help.description.git", "Führen sie den Git befehl im passwortspeicher repository aus" },
                 { "help.description.help", "Zeigen sie die hilfe an (dieses)" },
                 { "help.description.version", "Version anzeigen" },
                 { "cli.args.passwordNameRequired", "Argument für den passwortnamen erforderlich" },
