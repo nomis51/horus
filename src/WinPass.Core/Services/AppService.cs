@@ -236,7 +236,14 @@ public class AppService : IService
             return new ResultStruct<byte, Error?>(error);
         }
 
-        return _gitService.Commit("Add '.gpg-id' file", storePath);
+        var (_, errorCommit) = _gitService.Commit("Add '.gpg-id' file", storePath);
+        if (errorCommit is not null)
+        {
+            _gitService.DeleteRepository(storePath);
+            return new ResultStruct<byte, Error?>(errorCommit);
+        }
+
+        return new ResultStruct<byte, Error?>(0);
     }
 
     public ResultStruct<byte, Error?> GitCommit(string message)

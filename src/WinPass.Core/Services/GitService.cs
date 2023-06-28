@@ -122,7 +122,7 @@ public class GitService : IService
         if (!okAdd || !string.IsNullOrEmpty(errorAdd)) return new ResultStruct<byte, Error?>(new GitAddFailedError());
 
         var (okCommit, _, errorCommit) = ProcessHelper.Exec(Git, new[] { "commit", "-m", $"\"{message}\"" }, path);
-        if (!okCommit || !string.IsNullOrEmpty(errorCommit))
+        if (!okCommit && !string.IsNullOrEmpty(errorCommit))
             return new ResultStruct<byte, Error?>(new GitCommitFailedError());
 
         return new ResultStruct<byte, Error?>(0);
