@@ -203,7 +203,6 @@ public class GpgService : IService
         var date = expireLine[startIndex..endIndex];
         if (!DateTime.TryParse(date, out var dateTime)) return false;
 
-        return false;
         return dateTime > DateTime.Now;
     }
 
