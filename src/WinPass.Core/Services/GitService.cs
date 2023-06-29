@@ -58,6 +58,24 @@ public class GitService : IService
             : new ResultStruct<bool, Error?>(resultStatus.Contains("Your branch is ahead of 'origin/master'"));
     }
 
+    public void Ignore(string filePath, string path)
+    {
+        var gitignoreFilePath = Path.Join(path, ".gitignore");
+        var ignorePath = filePath.Replace(path, string.Empty);
+        if (!File.Exists(gitignoreFilePath))
+        {
+            File.WriteAllText(gitignoreFilePath, ignorePath);
+            var (_, error) = Commit("Add .gitignore", path);
+        }
+        else
+        {
+            var data = File.ReadAllText(gitignoreFilePath);
+            data += $"{Environment.NewLine}{ignorePath}";
+            File.WriteAllText(gitignoreFilePath, data);
+            var (_, error) = Commit("Add .gitignore", path);
+        }
+    }
+
     public void DeleteRepository(string path)
     {
         var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };

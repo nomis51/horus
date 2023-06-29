@@ -51,7 +51,7 @@ public class FsService : IService
             var (_, error) = AppService.Instance.Encrypt(GetGpgId(), filePath, GpgLockContent);
             if (error is not null) return false;
 
-            AppService.Instance.GitCommit($"Add lock file");
+            // TODO: git ignore
         }
 
         try

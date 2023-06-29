@@ -256,6 +256,11 @@ public class AppService : IService
         return _gpgService.IsKeyValid(key);
     }
 
+    public void GitIgnore(string filePath)
+    {
+        _gitService.Ignore(filePath, GetStorePath());
+    }
+
     public void Initialize()
     {
         _fsService.Initialize();
