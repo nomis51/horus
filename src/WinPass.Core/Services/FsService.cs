@@ -51,7 +51,7 @@ public class FsService : IService
             var (_, error) = AppService.Instance.Encrypt(GetGpgId(), filePath, GpgLockContent);
             if (error is not null) return false;
 
-            // TODO: git ignore
+            AppService.Instance.GitIgnore(filePath);
         }
 
         try
