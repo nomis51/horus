@@ -137,7 +137,7 @@ public class GitService : IService
     public ResultStruct<byte, Error?> Commit(string message, string path)
     {
         var (okAdd, _, errorAdd) = ProcessHelper.Exec(Git, new[] { "add", "--all", "--", ":!.lock" }, path);
-        if (!okAdd || !string.IsNullOrEmpty(errorAdd)) return new ResultStruct<byte, Error?>(new GitAddFailedError());
+        if (!okAdd && !string.IsNullOrEmpty(errorAdd) && !errorAdd.StartsWith("The following paths are ignored by one of your .gitignore files:")) return new ResultStruct<byte, Error?>(new GitAddFailedError());
 
         var (okCommit, _, errorCommit) = ProcessHelper.Exec(Git, new[] { "commit", "-m", $"\"{message}\"" }, path);
         if (!okCommit && !string.IsNullOrEmpty(errorCommit))
