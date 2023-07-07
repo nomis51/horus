@@ -3,9 +3,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyVersion>1.0.9</AssemblyVersion>
-    <FileVersion>1.0.9</FileVersion>
-    <PackageVersion>1.0.9</PackageVersion>
+    <AssemblyVersion>1.0.10</AssemblyVersion>
+    <FileVersion>1.0.10</FileVersion>
+    <PackageVersion>1.0.10</PackageVersion>
     <Authors>nomis51</Authors>
   </PropertyGroup>
   <ItemGroup>
