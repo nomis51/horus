@@ -45,6 +45,8 @@ You can execute the command `winpass help` to see all the commands available.
 | version | Show the version | None | winpass version |
 | help                       | Show the help                                                     | None                                                                                                                                       | winpass help                                     |
 
+# Support
+Feel free to open issues if you find any problem or join the [Discord](https://discord.gg/yqDHrqCDq4) server.
 
 
 
