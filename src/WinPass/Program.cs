@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using Serilog;
 using Serilog.Events;
@@ -15,8 +16,14 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            AnsiConsole.MarkupLine("[yellow]WinPass only supports Windows and Linux[/]");
+            return;
+        }
+
         Console.OutputEncoding = Encoding.UTF8;
-        
+
         var dirName = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
         var logDir = Path.Join(dirName, "logs");
         Log.Logger = new LoggerConfiguration()

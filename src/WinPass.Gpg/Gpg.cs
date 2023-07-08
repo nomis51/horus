@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Serilog;
 using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
@@ -52,26 +53,32 @@ public class Gpg
 
     public ResultStruct<byte, Error?> Encrypt(string filePath, string value)
     {
-        // TODO: alternative for linux
+        var args = new[]
+        {
+            value.ToBase64(),
+            "|",
+            GpgProcessName,
+            "--quiet",
+            "--yes",
+            "--compress-algo=none",
+            "--no-encrypt-to",
+            "-e",
+            "-r",
+            _keyId,
+            "-o",
+            filePath
+        };
         var (ok, _, error) = ProcessHelper.Exec(
-            CmdProcessName,
-            new[]
-            {
-                "/c",
-                "echo",
-                value.ToBase64(),
-                "|",
-                GpgProcessName,
-                "--quiet",
-                "--yes",
-                "--compress-algo=none",
-                "--no-encrypt-to",
-                "-e",
-                "-r",
-                _keyId,
-                "-o",
-                filePath
-            }
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? CmdProcessName : "echo",
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? new[]
+                    {
+                        "/c",
+                        "echo",
+                    }
+                    .Concat(args)
+                    .ToArray()
+                : args
         );
         return !ok ? new ResultStruct<byte, Error?>(new GpgEncryptError(error)) : new ResultStruct<byte, Error?>(0);
     }
