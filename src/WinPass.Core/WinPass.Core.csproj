@@ -11,4 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="PgpCore" Version="5.10.0" />
+  </ItemGroup>
 </Project>

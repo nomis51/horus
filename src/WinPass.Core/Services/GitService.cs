@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using Serilog;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
@@ -104,7 +105,23 @@ public class GitService : IService
 
     public bool Clone(string url, string path)
     {
-        var tmpPath = Path.GetTempPath();
+        var tmpPath = string.Empty;
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            // Directory.Move() fails on linux, because it doesn't allow moving files from different devices (aka /tmp -> /home)
+            tmpPath = Path.Join(Environment
+                .GetFolderPath(Environment.SpecialFolder.UserProfile), ".tmp");
+            if (!Directory.Exists(tmpPath))
+            {
+                Directory.CreateDirectory(tmpPath);
+            }
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            tmpPath = Path.GetTempPath();
+        }
+
         var dirName = Path.GetFileName(url).Split(".git").FirstOrDefault() ?? string.Empty;
         if (string.IsNullOrEmpty(dirName)) return false;
 
@@ -125,6 +142,8 @@ public class GitService : IService
         var gpgIdFilePath = Path.Join(path, ".gpg-id");
         if (File.Exists(gpgIdFilePath)) File.Delete(gpgIdFilePath);
 
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && Directory.Exists(tmpPath)) Directory.Delete(tmpPath);
+
         return true;
     }
 
@@ -137,7 +156,9 @@ public class GitService : IService
     public ResultStruct<byte, Error?> Commit(string message, string path)
     {
         var (okAdd, _, errorAdd) = ProcessHelper.Exec(Git, new[] { "add", "--all", "--", ":!.lock" }, path);
-        if (!okAdd && !string.IsNullOrEmpty(errorAdd) && !errorAdd.StartsWith("The following paths are ignored by one of your .gitignore files:")) return new ResultStruct<byte, Error?>(new GitAddFailedError());
+        if (!okAdd && !string.IsNullOrEmpty(errorAdd) &&
+            !errorAdd.StartsWith("The following paths are ignored by one of your .gitignore files:"))
+            return new ResultStruct<byte, Error?>(new GitAddFailedError());
 
         var (okCommit, _, errorCommit) = ProcessHelper.Exec(Git, new[] { "commit", "-m", $"\"{message}\"" }, path);
         if (!okCommit && !string.IsNullOrEmpty(errorCommit))
