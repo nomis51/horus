@@ -220,7 +220,10 @@ public class AppService : IService
         bool onlyMetadata = false)
     {
         if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
+        
         var gpgKeyId = _fsService.GetGpgId();
+        if (string.IsNullOrEmpty(gpgKeyId)) return new Result<Password?, Error?>(new FsGpgIdKeyNotFoundError());
+        
         var gpg = new Gpg.Gpg(gpgKeyId);
 
         var filePath = _fsService.GetPath(name);

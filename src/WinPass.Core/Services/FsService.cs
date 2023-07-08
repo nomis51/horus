@@ -48,7 +48,10 @@ public class FsService : IService
         var filePath = Path.Join(GetStorePath(), AppLockFileName);
         if (!File.Exists(filePath))
         {
-            var gpg = new Gpg.Gpg(GetGpgId());
+            var id = GetGpgId();
+            var gpg = new Gpg.Gpg(id);
+            if (string.IsNullOrEmpty(id)) return false;
+
             var (_, error) = AppService.Instance.Encrypt(gpg, filePath, GpgLockContent);
             if (error is not null) return false;
 
@@ -77,7 +80,10 @@ public class FsService : IService
 
     public ResultStruct<byte, Error?> DestroyStore()
     {
-        var gpg = new Gpg.Gpg(GetGpgId());
+        var id = GetGpgId();
+        if (string.IsNullOrEmpty(id)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+
+        var gpg = new Gpg.Gpg(id);
         if (!VerifyLock(gpg)) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
 
         AppService.Instance.ReleaseLock();
@@ -89,13 +95,19 @@ public class FsService : IService
     {
         var filePath = Path.Join(_storeFolderPath, ".settings");
         var value = settings.ToString();
-        var gpg = new Gpg.Gpg(GetGpgId());
+        var id = GetGpgId();
+        if (string.IsNullOrEmpty(id)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+
+        var gpg = new Gpg.Gpg(id);
         return AppService.Instance.Encrypt(gpg, filePath, value);
     }
 
     public Result<Settings?, Error?> GetSettings()
     {
-        var gpg = new Gpg.Gpg(GetGpgId());
+        var id = GetGpgId();
+        if (string.IsNullOrEmpty(id)) return new Result<Settings?, Error?>(new FsGpgIdKeyNotFoundError());
+
+        var gpg = new Gpg.Gpg(id);
         var filePath = Path.Join(_storeFolderPath, ".settings");
         return !File.Exists(filePath)
             ? new Result<Settings?, Error?>(new Settings())
@@ -111,6 +123,7 @@ public class FsService : IService
     {
         var gpgKeyId = GetGpgId();
         if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+
         var gpg = new Gpg.Gpg(gpgKeyId);
 
         if (DoEntryExists(name))
@@ -236,9 +249,7 @@ public class FsService : IService
     public string GetGpgId()
     {
         var filePath = Path.Join(_storeFolderPath, GpgIdFileName);
-        var data = File.ReadAllText(filePath).Trim();
-
-        return data;
+        return !File.Exists(filePath) ? string.Empty : File.ReadAllText(filePath).Trim();
     }
 
     public string GetPath(string name)
