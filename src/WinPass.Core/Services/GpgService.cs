@@ -211,28 +211,4 @@ public class GpgService : IService
     }
 
     #endregion
-
-    #region Private methods
-
-    private string[] PrepareEncryptArgs(string value, string key, string filePath)
-    {
-        return new[]
-        {
-            "echo",
-            value.ToBase64(),
-            "|",
-            Gpg,
-            "--quiet",
-            "--yes",
-            "--compress-algo=none",
-            "--no-encrypt-to",
-            "-e",
-            "-r",
-            key,
-            "-o",
-            filePath
-        };
-    }
-
-    #endregion
 }
