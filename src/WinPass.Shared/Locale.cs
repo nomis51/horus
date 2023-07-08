@@ -129,7 +129,18 @@ public static class Locale
                 {
                     "questions.syncChangesBeforeDelete",
                     "Do you want to push those changes before deleting the store? (y/n)"
-                }
+                },
+                // -- 
+                { "newVersionAvailable", "[green]New version {0} available! Go to {1} to download the update[/]" },
+                { "error.osNotSupported", "[yellow]WinPass only supports Windows and Linux[/]" },
+                { "error.occured", "[red]An error occured. Please see the logs at {0}[/]" },
+                { "questions.generateNewPassword", "Generate a new password" },
+                { "questions.enterPasswordManually", "Enter a new password" },
+                { "questions.whatToDo", "What do you want to do?" },
+                { "questions.enterNewPassword", "Enter the new password: " },
+                { "questions.confirmNewPassword", "Confirm the new password: " },
+                { "error.passwordCantEmpty", "Password can't be empty" },
+                { "error.passwordDontMatch", "Passwords don't match" }
             }
         },
 
@@ -269,7 +280,17 @@ public static class Locale
                 {
                     "questions.syncChangesBeforeDelete",
                     "Voulez-vous sauvegarder les changements sur le dépôt distant avant de supprimer le magasin de mot de passe? (o/n)"
-                }
+                },
+                { "newVersionAvailable", "[green]La nouvelle version {0} est maintenant disponible! Naviguer sur {1} pour télécharger la mise à jour[/]" },
+                { "error.osNotSupported", "[yellow]WinPass ne supporte que Windows et Linux[/]" },
+                { "error.occured", "[red]Une erreur est survenue. Veuillez vérifier les logs situé ici {0}[/]" },
+                { "questions.generateNewPassword", "Générer une nouveau mot de passe" },
+                { "questions.enterPasswordManually", "Entrer une nouveau mot de passe" },
+                { "questions.whatToDo", "Que voulez-vous faire?" },
+                { "questions.enterNewPassword", "Entrer le nouveau mot de passe: " },
+                { "questions.confirmNewPassword", "Confirmer le nouveau mot de passe: " },
+                { "error.passwordCantEmpty", "Le mot de passe ne peut pas être vide" },
+                { "error.passwordDontMatch", "Les mots de passe de correspondent pas" }
             }
         },
         {
@@ -405,7 +426,17 @@ public static class Locale
                 {
                     "questions.syncChangesBeforeDelete",
                     "Möchten sie diese änderungen vor dem löschen des shops übernehmen? (j/n)"
-                }
+                },
+                { "newVersionAvailable", "[green]Neue version {0} verfügbar! Gehen sie zu {1}, um das update herunterzuladen[/]" },
+                { "error.osNotSupported", "[yellow]WinPass unterstützt nur Windows und Linux[/]" },
+                { "error.occured", "[red]Es ist ein fehler aufgetreten. Bitte sehen sie sich die protokolle unter {0} an.[/]" },
+                { "questions.generateNewPassword", "Generieren sie ein neues passwort" },
+                { "questions.enterPasswordManually", "Geben sie ein neues kennwort ein" },
+                { "questions.whatToDo", "Was möchten sie tun?" },
+                { "questions.enterNewPassword", "Geben sie das neue passwort ein: " },
+                { "questions.confirmNewPassword", "Bestätigen sie das neue passwort: " },
+                { "error.passwordCantEmpty", "Das passwort darf nicht leer sein" },
+                { "error.passwordDontMatch", "Passwörter stimmen nicht überein" }
             }
         },
     };

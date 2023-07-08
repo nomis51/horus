@@ -18,7 +18,7 @@ public static class Program
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            AnsiConsole.MarkupLine("[yellow]WinPass only supports Windows and Linux[/]");
+            AnsiConsole.MarkupLine(Locale.Get("error.osNotSupported"));
             return;
         }
 
@@ -35,7 +35,9 @@ public static class Program
         if (hasUpdate)
         {
             AnsiConsole.MarkupLine(
-                $"[green]New version {newVersion} available! Go to https://github.com/nomis51/winpass/releases/latest to download the update[/]");
+                Locale.Get("newVersionAvailable",
+                    new object[] { newVersion!.ToString(), "https://github.com/nomis51/winpass/releases/latest" })
+            );
         }
 
         UpdateHelper.EnsureAppLinked();
@@ -54,7 +56,7 @@ public static class Program
         {
             Log.Error("Unexpected error occured: {Message}{Skip}{CallStack}", e.Message, Environment.NewLine,
                 e.StackTrace);
-            AnsiConsole.MarkupLine($"[red]An error occured. Please see the logs at {logDir}[/]");
+            AnsiConsole.MarkupLine(Locale.Get("error.occured", new object[] { logDir }));
         }
         finally
         {

@@ -436,52 +436,52 @@ public class Cli
             if (choice == Locale.Get("cancel")) break;
             if (choice == Locale.Get("thePassword"))
             {
-                // TODO: generate a new one or enter it manually
                 var choicePassword = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
-                        .Title("What do you want to do?")
+                        .Title(Locale.Get("questions.whatToDo"))
                         .AddChoices(
-                            "Generate a new password",
-                            "Enter a new password"
+                            Locale.Get("questions.generateNewPassword"),
+                            Locale.Get("questions.enterPasswordManually")
                         )
                 );
 
-                switch (choicePassword)
+                if (choicePassword == Locale.Get("questions.generateNewPassword"))
                 {
-                    case "Generate a new password":
-                        var (newGeneratedPassword, errorGeneratePassword) = AppService.Instance.GeneratePassword();
-                        if (errorGeneratePassword is not null)
-                        {
-                            lastErrorMessage = errorGeneratePassword.Message;
-                            continue;
-                        }
+                    var (newGeneratedPassword, errorGeneratePassword) = AppService.Instance.GeneratePassword();
+                    if (errorGeneratePassword is not null)
+                    {
+                        lastErrorMessage = errorGeneratePassword.Message;
+                        continue;
+                    }
 
-                        password.Value = newGeneratedPassword;
-                        break;
+                    password.Value = newGeneratedPassword;
+                    continue;
+                }
 
-                    case "Enter a new password":
-                        var newPassword = AnsiConsole.Prompt(
-                            new TextPrompt<string>("Enter the new password: ")
-                                .Secret(null)
-                        );
-                        if (string.IsNullOrWhiteSpace(newPassword))
-                        {
-                            lastErrorMessage = "Password can't be empty";
-                            continue;
-                        }
+                if (choicePassword == Locale.Get("questions.enterPasswordManually"))
+                {
+                    var newPassword = AnsiConsole.Prompt(
+                        new TextPrompt<string>(Locale.Get("questions.enterNewPassword"))
+                            .Secret(null)
+                    );
+                    if (string.IsNullOrWhiteSpace(newPassword))
+                    {
+                        lastErrorMessage = Locale.Get("error.passwordCantEmpty");
+                        continue;
+                    }
 
-                        var newPasswordConfirm = AnsiConsole.Prompt(
-                            new TextPrompt<string>("Confirm the new password: ")
-                                .Secret(null)
-                        );
-                        if (!newPassword.Equals(newPasswordConfirm))
-                        {
-                            lastErrorMessage = "Passwords don't match";
-                            continue;
-                        }
+                    var newPasswordConfirm = AnsiConsole.Prompt(
+                        new TextPrompt<string>(Locale.Get("questions.confirmNewPassword"))
+                            .Secret(null)
+                    );
+                    if (!newPassword.Equals(newPasswordConfirm))
+                    {
+                        lastErrorMessage = Locale.Get("error.passwordDontMatch");
+                        continue;
+                    }
 
-                        password.Value = newPassword;
-                        break;
+                    password.Value = newPassword;
+                    continue;
                 }
 
                 continue;
