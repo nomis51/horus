@@ -9,6 +9,7 @@
     <Authors>nomis51</Authors>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WinPass.Gpg\WinPass.Gpg.csproj" />
     <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
   </ItemGroup>
 </Project>

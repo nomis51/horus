@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using Serilog;
 using Spectre.Console;
 using WinPass.Shared.Abstractions;
-using WinPass.Shared.Enums;
 using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models;
@@ -13,110 +11,49 @@ namespace WinPass.Core.Services;
 
 public class GpgService : IService
 {
-    #region Constants
-
-    private const string Gpg = "gpg";
-
-    #endregion
-
     #region Public methods
 
     public bool Verify()
     {
-        try
-        {
-            var (ok, result, error) = ProcessHelper.Exec(Gpg, new[] { "--version" });
-            return ok && string.IsNullOrEmpty(error) && result.StartsWith("gpg (GnuPG)");
-        }
-        catch (Exception e)
-        {
-            Log.Warning("Unable to verify GnuPG installation: {Message}", e.Message);
-        }
-
-        return false;
+        return Gpg.Gpg.Verify();
     }
 
-    public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
+    public ResultStruct<byte, Error?> Encrypt(Gpg.Gpg gpg, string filePath, string value)
     {
-        var (ok, _, error) = ProcessHelper.Exec(
-            "cmd",
-            new[]
-            {
-                "/c",
-                "echo",
-                value.ToBase64(),
-                "|",
-                Gpg,
-                "--quiet",
-                "--yes",
-                "--compress-algo=none",
-                "--no-encrypt-to",
-                "-e",
-                "-r",
-                key,
-                "-o",
-                filePath
-            }
-        );
-        return !ok ? new ResultStruct<byte, Error?>(new GpgEncryptError(error)) : new ResultStruct<byte, Error?>(0);
+        return gpg.Encrypt(filePath, value);
     }
 
-    public Result<Settings?, Error?> DecryptSettings(string filePath)
+    public Result<Settings?, Error?> DecryptSettings(Gpg.Gpg gpg, string filePath)
     {
-        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
-        {
-            "--quiet",
-            "--yes",
-            "--compress-algo=none",
-            "--no-encrypt-to",
-            "-d",
-            filePath
-        });
-        if (!ok) return new Result<Settings?, Error?>(new GpgDecryptError(error));
+        var (data, error) = gpg.Decrypt(filePath);
+        if (error is not null) return new Result<Settings?, Error?>(error);
 
-        return string.IsNullOrWhiteSpace(result)
-            ? new Result<Settings?, Error?>(new GpgDecryptError(error))
-            : new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(result.FromBase64()));
+        return string.IsNullOrWhiteSpace(data)
+            ? new Result<Settings?, Error?>(error)
+            : new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data.FromBase64()));
     }
 
-    public ResultStruct<byte, Error?> DecryptLock(string filePath)
+    public ResultStruct<byte, Error?> DecryptLock(Gpg.Gpg gpg, string filePath)
     {
-        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
-        {
-            "--quiet",
-            "--yes",
-            "--compress-algo=none",
-            "--no-encrypt-to",
-            "-d",
-            filePath
-        });
-        if (!ok) return new ResultStruct<byte, Error?>(new GpgDecryptError(error));
-        if (string.IsNullOrWhiteSpace(result)) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
-        
-        return result.FromBase64() != FsService.GpgLockContent
+        var (data, error) = gpg.Decrypt(filePath);
+        if (error is not null) return new ResultStruct<byte, Error?>(error);
+        if (string.IsNullOrWhiteSpace(data)) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
+
+        return data.FromBase64() != FsService.GpgLockContent
             ? new ResultStruct<byte, Error?>(new GpgDecryptLockFileError())
             : new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<Password?, Error?> DecryptPassword(string filePath, bool onlyMetadata = false)
+    public Result<Password?, Error?> DecryptPassword(Gpg.Gpg gpg, string filePath, bool onlyMetadata = false)
     {
-        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[]
-        {
-            "--quiet",
-            "--yes",
-            "--compress-algo=none",
-            "--no-encrypt-to",
-            "-d",
-            filePath
-        });
-        if (!ok) return new Result<Password?, Error?>(new GpgDecryptError(error));
+        var (data, error) = gpg.Decrypt(filePath);
+        if (error is not null) return new Result<Password?, Error?>(error);
+        if (string.IsNullOrWhiteSpace(data)) return new Result<Password?, Error?>(error);
 
-        if (string.IsNullOrWhiteSpace(result)) return new Result<Password?, Error?>(new GpgDecryptError(error));
-
-        if (!result.IsBase64())
+        if (!data.IsBase64())
         {
             // Handles pass passwords
-            var lines = result
+            var lines = data
                 .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                 .Select(v => v.Trim('\r'))
                 .ToList();
@@ -155,7 +92,7 @@ public class GpgService : IService
 
         try
         {
-            var password = JsonConvert.DeserializeObject<Password>(result.FromBase64());
+            var password = JsonConvert.DeserializeObject<Password>(data.FromBase64());
             if (onlyMetadata)
             {
                 password!.Dispose();
@@ -169,41 +106,14 @@ public class GpgService : IService
         }
         finally
         {
-            result = null;
+            data = null;
             GC.Collect();
         }
     }
 
-    public bool IsKeyValid(string key)
+    public ResultStruct<bool, Error?> IsKeyValid(Gpg.Gpg gpg)
     {
-        var (ok, result, error) = ProcessHelper.Exec(Gpg, new[] { "--list-keys", key });
-        if (error.StartsWith("gpg: error reading key: No public key")) return false;
-        if (!ok || !string.IsNullOrEmpty(error) || !result.StartsWith("pub"))
-        {
-            AnsiConsole.MarkupLine("[red]Unable to verify GPG key[/]");
-            return false;
-        }
-
-        const string expireTag = "[E]";
-        const string expireLabel = "[expires: ";
-        var expireLine = result.Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .FirstOrDefault(l => l.Contains(expireTag));
-        if (string.IsNullOrEmpty(expireLine)) return false;
-
-        if (!expireLine.Contains(expireLabel)) return true;
-
-        var startIndex = expireLine.IndexOf(expireLabel, StringComparison.Ordinal);
-        if (startIndex == -1) return false;
-
-        startIndex += expireLabel.Length;
-
-        var endIndex = expireLine.LastIndexOf("]", StringComparison.Ordinal);
-        if (endIndex == -1 || endIndex <= startIndex) return false;
-
-        var date = expireLine[startIndex..endIndex];
-        if (!DateTime.TryParse(date, out var dateTime)) return false;
-
-        return dateTime > DateTime.Now;
+        return gpg.IsValid();
     }
 
     public void Initialize()
