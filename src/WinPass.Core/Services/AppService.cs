@@ -164,6 +164,19 @@ public class AppService : IService
         return errorGit is not null ? new ResultStruct<byte, Error?>(errorGit) : new ResultStruct<byte, Error?>(0);
     }
 
+    public Result<string, Error?> GeneratePassword()
+    {
+        var (settings, error) = _fsService.GetSettings();
+        if (error is not null) return new Result<string, Error?>(error);
+
+        return new Result<string, Error?>(
+            PasswordHelper.Generate(
+                settings!.DefaultLength,
+                settings.DefaultCustomAlphabet
+            )
+        );
+    }
+
     public Result<string, Error?> GeneratePassword(string name, int length, string customAlphabet, bool copy,
         int timeout)
     {

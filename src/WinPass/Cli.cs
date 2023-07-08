@@ -436,27 +436,54 @@ public class Cli
             if (choice == Locale.Get("cancel")) break;
             if (choice == Locale.Get("thePassword"))
             {
-                var newPassword = AnsiConsole.Prompt(
-                    new TextPrompt<string>("Enter the new password: ")
-                        .Secret(null)
+                // TODO: generate a new one or enter it manually
+                var choicePassword = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("What do you want to do?")
+                        .AddChoices(
+                            "Generate a new password",
+                            "Enter a new password"
+                        )
                 );
-                if (string.IsNullOrWhiteSpace(newPassword))
+
+                switch (choicePassword)
                 {
-                    lastErrorMessage = "Password can't be empty";
-                    continue;
+                    case "Generate a new password":
+                        var (newGeneratedPassword, errorGeneratePassword) = AppService.Instance.GeneratePassword();
+                        if (errorGeneratePassword is not null)
+                        {
+                            lastErrorMessage = errorGeneratePassword.Message;
+                            continue;
+                        }
+
+                        password.Value = newGeneratedPassword;
+                        break;
+
+                    case "Enter a new password":
+                        var newPassword = AnsiConsole.Prompt(
+                            new TextPrompt<string>("Enter the new password: ")
+                                .Secret(null)
+                        );
+                        if (string.IsNullOrWhiteSpace(newPassword))
+                        {
+                            lastErrorMessage = "Password can't be empty";
+                            continue;
+                        }
+
+                        var newPasswordConfirm = AnsiConsole.Prompt(
+                            new TextPrompt<string>("Confirm the new password: ")
+                                .Secret(null)
+                        );
+                        if (!newPassword.Equals(newPasswordConfirm))
+                        {
+                            lastErrorMessage = "Passwords don't match";
+                            continue;
+                        }
+
+                        password.Value = newPassword;
+                        break;
                 }
 
-                var newPasswordConfirm = AnsiConsole.Prompt(
-                    new TextPrompt<string>("Confirm the new password: ")
-                        .Secret(null)
-                );
-                if (!newPassword.Equals(newPasswordConfirm))
-                {
-                    lastErrorMessage = "Passwords don't match";
-                    continue;
-                }
-
-                password.Value = newPassword;
                 continue;
             }
 
