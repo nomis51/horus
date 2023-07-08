@@ -52,6 +52,7 @@ public class Gpg
 
     public ResultStruct<byte, Error?> Encrypt(string filePath, string value)
     {
+        // TODO: alternative for linux
         var (ok, _, error) = ProcessHelper.Exec(
             CmdProcessName,
             new[]

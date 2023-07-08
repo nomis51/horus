@@ -48,7 +48,8 @@ public class FsService : IService
         var filePath = Path.Join(GetStorePath(), AppLockFileName);
         if (!File.Exists(filePath))
         {
-            var (_, error) = AppService.Instance.Encrypt(GetGpgId(), filePath, GpgLockContent);
+            var gpg = new Gpg.Gpg(GetGpgId());
+            var (_, error) = AppService.Instance.Encrypt(gpg, filePath, GpgLockContent);
             if (error is not null) return false;
 
             AppService.Instance.GitIgnore(filePath);
@@ -76,7 +77,8 @@ public class FsService : IService
 
     public ResultStruct<byte, Error?> DestroyStore()
     {
-        if (!VerifyLock()) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
+        var gpg = new Gpg.Gpg(GetGpgId());
+        if (!VerifyLock(gpg)) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
 
         AppService.Instance.ReleaseLock();
         AppService.Instance.DeleteRepository(GetStorePath());
@@ -87,16 +89,17 @@ public class FsService : IService
     {
         var filePath = Path.Join(_storeFolderPath, ".settings");
         var value = settings.ToString();
-        var id = GetGpgId();
-        return AppService.Instance.Encrypt(id, filePath, value);
+        var gpg = new Gpg.Gpg(GetGpgId());
+        return AppService.Instance.Encrypt(gpg, filePath, value);
     }
 
     public Result<Settings?, Error?> GetSettings()
     {
+        var gpg = new Gpg.Gpg(GetGpgId());
         var filePath = Path.Join(_storeFolderPath, ".settings");
         return !File.Exists(filePath)
             ? new Result<Settings?, Error?>(new Settings())
-            : AppService.Instance.DecryptSettings(filePath);
+            : AppService.Instance.DecryptSettings(gpg, filePath);
     }
 
     public string GetStorePath()
@@ -108,6 +111,7 @@ public class FsService : IService
     {
         var gpgKeyId = GetGpgId();
         if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+        var gpg = new Gpg.Gpg(gpgKeyId);
 
         if (DoEntryExists(name))
             return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
@@ -130,7 +134,7 @@ public class FsService : IService
                 MetadataType.Internal));
         }
 
-        var (_, errorEncrypt) = AppService.Instance.Encrypt(gpgKeyId, filePath, password.ToString());
+        var (_, errorEncrypt) = AppService.Instance.Encrypt(gpg, filePath, password.ToString());
         if (!DoEntryExists(name))
             return new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"));
 
@@ -255,12 +259,15 @@ public class FsService : IService
     public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey)
     {
         if (IsStoreInitialized()) return new ResultStruct<byte, Error?>(new FsStoreAlreadyInitializedError());
+        var gpg = new Gpg.Gpg(gpgKey);
 
         var result = CreateStoreFolder();
         if (result.Item2 is not null) return result;
 
-        if (!AppService.Instance.IsKeyValid(gpgKey))
-            return new ResultStruct<byte, Error?>(new GpgInvalidKeyError());
+        var (ok, error) = AppService.Instance.IsKeyValid(gpg);
+
+        if (error is not null) return new ResultStruct<byte, Error?>(error);
+        if (!ok) return new ResultStruct<byte, Error?>(new GpgInvalidKeyError());
 
         File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgKey);
         return new ResultStruct<byte, Error?>(0);
@@ -282,7 +289,7 @@ public class FsService : IService
 
     #region Private methods
 
-    private bool VerifyLock()
+    private bool VerifyLock(Gpg.Gpg gpg)
     {
         if (_lockFileStream is null) return false;
 
@@ -295,7 +302,7 @@ public class FsService : IService
         var tmpFile = Path.GetTempFileName();
         File.WriteAllBytes(tmpFile, ms.ToArray());
 
-        var (_, error) = AppService.Instance.DecryptLock(tmpFile);
+        var (_, error) = AppService.Instance.DecryptLock(gpg, tmpFile);
         File.Delete(tmpFile);
 
         return error is null;

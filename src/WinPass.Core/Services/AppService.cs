@@ -105,26 +105,27 @@ public class AppService : IService
         return _fsService.GetSettings();
     }
 
-    public ResultStruct<byte, Error?> Encrypt(string key, string filePath, string value)
+    public ResultStruct<byte, Error?> Encrypt(Gpg.Gpg gpg, string filePath, string value)
     {
-        return _gpgService.Encrypt(key, filePath, value);
+        return _gpgService.Encrypt(gpg, filePath, value);
     }
 
-    public Result<Settings?, Error?> DecryptSettings(string filePath)
+    public Result<Settings?, Error?> DecryptSettings(Gpg.Gpg gpg, string filePath)
     {
-        return _gpgService.DecryptSettings(filePath);
+        return _gpgService.DecryptSettings(gpg, filePath);
     }
 
-    public ResultStruct<byte, Error?> DecryptLock(string filePath)
+    public ResultStruct<byte, Error?> DecryptLock(Gpg.Gpg gpg, string filePath)
     {
-        return _gpgService.DecryptLock(filePath);
+        return _gpgService.DecryptLock(gpg, filePath);
     }
 
     public ResultStruct<byte, Error?> Verify()
     {
         if (!_gpgService.Verify()) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
-        if (!_gitService.Verify()) return new ResultStruct<byte, Error?>(new GitNotInstalledError());
-        return new ResultStruct<byte, Error?>(0);
+        return !_gitService.Verify()
+            ? new ResultStruct<byte, Error?>(new GitNotInstalledError())
+            : new ResultStruct<byte, Error?>(0);
     }
 
     public string GetStorePath()
@@ -219,9 +220,11 @@ public class AppService : IService
         bool onlyMetadata = false)
     {
         if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
+        var gpgKeyId = _fsService.GetGpgId();
+        var gpg = new Gpg.Gpg(gpgKeyId);
 
         var filePath = _fsService.GetPath(name);
-        var result = _gpgService.DecryptPassword(filePath, onlyMetadata);
+        var result = _gpgService.DecryptPassword(gpg, filePath, onlyMetadata);
         if (!copy) return result;
         if (result.Item1 is null) return result;
 
@@ -264,9 +267,9 @@ public class AppService : IService
         return _gitService.Commit(message, GetStorePath());
     }
 
-    public bool IsKeyValid(string key)
+    public ResultStruct<bool, Error?> IsKeyValid(Gpg.Gpg gpg)
     {
-        return _gpgService.IsKeyValid(key);
+       return _gpgService.IsKeyValid(gpg);
     }
 
     public void GitIgnore(string filePath)
