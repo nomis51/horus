@@ -454,6 +454,8 @@ public class Cli
                         continue;
                     }
 
+                    // TODO: copy new password to clipboard
+                    
                     password.Value = newGeneratedPassword;
                     continue;
                 }
