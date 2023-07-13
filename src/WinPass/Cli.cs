@@ -441,10 +441,12 @@ public class Cli
                         .Title(Locale.Get("questions.whatToDo"))
                         .AddChoices(
                             Locale.Get("questions.generateNewPassword"),
-                            Locale.Get("questions.enterPasswordManually")
+                            Locale.Get("questions.enterPasswordManually"),
+                            Locale.Get("cancel")
                         )
                 );
 
+                if (choicePassword == Locale.Get("cancel")) continue;
                 if (choicePassword == Locale.Get("questions.generateNewPassword"))
                 {
                     var (newGeneratedPassword, errorGeneratePassword) = AppService.Instance.GeneratePassword();
