@@ -110,11 +110,6 @@ public class AppService : IService
         return _gpgService.Encrypt(gpg, filePath, value);
     }
 
-    public Result<Settings?, Error?> DecryptSettings(Gpg.Gpg gpg, string filePath)
-    {
-        return _gpgService.DecryptSettings(gpg, filePath);
-    }
-
     public ResultStruct<byte, Error?> DecryptLock(Gpg.Gpg gpg, string filePath)
     {
         return _gpgService.DecryptLock(gpg, filePath);
