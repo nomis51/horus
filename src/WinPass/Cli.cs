@@ -568,7 +568,7 @@ public class Cli
                 );
                 password.Metadata[index].Value =
                     AnsiConsole.Ask($"{Locale.Get("questions.enterTheValue")}: ", password.Metadata[index].Value);
-                break;
+                continue;
             }
         }
     }
