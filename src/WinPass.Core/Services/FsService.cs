@@ -1,4 +1,6 @@
-﻿using WinPass.Shared.Abstractions;
+﻿using Newtonsoft.Json;
+using Serilog;
+using WinPass.Shared.Abstractions;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Fs;
@@ -95,23 +97,29 @@ public class FsService : IService
     {
         var filePath = Path.Join(_storeFolderPath, ".settings");
         var value = settings.ToString();
-        var id = GetGpgId();
-        if (string.IsNullOrEmpty(id)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
 
-        var gpg = new Gpg.Gpg(id);
-        return AppService.Instance.Encrypt(gpg, filePath, value);
+        File.WriteAllText(filePath, value);
+        return new ResultStruct<byte, Error?>(0);
     }
 
     public Result<Settings?, Error?> GetSettings()
     {
-        var id = GetGpgId();
-        if (string.IsNullOrEmpty(id)) return new Result<Settings?, Error?>(new FsGpgIdKeyNotFoundError());
-
-        var gpg = new Gpg.Gpg(id);
         var filePath = Path.Join(_storeFolderPath, ".settings");
-        return !File.Exists(filePath)
-            ? new Result<Settings?, Error?>(new Settings())
-            : AppService.Instance.DecryptSettings(gpg, filePath);
+        if (!File.Exists(filePath)) return new Result<Settings?, Error?>(new Settings());
+
+        var data = File.ReadAllText(filePath);
+
+        try
+        {
+            var settings = JsonConvert.DeserializeObject<Settings>(data);
+            return new Result<Settings?, Error?>(settings);
+        }
+        catch (Exception e)
+        {
+            Log.Error("Unable to parse settings: {Message}", e.Message);
+        }
+
+        return new Result<Settings?, Error?>(new Settings());
     }
 
     public string GetStorePath()

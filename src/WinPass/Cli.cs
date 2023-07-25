@@ -441,10 +441,12 @@ public class Cli
                         .Title(Locale.Get("questions.whatToDo"))
                         .AddChoices(
                             Locale.Get("questions.generateNewPassword"),
-                            Locale.Get("questions.enterPasswordManually")
+                            Locale.Get("questions.enterPasswordManually"),
+                            Locale.Get("cancel")
                         )
                 );
 
+                if (choicePassword == Locale.Get("cancel")) continue;
                 if (choicePassword == Locale.Get("questions.generateNewPassword"))
                 {
                     var (newGeneratedPassword, errorGeneratePassword) = AppService.Instance.GeneratePassword();
@@ -454,6 +456,8 @@ public class Cli
                         continue;
                     }
 
+                    // TODO: copy new password to clipboard
+                    
                     password.Value = newGeneratedPassword;
                     continue;
                 }
@@ -564,7 +568,7 @@ public class Cli
                 );
                 password.Metadata[index].Value =
                     AnsiConsole.Ask($"{Locale.Get("questions.enterTheValue")}: ", password.Metadata[index].Value);
-                break;
+                continue;
             }
         }
     }
