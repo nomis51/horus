@@ -120,8 +120,8 @@ public class AppService : IService
         var gitOk = false;
         var gpgOk = false;
         var tasks = new Task[2];
-        tasks[0] = Task.Run(() => _gpgService.Verify());
-        tasks[1] = Task.Run(() => _gitService.Verify());
+        tasks[0] = Task.Run(() => gpgOk = _gpgService.Verify());
+        tasks[1] = Task.Run(() => gitOk = _gitService.Verify());
         Task.WaitAll(tasks);
 
         if (!gpgOk) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
@@ -222,10 +222,10 @@ public class AppService : IService
         bool onlyMetadata = false)
     {
         if (!_fsService.DoEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
-        
+
         var gpgKeyId = _fsService.GetGpgId();
         if (string.IsNullOrEmpty(gpgKeyId)) return new Result<Password?, Error?>(new FsGpgIdKeyNotFoundError());
-        
+
         var gpg = new Gpg.Gpg(gpgKeyId);
 
         var filePath = _fsService.GetPath(name);
@@ -274,7 +274,7 @@ public class AppService : IService
 
     public ResultStruct<bool, Error?> IsKeyValid(Gpg.Gpg gpg)
     {
-       return _gpgService.IsKeyValid(gpg);
+        return _gpgService.IsKeyValid(gpg);
     }
 
     public void GitIgnore(string filePath)
