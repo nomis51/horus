@@ -12,6 +12,18 @@ namespace WinPass;
 
 public static class Program
 {
+    #region Constants
+
+    private const string ReleasesUrl = "https://github.com/nomis51/winpass/releases/latest";
+
+    #endregion
+
+    #region Members
+
+    private static string _exitMessage = string.Empty;
+
+    #endregion
+
     #region Public methods
 
     public static void Main(string[] args)
@@ -24,31 +36,12 @@ public static class Program
 
         Console.OutputEncoding = Encoding.UTF8;
 
-        var dirName = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
-        var logDir = Path.Join(dirName, "logs");
-        Log.Logger = new LoggerConfiguration()
-            .WriteTo.File(Path.Join(logDir, ".txt"), LogEventLevel.Information,
-                rollingInterval: RollingInterval.Day)
-            .CreateLogger();
-
-        var (hasUpdate, _, newVersion) = UpdateHelper.CheckForUpdate().Result;
-        if (hasUpdate)
-        {
-            AnsiConsole.MarkupLine(
-                Locale.Get("newVersionAvailable",
-                    new object[] { newVersion!.ToString(), "https://github.com/nomis51/winpass/releases/latest" })
-            );
-        }
-
-        UpdateHelper.EnsureAppLinked();
+        var logDir = InitializeLogger();
+        CheckForUpdates();
 
         try
         {
-            var (settings, error) = AppService.Instance.GetSettings();
-            if (error is null && settings is not null)
-            {
-                Locale.SetLanguage(settings.Language);
-            }
+            SetAppLanguage();
 
             new Cli().Run(args);
         }
@@ -60,8 +53,49 @@ public static class Program
         }
         finally
         {
+            if (!string.IsNullOrEmpty(_exitMessage)) AnsiConsole.MarkupLine(_exitMessage);
             AppService.Instance.ReleaseLock();
         }
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private static void SetAppLanguage()
+    {
+        var (settings, error) = AppService.Instance.GetSettings();
+        if (error is null && settings is not null)
+        {
+            Locale.SetLanguage(settings.Language);
+        }
+    }
+
+    private static string InitializeLogger()
+    {
+        var dirName = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
+        var logDir = Path.Join(dirName, "logs");
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.File(Path.Join(logDir, ".txt"), LogEventLevel.Information,
+                rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
+        return logDir;
+    }
+
+    private static void CheckForUpdates()
+    {
+        _ = Task.Run(() =>
+        {
+            var (hasUpdate, _, newVersion) = UpdateHelper.CheckForUpdate().Result;
+            if (hasUpdate)
+            {
+                _exitMessage = Locale.Get("newVersionAvailable",
+                    new object[] { newVersion!.ToString(), ReleasesUrl });
+            }
+
+            UpdateHelper.EnsureAppLinked();
+        });
     }
 
     #endregion
