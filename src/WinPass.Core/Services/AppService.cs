@@ -167,12 +167,12 @@ public class AppService : IService
         return errorGit is not null ? new ResultStruct<byte, Error?>(errorGit) : new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<string, Error?> GeneratePassword()
+    public Result<byte[], Error?> GeneratePassword()
     {
         var (settings, error) = _fsService.GetSettings();
-        if (error is not null) return new Result<string, Error?>(error);
+        if (error is not null) return new Result<byte[], Error?>(error);
 
-        return new Result<string, Error?>(
+        return new Result<byte[], Error?>(
             PasswordHelper.Generate(
                 settings!.DefaultLength,
                 settings.DefaultCustomAlphabet
@@ -180,18 +180,21 @@ public class AppService : IService
         );
     }
 
-    public Result<string, Error?> GeneratePassword(string name, int length, string customAlphabet, bool copy,
+    public Result<Password?, Error?> GeneratePassword(string name, int length, string customAlphabet, bool copy,
         int timeout)
     {
-        var value = PasswordHelper.Generate(length, customAlphabet);
-        var (_, error) = InsertPassword(name, new Password(value));
-        if (error is not null) return new Result<string, Error?>(error);
+        var password = new Password
+        {
+            ValueBytes = PasswordHelper.Generate(length, customAlphabet),
+        };
+        var (_, error) = InsertPassword(name, password);
+        if (error is not null) return new Result<Password?, Error?>(error);
 
-        if (!copy) return new Result<string, Error?>(value);
-        ClipboardHelper.Copy(value);
+        if (!copy) return new Result<Password?, Error?>(password);
+        ClipboardHelper.Copy(password.ValueAsString);
 
         ProcessHelper.Fork(new[] { "cc", timeout <= 0 ? "10" : timeout.ToString() });
-        return new Result<string, Error?>(value);
+        return new Result<Password?, Error?>(password);
     }
 
     public List<StoreEntry> Search(string term)
@@ -233,7 +236,7 @@ public class AppService : IService
         if (!copy) return result;
         if (result.Item1 is null) return result;
 
-        ClipboardHelper.Copy(result.Item1.Value);
+        ClipboardHelper.Copy(result.Item1.ValueAsString);
 
         ProcessHelper.Fork(new[] { "cc", timeout <= 0 ? "10" : timeout.ToString() });
         return result;

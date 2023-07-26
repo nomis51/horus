@@ -56,12 +56,11 @@ public class GpgService : IService
             var lines = data
                 .Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                 .Select(v => v.Trim('\r'))
-                .ToList();
+                .ToArray();
             if (!lines.Any()) return new Result<Password?, Error?>(new GpgEmptyPasswordError());
 
-            var password = new Password
+            var password = new Password(ref lines[0])
             {
-                Value = lines.First(),
                 Metadata = lines.Skip(1)
                     .Select(l =>
                     {
@@ -78,7 +77,6 @@ public class GpgService : IService
                     .ToList()!
             };
 
-            lines.Clear();
             lines = null;
             GC.Collect();
 

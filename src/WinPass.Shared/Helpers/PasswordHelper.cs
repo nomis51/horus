@@ -16,7 +16,7 @@ public static class PasswordHelper
 
     #region Public methods
 
-    public static string Generate(int length = DefaultLength, string customAlphabet = "")
+    public static byte[] Generate(int length = DefaultLength, string customAlphabet = "")
     {
         if (length <= 0)
         {
@@ -31,16 +31,16 @@ public static class PasswordHelper
             crypto.GetBytes(data);
         }
 
-        StringBuilder result = new(length);
+        var result = new byte[length];
         for (var i = 0; i < length; ++i)
         {
             var random = BitConverter.ToUInt32(data, i * 4);
             var index = random % chars.Length;
 
-            result.Append(chars[index]);
+            result[i] = (byte)chars[index];
         }
 
-        return result.ToString();
+        return result;
     }
 
     #endregion

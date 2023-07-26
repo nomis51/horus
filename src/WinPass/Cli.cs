@@ -457,8 +457,8 @@ public class Cli
                     }
 
                     // TODO: copy new password to clipboard
-                    
-                    password.Value = newGeneratedPassword;
+
+                    password.ValueBytes = newGeneratedPassword;
                     continue;
                 }
 
@@ -480,11 +480,20 @@ public class Cli
                     );
                     if (!newPassword.Equals(newPasswordConfirm))
                     {
+                        newPassword = null;
+                        newPasswordConfirm = null;
+                        GC.Collect();
                         lastErrorMessage = Locale.Get("error.passwordDontMatch");
                         continue;
                     }
 
-                    password.Value = newPassword;
+                    newPasswordConfirm = null;
+                    GC.Collect();
+
+                    password.SetValue(ref newPassword);
+
+                    newPassword = null;
+                    GC.Collect();
                     continue;
                 }
 
@@ -752,7 +761,8 @@ public class Cli
 
         AnsiConsole.MarkupLine(Locale.Get("passwordGenerated", new object[] { name }));
 
-        DisplayPassword(password);
+        DisplayPassword(password!);
+        password!.Dispose();
         password = null;
         GC.Collect();
     }
@@ -814,6 +824,8 @@ public class Cli
         );
         if (string.IsNullOrWhiteSpace(password))
         {
+            password = null;
+            GC.Collect();
             AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordEmpty")}[/]");
             return;
         }
@@ -824,11 +836,21 @@ public class Cli
         );
         if (!password.Equals(passwordConfirm))
         {
+            password = null;
+            passwordConfirm = null;
+            GC.Collect();
             AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordsDontMatch")}[/]");
             return;
         }
 
-        var (_, error) = AppService.Instance.InsertPassword(name, new Password(password));
+        passwordConfirm = null;
+        GC.Collect();
+
+        var (_, error) = AppService.Instance.InsertPassword(name, new Password(ref password));
+
+        password = null;
+        GC.Collect();
+
         if (error is not null)
         {
             AnsiConsole.MarkupLine($"[{GetErrorColor(error.Severity)}]{error.Message}[/]");
@@ -942,7 +964,7 @@ public class Cli
 
         if (!showMetadata || showPassword)
         {
-            DisplayPassword(password.Value);
+            DisplayPassword(password);
             password.Dispose();
             password = null;
             GC.Collect();
@@ -1050,7 +1072,7 @@ public class Cli
         AnsiConsole.Write(table);
     }
 
-    private void DisplayPassword(string value)
+    private void DisplayPassword(Password password)
     {
         Table table = new()
         {
@@ -1059,7 +1081,7 @@ public class Cli
         };
 
         table.AddColumn(string.Empty);
-        table.AddRow($"{Locale.Get("passwordIs")} [yellow]{value.EscapeMarkup()}[/]");
+        table.AddRow($"{Locale.Get("passwordIs")} [yellow]{password.ValueAsString.EscapeMarkup()}[/]");
         AnsiConsole.Write(table);
         table.Rows.Clear();
         table = null;

@@ -169,13 +169,13 @@ public class FsService : IService
         if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
 
         var filePath = GetPath(name);
-        if (string.IsNullOrEmpty(password.Value))
+        if (password.ValueBytes is null || password.ValueBytes.Length == 0)
         {
             var (existingPassword, errorExistingPassword) = AppService.Instance.GetPassword(name);
             if (errorExistingPassword is not null || existingPassword is null)
                 return new ResultStruct<byte, Error?>(new FsEditPasswordFailedError());
 
-            password.Value = existingPassword.Value;
+            password.ValueBytes = existingPassword.ValueBytes;
             existingPassword.Dispose();
             existingPassword = null;
             GC.Collect();
