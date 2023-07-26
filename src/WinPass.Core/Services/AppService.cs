@@ -117,8 +117,15 @@ public class AppService : IService
 
     public ResultStruct<byte, Error?> Verify()
     {
-        if (!_gpgService.Verify()) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
-        return !_gitService.Verify()
+        var gitOk = false;
+        var gpgOk = false;
+        var tasks = new Task[2];
+        tasks[0] = Task.Run(() => _gpgService.Verify());
+        tasks[1] = Task.Run(() => _gitService.Verify());
+        Task.WaitAll(tasks);
+
+        if (!gpgOk) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
+        return !gitOk
             ? new ResultStruct<byte, Error?>(new GitNotInstalledError())
             : new ResultStruct<byte, Error?>(0);
     }
