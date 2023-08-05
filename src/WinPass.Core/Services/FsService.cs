@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-using Serilog;
-using WinPass.Shared.Abstractions;
+﻿using WinPass.Shared.Abstractions;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Fs;
@@ -14,6 +12,7 @@ public class FsService : IService
 {
     #region Constants
 
+    private const string WinpassEnvVariableName = "WINPASS_SETTINGS";
     private const string StoreFolderName = ".password-store";
     private const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
@@ -29,6 +28,7 @@ public class FsService : IService
     #region Members
 
     private FileStream? _lockFileStream;
+    private Settings? _settings;
 
     #endregion
 
@@ -79,7 +79,6 @@ public class FsService : IService
         _lockFileStream = null;
     }
 
-
     public ResultStruct<byte, Error?> DestroyStore()
     {
         var id = GetGpgId();
@@ -95,31 +94,73 @@ public class FsService : IService
 
     public ResultStruct<byte, Error?> SaveSettings(Settings settings)
     {
-        var filePath = Path.Join(_storeFolderPath, ".settings");
-        var value = settings.ToString();
-
-        File.WriteAllText(filePath, value);
+        var data = settings.ToString();
+        Environment.SetEnvironmentVariable(WinpassEnvVariableName, data, EnvironmentVariableTarget.User);
         return new ResultStruct<byte, Error?>(0);
+
+        // var filePath = Path.Join(_storeFolderPath, ".settings");
+        // var value = settings.ToString();
+        //
+        // File.WriteAllText(filePath, value);
+        // return new ResultStruct<byte, Error?>(0);
     }
 
     public Result<Settings?, Error?> GetSettings()
     {
-        var filePath = Path.Join(_storeFolderPath, ".settings");
-        if (!File.Exists(filePath)) return new Result<Settings?, Error?>(new Settings());
+        if (_settings is not null) return new Result<Settings?, Error?>(_settings);
 
-        var data = File.ReadAllText(filePath);
+        var data = Environment.GetEnvironmentVariable(WinpassEnvVariableName, EnvironmentVariableTarget.User);
+        if (string.IsNullOrEmpty(data)) return new Result<Settings?, Error?>(new Settings());
 
-        try
+        var settings = new Settings();
+        var parts = data.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        foreach (var part in parts)
         {
-            var settings = JsonConvert.DeserializeObject<Settings>(data);
-            return new Result<Settings?, Error?>(settings);
-        }
-        catch (Exception e)
-        {
-            Log.Error("Unable to parse settings: {Message}", e.Message);
+            var values = part.Split("=", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (values.Length != 2) continue;
+
+            switch (values[0])
+            {
+                case nameof(Settings.ClearTimeout):
+                    if (!int.TryParse(values[1], out var clearTimeout)) continue;
+                    settings.ClearTimeout = clearTimeout;
+                    break;
+
+                case nameof(Settings.DefaultLength):
+                    if (!int.TryParse(values[1], out var defaultLength)) continue;
+                    settings.DefaultLength = defaultLength;
+                    break;
+
+                case nameof(Settings.DefaultCustomAlphabet):
+                    settings.DefaultCustomAlphabet = values[1];
+                    break;
+
+                case nameof(Settings.Language):
+                    settings.Language = values[1];
+                    break;
+            }
         }
 
-        return new Result<Settings?, Error?>(new Settings());
+        _settings = settings;
+
+        return new Result<Settings?, Error?>(_settings);
+
+        // var filePath = Path.Join(_storeFolderPath, ".settings");
+        // if (!File.Exists(filePath)) return new Result<Settings?, Error?>(new Settings());
+        //
+        // var data = File.ReadAllText(filePath);
+        //
+        // try
+        // {
+        //     var settings = JsonConvert.DeserializeObject<Settings>(data);
+        //     return new Result<Settings?, Error?>(settings);
+        // }
+        // catch (Exception e)
+        // {
+        //     Log.Error("Unable to parse settings: {Message}", e.Message);
+        // }
+        //
+        // return new Result<Settings?, Error?>(new Settings());
     }
 
     public string GetStorePath()
