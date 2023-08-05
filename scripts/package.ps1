@@ -14,7 +14,7 @@ if (Test-Path -Path ../build) {
 
 New-Item -Name ../build -ItemType directory
 
-Copy-Item -Path ../src/WinPass/bin/Release/net6.0/* -Destination ../build -Include *.dll, *.exe, *.json, WinPass, ref/*.*
+Copy-Item -Path ../src/WinPass/bin/Release/net7.0/* -Destination ../build -Include *.dll, *.exe, *.json, WinPass, ref/*.*
 Copy-Item -Path ../README.md -Destination ../build/README.md
 if (Test-Path -Path ../build/WinPass.exe){
  Rename-Item -Path ../build/WinPass.exe -NewName winpass.exe 
