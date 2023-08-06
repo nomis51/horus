@@ -1,4 +1,5 @@
-using System.Runtime.InteropServices;
+using System.Management.Automation;
+using System.Text;
 using Serilog;
 using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
@@ -12,7 +13,7 @@ public class Gpg
     #region Constants
 
     private const string GpgProcessName = "gpg";
-    private const string CmdProcessName = "cmd";
+    private const string PwshProcessName = "pwsh";
 
     #endregion
 
@@ -37,11 +38,12 @@ public class Gpg
     {
         try
         {
-            var (ok, result, error) = ProcessHelper.Exec(
-                GpgProcessName,
-                new[] { "--version" }
-            );
-            return ok && string.IsNullOrEmpty(error) && result.StartsWith("gpg (GnuPG)");
+            var pwsh = PowerShell.Create();
+            pwsh.AddCommand(GpgProcessName);
+            pwsh.AddArgument("--version");
+            var lines = pwsh.Invoke<string>();
+
+            return lines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
         }
         catch (Exception e)
         {
@@ -53,69 +55,112 @@ public class Gpg
 
     public ResultStruct<byte, Error?> Encrypt(string filePath, string value)
     {
-        var args = new[]
+        var pwsh = PowerShell.Create();
+        pwsh.AddCommand(PwshProcessName);
+        foreach (var arg in new[]
+                 {
+                     "-Command",
+                     "Write-Output",
+                     value.ToBase64(),
+                     "|",
+                     GpgProcessName,
+                     "--quiet",
+                     "--yes",
+                     "--compress-algo=none",
+                     "--no-encrypt-to",
+                     "--encrypt",
+                     "--recipient",
+                     _keyId,
+                     "--output",
+                     filePath
+                 })
         {
-            value.ToBase64(),
-            "|",
-            GpgProcessName,
-            "--quiet",
-            "--yes",
-            "--compress-algo=none",
-            "--no-encrypt-to",
-            "-e",
-            "-r",
-            _keyId,
-            "-o",
-            filePath
-        };
-        var (ok, _, error) = ProcessHelper.Exec(
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? CmdProcessName : "echo",
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? new[]
-                    {
-                        "/c",
-                        "echo",
-                    }
-                    .Concat(args)
-                    .ToArray()
-                : args
-        );
-        return !ok ? new ResultStruct<byte, Error?>(new GpgEncryptError(error)) : new ResultStruct<byte, Error?>(0);
+            pwsh.AddArgument(arg);
+        }
+
+        try
+        {
+            _ = pwsh.Invoke();
+            return new ResultStruct<byte, Error?>(0);
+        }
+        catch (Exception e)
+        {
+            return new ResultStruct<byte, Error?>(new GpgDecryptError(e.Message));
+        }
+    }
+
+    public Result<List<string>, Error?> DecryptMany(IEnumerable<string> filePaths)
+    {
+        var pwsh = PowerShell.Create();
+        pwsh.AddCommand(PwshProcessName);
+        pwsh.AddArgument("-Command");
+        pwsh.AddArgument("foreach($filePath in (" +
+                         string.Join(", ", filePaths) +
+                         ")) { gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $filePath; echo \"\" }");
+
+        try
+        {
+            var result = pwsh.Invoke<string>();
+            return new Result<List<string>, Error?>(result.ToList());
+        }
+        catch (Exception e)
+        {
+            return new Result<List<string>, Error?>(new GpgDecryptError(e.Message));
+        }
     }
 
     public Result<string, Error?> Decrypt(string filePath)
     {
-        var (ok, result, error) = ProcessHelper.Exec(GpgProcessName, new[]
+        var pwsh = PowerShell.Create();
+        pwsh.AddCommand(GpgProcessName);
+        foreach (var arg in new[]
+                 {
+                     "--quiet",
+                     "--yes",
+                     "--compress-algo=none",
+                     "--no-encrypt-to",
+                     "--decrypt",
+                     filePath
+                 })
         {
-            "--quiet",
-            "--yes",
-            "--compress-algo=none",
-            "--no-encrypt-to",
-            "-d",
-            filePath
-        });
-        return !ok ? new Result<string, Error?>(new GpgDecryptError(error)) : new Result<string, Error?>(result);
+            pwsh.AddArgument(arg);
+        }
+
+        try
+        {
+            var result = pwsh.Invoke<string>();
+            return new Result<string, Error?>(string.Join("\n", result));
+        }
+        catch (Exception e)
+        {
+            return new Result<string, Error?>(new GpgDecryptError(e.Message));
+        }
     }
 
     public ResultStruct<bool, Error?> IsValid()
     {
-        var (ok, result, error) = ProcessHelper.Exec(
-            GpgProcessName,
-            new[]
-            {
-                "--list-keys",
-                _keyId
-            }
-        );
-        if (error.StartsWith("gpg: error reading key: No public key"))
+        var pwsh = PowerShell.Create();
+        pwsh.AddCommand(GpgProcessName);
+        pwsh.AddArgument("--list-keys");
+
+        List<string> lines = new();
+        try
+        {
+            lines = pwsh.Invoke<string>().ToList();
+        }
+        catch (Exception e)
+        {
+            return new ResultStruct<bool, Error?>(new GpgDecryptError(e.Message));
+        }
+
+        if (lines.FirstOrDefault()?.StartsWith("gpg: error reading key: No public key") ?? true)
             return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
-        if (!ok || !string.IsNullOrEmpty(error) || !result.StartsWith("pub"))
+        if (!lines.FirstOrDefault()?.StartsWith("pub") ?? true)
             return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
 
         const string expireTag = "[E]";
         const string expireLabel = "[expires: ";
-        var expireLine = result.Split("\r\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .FirstOrDefault(l => l.Contains(expireTag));
+        var expireLine = lines.FirstOrDefault(l => l.Contains(expireTag));
         if (string.IsNullOrEmpty(expireLine)) return new ResultStruct<bool, Error?>(new GpgInvalidKeyError());
 
         if (!expireLine.Contains(expireLabel)) return new ResultStruct<bool, Error?>(true);

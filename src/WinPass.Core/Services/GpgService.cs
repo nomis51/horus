@@ -23,16 +23,6 @@ public class GpgService : IService
         return gpg.Encrypt(filePath, value);
     }
 
-    public Result<Settings?, Error?> DecryptSettings(Gpg.Gpg gpg, string filePath)
-    {
-        var (data, error) = gpg.Decrypt(filePath);
-        if (error is not null) return new Result<Settings?, Error?>(error);
-
-        return string.IsNullOrWhiteSpace(data)
-            ? new Result<Settings?, Error?>(error)
-            : new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data.FromBase64()));
-    }
-
     public ResultStruct<byte, Error?> DecryptLock(Gpg.Gpg gpg, string filePath)
     {
         var (data, error) = gpg.Decrypt(filePath);
