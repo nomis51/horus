@@ -9,6 +9,7 @@ There are several implementations of `pass` targeting different platforms and ne
 - Have [Git](https://git-scm.com/download/win) installed
 - Have [GnuPG for Windows](https://gnupg.org/download/) or GPG (linux) installed
 - Have [.NET 7](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) installed (for linux follow the instructions [here](https://learn.microsoft.com/en-us/dotnet/core/install/linux) or use `pacman` on Arch)
+- Have [PowerShell 7+](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3#installing-the-msi-package) (for linux follow the instructions [here](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux?view=powershell-7.3) or use `pacman` on Arch)
 - Go to the [Release](https://github.com/nomis51/winpass/releases/latest) section
 - Download the `WinPass.zip` file for your OS (e.g. `WinPass-win.zip` for Windows or `WinPass-linux.zip` for Linux)
 - Extract anywhere you want
