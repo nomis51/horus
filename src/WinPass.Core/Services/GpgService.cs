@@ -15,15 +15,15 @@ public class GpgService : IService
 
     public bool Verify()
     {
-        return Gpg.Gpg.Verify();
+        return Gpg.Verify();
     }
 
-    public ResultStruct<byte, Error?> Encrypt(Gpg.Gpg gpg, string filePath, string value)
+    public ResultStruct<byte, Error?> Encrypt(Gpg gpg, string filePath, string value)
     {
         return gpg.Encrypt(filePath, value);
     }
 
-    public ResultStruct<byte, Error?> DecryptLock(Gpg.Gpg gpg, string filePath)
+    public ResultStruct<byte, Error?> DecryptLock(Gpg gpg, string filePath)
     {
         var (data, error) = gpg.Decrypt(filePath);
         if (error is not null) return new ResultStruct<byte, Error?>(error);
@@ -34,7 +34,7 @@ public class GpgService : IService
             : new ResultStruct<byte, Error?>(0);
     }
 
-    public Result<Password?, Error?> DecryptPassword(Gpg.Gpg gpg, string filePath, bool onlyMetadata = false)
+    public Result<Password?, Error?> DecryptPassword(Gpg gpg, string filePath, bool onlyMetadata = false)
     {
         var (data, error) = gpg.Decrypt(filePath);
         if (error is not null) return new Result<Password?, Error?>(error);
@@ -99,7 +99,7 @@ public class GpgService : IService
         }
     }
 
-    public ResultStruct<bool, Error?> IsKeyValid(Gpg.Gpg gpg)
+    public ResultStruct<bool, Error?> IsKeyValid(Gpg gpg)
     {
         return gpg.IsValid();
     }

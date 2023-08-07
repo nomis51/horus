@@ -289,9 +289,8 @@ public class Cli
             .SpinnerStyle(Style.Parse("blue"))
             .Start("Running git command...", _ =>
             {
-                var (result, error) = AppService.Instance.ExecuteGitCommand(args.ToArray());
+                var result = AppService.Instance.ExecuteGitCommand(args.ToArray());
                 AnsiConsole.WriteLine(result);
-                AnsiConsole.WriteLine(error);
             });
     }
 

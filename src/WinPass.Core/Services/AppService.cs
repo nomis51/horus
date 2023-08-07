@@ -57,17 +57,17 @@ public class AppService : IService
 
     public Result<string, Error?> GetRemoteRepositoryName()
     {
-        return _gitService.GetRemoteRepositoryName(_fsService.GetStorePath());
+        return _gitService.GetRemoteRepositoryName();
     }
 
     public ResultStruct<byte, Error?> GitPush()
     {
-        return _gitService.Push(_fsService.GetStorePath());
+        return _gitService.Push();
     }
 
     public ResultStruct<bool, Error?> IsAheadOfRemote()
     {
-        return _gitService.IsAheadOfRemote(_fsService.GetStorePath());
+        return _gitService.IsAheadOfRemote();
     }
 
     public bool AcquireLock()
@@ -80,9 +80,9 @@ public class AppService : IService
         _fsService.ReleaseLock();
     }
 
-    public void DeleteRepository(string path)
+    public void DeleteRepository( )
     {
-        _gitService.DeleteRepository(path);
+        _gitService.DeleteRepository();
     }
 
     public ResultStruct<byte, Error?> DestroyStore()
@@ -105,12 +105,12 @@ public class AppService : IService
         return _fsService.GetSettings();
     }
 
-    public ResultStruct<byte, Error?> Encrypt(Gpg.Gpg gpg, string filePath, string value)
+    public ResultStruct<byte, Error?> Encrypt(Gpg gpg, string filePath, string value)
     {
         return _gpgService.Encrypt(gpg, filePath, value);
     }
 
-    public ResultStruct<byte, Error?> DecryptLock(Gpg.Gpg gpg, string filePath)
+    public ResultStruct<byte, Error?> DecryptLock(Gpg gpg, string filePath)
     {
         return _gpgService.DecryptLock(gpg, filePath);
     }
@@ -135,7 +135,7 @@ public class AppService : IService
         return _fsService.GetStorePath();
     }
 
-    public Tuple<string, string> ExecuteGitCommand(string[] args)
+    public string ExecuteGitCommand(string[] args)
     {
         return _gitService.Execute(args);
     }
@@ -229,7 +229,7 @@ public class AppService : IService
         var gpgKeyId = _fsService.GetGpgId();
         if (string.IsNullOrEmpty(gpgKeyId)) return new Result<Password?, Error?>(new FsGpgIdKeyNotFoundError());
 
-        var gpg = new Gpg.Gpg(gpgKeyId);
+        var gpg = new Gpg(gpgKeyId);
 
         var filePath = _fsService.GetPath(name);
         var result = _gpgService.DecryptPassword(gpg, filePath, onlyMetadata);
@@ -249,21 +249,20 @@ public class AppService : IService
 
     public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey, string gitUrl)
     {
-        var storePath = GetStorePath();
-        if (!_gitService.Clone(gitUrl, storePath))
+        if (!_gitService.Clone(gitUrl))
             return new ResultStruct<byte, Error?>(new GitCloneFailedError());
 
         var (_, error) = _fsService.InitializeStoreFolder(gpgKey);
         if (error is not null)
         {
-            _gitService.DeleteRepository(storePath);
+            _gitService.DeleteRepository();
             return new ResultStruct<byte, Error?>(error);
         }
 
-        var (_, errorCommit) = _gitService.Commit("Add '.gpg-id' file", storePath);
+        var (_, errorCommit) = _gitService.Commit("Add '.gpg-id' file");
         if (errorCommit is not null)
         {
-            _gitService.DeleteRepository(storePath);
+            _gitService.DeleteRepository();
             return new ResultStruct<byte, Error?>(errorCommit);
         }
 
@@ -272,17 +271,17 @@ public class AppService : IService
 
     public ResultStruct<byte, Error?> GitCommit(string message)
     {
-        return _gitService.Commit(message, GetStorePath());
+        return _gitService.Commit(message);
     }
 
-    public ResultStruct<bool, Error?> IsKeyValid(Gpg.Gpg gpg)
+    public ResultStruct<bool, Error?> IsKeyValid(Gpg gpg)
     {
         return _gpgService.IsKeyValid(gpg);
     }
 
     public void GitIgnore(string filePath)
     {
-        _gitService.Ignore(filePath, GetStorePath());
+        _gitService.Ignore(filePath);
     }
 
     public void Initialize()

@@ -51,7 +51,7 @@ public class FsService : IService
         if (!File.Exists(filePath))
         {
             var id = GetGpgId();
-            var gpg = new Gpg.Gpg(id);
+            var gpg = new Gpg(id);
             if (string.IsNullOrEmpty(id)) return false;
 
             var (_, error) = AppService.Instance.Encrypt(gpg, filePath, GpgLockContent);
@@ -84,11 +84,11 @@ public class FsService : IService
         var id = GetGpgId();
         if (string.IsNullOrEmpty(id)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
 
-        var gpg = new Gpg.Gpg(id);
+        var gpg = new Gpg(id);
         if (!VerifyLock(gpg)) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
 
         AppService.Instance.ReleaseLock();
-        AppService.Instance.DeleteRepository(GetStorePath());
+        AppService.Instance.DeleteRepository();
         return new ResultStruct<byte, Error?>(0);
     }
 
@@ -173,7 +173,7 @@ public class FsService : IService
         var gpgKeyId = GetGpgId();
         if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
 
-        var gpg = new Gpg.Gpg(gpgKeyId);
+        var gpg = new Gpg(gpgKeyId);
 
         if (DoEntryExists(name))
             return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
@@ -319,7 +319,7 @@ public class FsService : IService
     public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey)
     {
         if (IsStoreInitialized()) return new ResultStruct<byte, Error?>(new FsStoreAlreadyInitializedError());
-        var gpg = new Gpg.Gpg(gpgKey);
+        var gpg = new Gpg(gpgKey);
 
         var result = CreateStoreFolder();
         if (result.Item2 is not null) return result;
@@ -349,7 +349,7 @@ public class FsService : IService
 
     #region Private methods
 
-    private bool VerifyLock(Gpg.Gpg gpg)
+    private bool VerifyLock(Gpg gpg)
     {
         if (_lockFileStream is null) return false;
 

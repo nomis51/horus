@@ -1,12 +1,10 @@
 using System.Management.Automation;
-using System.Text;
 using Serilog;
 using WinPass.Shared.Extensions;
-using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Gpg;
 
-namespace WinPass.Gpg;
+namespace WinPass.Shared.Models;
 
 public class Gpg
 {

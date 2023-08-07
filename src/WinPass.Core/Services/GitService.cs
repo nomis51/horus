@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Management.Automation;
+using System.Runtime.InteropServices;
 using System.Text;
 using Serilog;
 using WinPass.Shared.Abstractions;
@@ -18,9 +19,9 @@ public class GitService : IService
 
     #region Public methods
 
-    public Result<string, Error?> GetRemoteRepositoryName(string path)
+    public Result<string, Error?> GetRemoteRepositoryName()
     {
-        var gitFolder = Path.Join(path, ".git");
+        var gitFolder = Path.Join(AppService.Instance.GetStorePath(), ".git");
         if (!Directory.Exists(gitFolder)) return new Result<string, Error?>(new GitNotARepositoryError());
 
         var configFilePath = Path.Join(gitFolder, "config");
@@ -42,44 +43,66 @@ public class GitService : IService
             : new Result<string, Error?>(url[(index + 1)..endIndex]);
     }
 
-    public ResultStruct<byte, Error?> Push(string path)
+    public ResultStruct<byte, Error?> Push()
     {
-        var (ok, _, error) = ProcessHelper.Exec(Git, new[] { "push" }, workingDirectory: path);
-        return !ok ? new ResultStruct<byte, Error?>(new GitPushFailedError(error)) : new ResultStruct<byte, Error?>(0);
+        try
+        {
+            GetPowershellInstance()
+                .AddArgument("push")
+                .Invoke<string>();
+            return new ResultStruct<byte, Error?>(0);
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git push: {Message}", e.Message);
+            return new ResultStruct<byte, Error?>(new GitPushFailedError(e.Message));
+        }
     }
 
-    public ResultStruct<bool, Error?> IsAheadOfRemote(string path)
+    public ResultStruct<bool, Error?> IsAheadOfRemote()
     {
-        var (okFetch, _, errorFetch) = ProcessHelper.Exec(Git, new[] { "fetch" }, workingDirectory: path);
-        if (!okFetch) return new ResultStruct<bool, Error?>(new GitFetchFailedError(errorFetch));
-
-        var (okStatus, resultStatus, errorStatus) = ProcessHelper.Exec(Git, new[] { "status" }, workingDirectory: path);
-        return !okStatus
-            ? new ResultStruct<bool, Error?>(new GitStatusFailedError(errorStatus))
-            : new ResultStruct<bool, Error?>(resultStatus.Contains("Your branch is ahead of 'origin/master'"));
+        try
+        {
+            var output = string.Join(
+                "\n",
+                GetPowershellInstance()
+                    .AddArgument("fetch")
+                    .AddStatement()
+                    .AddCommand(Git)
+                    .AddArgument("status")
+                    .Invoke<string>()
+            );
+            return new ResultStruct<bool, Error?>(output.Contains("Your branch is ahead of 'origin/master'"));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git fetch or git status: {Message}", e.Message);
+            return new ResultStruct<bool, Error?>(new GitFetchFailedError(e.Message));
+        }
     }
 
-    public void Ignore(string filePath, string path)
+    public void Ignore(string filePath)
     {
+        var path = AppService.Instance.GetStorePath();
         var gitignoreFilePath = Path.Join(path, ".gitignore");
         var ignorePath = filePath.Replace(path, string.Empty);
         if (!File.Exists(gitignoreFilePath))
         {
             File.WriteAllText(gitignoreFilePath, ignorePath);
-            var (_, error) = Commit("Add .gitignore", path);
+            Commit("Add .gitignore");
         }
         else
         {
             var data = File.ReadAllText(gitignoreFilePath);
             data += $"{Environment.NewLine}{ignorePath}";
             File.WriteAllText(gitignoreFilePath, data);
-            var (_, error) = Commit("Add .gitignore", path);
+            Commit("Add .gitignore");
         }
     }
 
-    public void DeleteRepository(string path)
+    public void DeleteRepository()
     {
-        var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
+        var directory = new DirectoryInfo(AppService.Instance.GetStorePath()) { Attributes = FileAttributes.Normal };
 
         foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
         {
@@ -93,8 +116,13 @@ public class GitService : IService
     {
         try
         {
-            var (ok, result, error) = ProcessHelper.Exec(Git, new[] { "--version" });
-            return ok && result.StartsWith("git version") && string.IsNullOrEmpty(error);
+            var output = string.Join(
+                "\n",
+                GetPowershellInstance()
+                    .AddArgument("--version")
+                    .Invoke<string>()
+            );
+            return output.StartsWith("git version");
         }
         catch (Exception e)
         {
@@ -103,7 +131,7 @@ public class GitService : IService
         }
     }
 
-    public bool Clone(string url, string path)
+    public bool Clone(string url)
     {
         var tmpPath = string.Empty;
 
@@ -136,6 +164,7 @@ public class GitService : IService
 
         if (!Directory.Exists(dirPath)) return false;
 
+        var path = AppService.Instance.GetStorePath();
         Directory.Move(dirPath, path);
         if (!Directory.Exists(Path.Join(path, ".git"))) return false;
 
@@ -147,28 +176,80 @@ public class GitService : IService
         return true;
     }
 
-    public Tuple<string, string> Execute(string[] args)
+    public string Execute(string[] args)
     {
-        var (_, result, error) = ProcessHelper.Exec(Git, args, AppService.Instance.GetStorePath());
-        return Tuple.Create(result, error);
+        var pwsh = GetPowershellInstance();
+        foreach (var arg in args)
+        {
+            pwsh.AddArgument(arg);
+        }
+
+        var output = string.Empty;
+        try
+        {
+            output = string.Join("\n", pwsh.Invoke<string>());
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
+        return output;
     }
 
-    public ResultStruct<byte, Error?> Commit(string message, string path)
+    public ResultStruct<byte, Error?> Commit(string message)
     {
-        var (okAdd, _, errorAdd) = ProcessHelper.Exec(Git, new[] { "add", "--all", "--", ":!.lock" }, path);
-        if (!okAdd && !string.IsNullOrEmpty(errorAdd) &&
-            !errorAdd.StartsWith("The following paths are ignored by one of your .gitignore files:"))
+        try
+        {
+            var outputAdd = string.Join(
+                "\n",
+                GetPowershellInstance()
+                    .AddArgument("add")
+                    .AddArgument("--all")
+                    .AddArgument("--")
+                    .AddArgument(":!.lock")
+                    .Invoke<string>()
+            );
+            if (!outputAdd.StartsWith("The following paths are ignored by one of your .gitignore files:"))
+                return new ResultStruct<byte, Error?>(new GitAddFailedError());
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git commit: {Message}", e.Message);
             return new ResultStruct<byte, Error?>(new GitAddFailedError());
+        }
 
-        var (okCommit, _, errorCommit) = ProcessHelper.Exec(Git, new[] { "commit", "-m", $"\"{message}\"" }, path);
-        if (!okCommit && !string.IsNullOrEmpty(errorCommit))
+
+        try
+        {
+            GetPowershellInstance()
+                .AddArgument("commit")
+                .AddArgument("-m")
+                .AddArgument($"\"{message}\"")
+                .Invoke();
+        }
+        catch (Exception)
+        {
             return new ResultStruct<byte, Error?>(new GitCommitFailedError());
+        }
 
         return new ResultStruct<byte, Error?>(0);
     }
 
     public void Initialize()
     {
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private PowerShell GetPowershellInstance()
+    {
+        var pwsh = PowerShell.Create();
+        pwsh.Runspace.SessionStateProxy.Path.SetLocation(AppService.Instance.GetStorePath());
+        pwsh.AddCommand(Git);
+        return pwsh;
     }
 
     #endregion
