@@ -50,6 +50,11 @@ public class AppService : IService
 
     #region Public methods
 
+    public string GetStoreLocation()
+    {
+        return _fsService.GetStoreLocation();
+    }
+    
     public void Initialize()
     {
     }

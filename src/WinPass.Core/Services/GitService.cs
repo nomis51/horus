@@ -1,6 +1,5 @@
 ﻿using System.Management.Automation;
 using System.Runtime.InteropServices;
-using System.Text;
 using Serilog;
 using WinPass.Shared.Abstractions;
 using WinPass.Shared.Helpers;
