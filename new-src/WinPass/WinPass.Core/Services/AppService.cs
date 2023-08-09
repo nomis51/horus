@@ -1,5 +1,6 @@
 ﻿using WinPass.Core.Abstractions;
 using WinPass.Shared.Models.Abstractions;
+using WinPass.Shared.Models.Data;
 
 namespace WinPass.Core.Services;
 
@@ -51,6 +52,36 @@ public class AppService : IService
 
     #region Public methods
 
+    public EmptyResult EncryptPassword(string path, Password password)
+    {
+        return _gpgService.EncryptPassword(path, password);
+    }
+
+    public EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas)
+    {
+        return _gpgService.EncryptMetadatas(path, metadatas);
+    }
+
+    public void GitDeleteRepository()
+    {
+        _gitService.DeleteRepository();
+    }
+
+    public EmptyResult GitIgnore(string filePath)
+    {
+        return _gitService.Ignore(filePath);
+    }
+
+    public Result<string, Error?> Decrypt(string path)
+    {
+        return _gpgService.Decrypt(path);
+    }
+
+    public EmptyResult Encrypt(string path, string value)
+    {
+        return _gpgService.Encrypt(path, value);
+    }
+
     public string GetStoreLocation()
     {
         return _fsService.GetStoreLocation();
@@ -60,7 +91,7 @@ public class AppService : IService
     {
         return _fsService.GetStoreId();
     }
-    
+
     public void Initialize()
     {
     }

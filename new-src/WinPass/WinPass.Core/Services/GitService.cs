@@ -154,7 +154,7 @@ public class GitService : IService
         Directory.Move(dirPath, storeLocation);
         if (!Directory.Exists(Path.Join(storeLocation, ".git"))) return false;
 
-        var gpgIdFilePath = Path.Join(storeLocation, FsService.GigIdFileName);
+        var gpgIdFilePath = Path.Join(storeLocation, FsService.GpgIdFileName);
         if (File.Exists(gpgIdFilePath)) File.Delete(gpgIdFilePath);
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && Directory.Exists(tmpPath)) Directory.Delete(tmpPath);

@@ -36,6 +36,16 @@ public class GpgService : IService
         }
     }
 
+    public EmptyResult Encrypt(string path, string value)
+    {
+        return EncryptOne(path, value);
+    }
+
+    public Result<string, Error?> Decrypt(string path)
+    {
+        return DecryptOne(path);
+    }
+
     public EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas)
     {
         return EncryptOne(path, metadatas.ToString());
