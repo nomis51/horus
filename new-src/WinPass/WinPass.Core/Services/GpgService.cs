@@ -1,14 +1,197 @@
-﻿using WinPass.Core.Abstractions;
+﻿using System.Management;
+using System.Management.Automation;
+using Newtonsoft.Json;
+using Serilog;
+using WinPass.Core.Abstractions;
+using WinPass.Shared.Extensions;
+using WinPass.Shared.Models.Abstractions;
+using WinPass.Shared.Models.Data;
+using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
 
 public class GpgService : IService
 {
+    #region Constants
+
+    private const string GpgProcessName = "gpg";
+
+    #endregion
+
     #region Public methods
+
+    public bool Verify()
+    {
+        try
+        {
+            var lines = GetPowerShellInstance()
+                .AddArgument("--version")
+                .Invoke<string>();
+            return lines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Unable to verify GPG installation: {Message}", e.Message);
+            return false;
+        }
+    }
+
+    public EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas)
+    {
+        return EncryptOne(path, metadatas.ToString());
+    }
+
+    public EmptyResult EncryptPassword(string path, Password password)
+    {
+        return EncryptOne(path, password.ToString());
+    }
+
+    public Result<MetadataCollection?, Error?> DecryptMetadatas(string path)
+    {
+        var (data, error) = DecryptOne(path);
+        if (error is not null) return new Result<MetadataCollection?, Error?>(error);
+
+        try
+        {
+            var lstMetadata = JsonConvert.DeserializeObject<List<Metadata>>(data.FromBase64());
+            return lstMetadata is null
+                ? new Result<MetadataCollection?, Error?>(new GpgDecryptError("Resulting data was null"))
+                : new Result<MetadataCollection?, Error?>(new MetadataCollection(path, lstMetadata));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Unable to deserialize metadatas: {Message}", e.Message);
+            return new Result<MetadataCollection?, Error?>(new GpgDecryptError(e.Message));
+        }
+    }
+
+    public Result<Password?, Error?> DecryptPassword(string path)
+    {
+        var (data, error) = DecryptOne(path);
+        return error is not null
+            ? new Result<Password?, Error?>(error)
+            : new Result<Password?, Error?>(new Password(path, data.FromBase64()));
+    }
+
+    public ResultStruct<bool, Error?> IsIdValid(string id = "")
+    {
+        try
+        {
+            var lines = GetPowerShellInstance()
+                .AddArgument("--list-keys")
+                .Invoke<string>();
+
+            if (lines.FirstOrDefault()?.StartsWith("gpg: error reading key: No public key") ?? true)
+                return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
+            if (!lines.FirstOrDefault()?.StartsWith("pub") ?? true)
+                return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
+
+            if (string.IsNullOrEmpty(id))
+            {
+                var (currentId, error) = AppService.Instance.GetStoreId();
+                if (error is not null) return new ResultStruct<bool, Error?>(error);
+                id = currentId;
+            }
+
+            // TODO: fix this to validdate the actual ID, not the first line coming out of GPG
+            const string expireTag = "[E]";
+            const string expireLabel = "[expires: ";
+            var expireLine = lines.FirstOrDefault(l => l.Contains(expireTag));
+            if (string.IsNullOrEmpty(expireLine)) return new ResultStruct<bool, Error?>(new GpgInvalidKeyError());
+
+            if (!expireLine.Contains(expireLabel)) return new ResultStruct<bool, Error?>(true);
+
+            var startIndex = expireLine.IndexOf(expireLabel, StringComparison.Ordinal);
+            if (startIndex == -1) return new ResultStruct<bool, Error?>(new GpgInvalidKeyError());
+
+            startIndex += expireLabel.Length;
+
+            var endIndex = expireLine.LastIndexOf("]", StringComparison.Ordinal);
+            if (endIndex == -1 || endIndex <= startIndex)
+                return new ResultStruct<bool, Error?>(new GpgInvalidKeyError());
+
+            var date = expireLine[startIndex..endIndex];
+            return !DateTime.TryParse(date, out var dateTime)
+                ? new ResultStruct<bool, Error?>(new GpgInvalidKeyError())
+                : new ResultStruct<bool, Error?>(dateTime > DateTime.Now);
+        }
+        catch (Exception e)
+        {
+            Log.Error("Unable to verify GPG ID: {Message}", e.Message);
+            return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
+        }
+    }
 
     public void Initialize()
     {
-        throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private Result<string, Error?> DecryptOne(string filePath)
+    {
+        try
+        {
+            return new Result<string, Error?>(
+                string.Join(
+                    string.Empty,
+                    GetPowerShellInstance(true)
+                        .AddArgument("--quiet")
+                        .AddArgument("--yes")
+                        .AddArgument("--compress-algo=none")
+                        .AddArgument("--no-encrypt-to")
+                        .AddArgument("--decrypt")
+                        .AddArgument(filePath)
+                        .Invoke<string>()
+                )
+            );
+        }
+        catch (Exception e)
+        {
+            Log.Error("Unable to decrypt: {Message}", e.Message);
+            return new Result<string, Error?>(new GpgDecryptError(e.Message));
+        }
+    }
+
+    private EmptyResult EncryptOne(string filePath, string value)
+    {
+        var (id, error) = AppService.Instance.GetStoreId();
+        if (error is not null) return new EmptyResult(error);
+
+        try
+        {
+            GetPowerShellInstance(true)
+                .AddArgument("-Command")
+                .AddArgument("Write-Output")
+                .AddArgument(value)
+                .AddArgument("|")
+                .AddArgument(GpgProcessName)
+                .AddArgument("--quiet")
+                .AddArgument("--yes")
+                .AddArgument("--compress-algo=none")
+                .AddArgument("--no-encrypt-to")
+                .AddArgument("--encrypt")
+                .AddArgument("--recipient")
+                .AddArgument(id)
+                .AddArgument("--output")
+                .AddArgument(filePath);
+            return new EmptyResult();
+        }
+        catch (Exception e)
+        {
+            Log.Error("Unable to encrypt: {Message}", e.Message);
+            return new EmptyResult(new GpgEncryptError(e.Message));
+        }
+    }
+
+    private PowerShell GetPowerShellInstance(bool usePwshDirectly = false)
+    {
+        var pwsh = PowerShell.Create();
+        pwsh.Runspace.SessionStateProxy.Path.SetLocation(AppService.Instance.GetStoreLocation());
+        pwsh.AddCommand(GpgProcessName);
+        return pwsh;
     }
 
     #endregion

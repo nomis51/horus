@@ -1,4 +1,6 @@
 ﻿using WinPass.Core.Abstractions;
+using WinPass.Shared.Models.Abstractions;
+using WinPass.Shared.Models.Errors.Fs;
 
 namespace WinPass.Core.Services;
 
@@ -7,7 +9,7 @@ public class FsService : IService
     #region Constants
 
     private const string StoreFolderName = ".winpass";
-    public const string GigIdFileName = ".gpg-id";
+    public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
 
     private readonly string _storeFolderPathTemplate =
@@ -37,6 +39,14 @@ public class FsService : IService
     public string GetStoreLocation()
     {
         return _storeFolderPath;
+    }
+
+    public Result<string, Error?> GetStoreId()
+    {
+        var path = Path.Join(GetStoreLocation(), GpgIdFileName);
+        return !File.Exists(path)
+            ? new Result<string, Error?>(new FsGpgIdKeyNotFoundError())
+            : new Result<string, Error?>(File.ReadAllText(path));
     }
 
     public void Initialize()

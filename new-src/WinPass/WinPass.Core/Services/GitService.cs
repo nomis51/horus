@@ -231,7 +231,7 @@ public class GitService : IService
         {
             File.WriteAllText(gitignoreFilePath, ignorePath);
             var error = Commit("Add .gitignore");
-            if (error.HasError) return new EmptyResult(error.Error);
+            if (error.HasError) return new EmptyResult(error.Error!);
         }
         else
         {
@@ -239,7 +239,7 @@ public class GitService : IService
             data += $"{Environment.NewLine}{ignorePath}";
             File.WriteAllText(gitignoreFilePath, data);
             var error = Commit("Add .gitignore");
-            if (error.HasError) return new EmptyResult(error.Error);
+            if (error.HasError) return new EmptyResult(error.Error!);
         }
 
         return new EmptyResult();

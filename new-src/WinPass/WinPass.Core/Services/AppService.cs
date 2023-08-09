@@ -1,4 +1,5 @@
 ﻿using WinPass.Core.Abstractions;
+using WinPass.Shared.Models.Abstractions;
 
 namespace WinPass.Core.Services;
 
@@ -53,6 +54,11 @@ public class AppService : IService
     public string GetStoreLocation()
     {
         return _fsService.GetStoreLocation();
+    }
+
+    public Result<string, Error?> GetStoreId()
+    {
+        return _fsService.GetStoreId();
     }
     
     public void Initialize()

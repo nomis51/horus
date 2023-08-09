@@ -240,7 +240,7 @@ public class GitService : IService
     }
 
     #endregion
-
+    
     #region Private methods
 
     private PowerShell GetPowershellInstance()

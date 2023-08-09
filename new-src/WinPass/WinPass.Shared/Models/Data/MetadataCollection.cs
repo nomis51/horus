@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using Newtonsoft.Json;
+using WinPass.Shared.Extensions;
 
 namespace WinPass.Shared.Models.Data;
 
@@ -6,8 +8,19 @@ public class MetadataCollection : ICollection<Metadata>
 {
     private readonly List<Metadata> _entries = new();
 
+    public string Name { get; }
     public int Count => _entries.Count;
     public bool IsReadOnly => false;
+
+    public MetadataCollection()
+    {
+    }
+
+    public MetadataCollection(string name, List<Metadata> entries)
+    {
+        Name = name;
+        _entries = entries;
+    }
 
     public IEnumerator<Metadata> GetEnumerator()
     {
@@ -42,5 +55,10 @@ public class MetadataCollection : ICollection<Metadata>
     public bool Remove(Metadata item)
     {
         return _entries.Remove(item);
+    }
+
+    public override string ToString()
+    {
+        return JsonConvert.SerializeObject(_entries).ToBase64();
     }
 }
