@@ -3,6 +3,7 @@ using WinPass.Core.Abstractions;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
+using WinPass.Shared.Models.Display;
 using WinPass.Shared.Models.Errors.Fs;
 using WinPass.Shared.Models.Errors.Gpg;
 
@@ -40,12 +41,208 @@ public class FsService : IService
 
     #region Public methods
 
+    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
+    {
+        List<Tuple<string, string>> items = new();
+        var storePath = GetStoreLocation();
+
+        LocalEnumerateFilePaths(storePath);
+
+        var (lstMetadatas, error) = AppService.Instance.DecryptManyMetadatas(items);
+        if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
+
+        List<StoreEntry> entries = new();
+        LocalSearchEntries(storePath, string.Empty);
+
+        return new Result<List<StoreEntry>, Error?>(entries);
+
+        void LocalSearchEntries(string current, string currenPath)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var filePath in Directory.EnumerateFiles(current))
+            {
+                if (!filePath.EndsWith(".gpg")) continue;
+
+                var name = Path.GetFileName(filePath);
+                var currentEntryPath = $"{currenPath}/{name}";
+                var metadatas = lstMetadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
+
+                entries.Add(
+                    new StoreEntry(
+                        name,
+                        false,
+                        metadatas is not null,
+                        null
+                    )
+                );
+            }
+
+            foreach (var dirPath in Directory.EnumerateDirectories(current))
+            {
+                if (dirPath.EndsWith(".git")) continue;
+
+                var name = Path.GetFileName(dirPath);
+                LocalSearchEntries(dirPath, $"{currenPath}/{name}");
+            }
+        }
+
+        void LocalEnumerateFilePaths(string current)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var filePath in Directory.EnumerateFiles(current))
+            {
+                if (!filePath.EndsWith(".gpg")) continue;
+
+                items.Add(
+                    Tuple.Create(
+                        filePath.Replace(storePath, string.Empty),
+                        filePath
+                    )
+                );
+            }
+
+            foreach (var dirPath in Directory.EnumerateDirectories(current))
+            {
+                if (dirPath.EndsWith(".git")) continue;
+
+                LocalEnumerateFilePaths(dirPath);
+            }
+        }
+    }
+
+    public Result<List<StoreEntry>, Error?> RetrieveStoreEntries()
+    {
+        List<StoreEntry> results = new();
+        var storePath = GetStoreLocation();
+
+        LocalEnumerateEntries(storePath, results);
+
+        return new Result<List<StoreEntry>, Error?>(results);
+
+        void LocalEnumerateEntries(string current, ICollection<StoreEntry> entries)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var filePath in Directory.EnumerateFiles(current))
+            {
+                if (!filePath.EndsWith(".gpg")) continue;
+
+                entries.Add(
+                    new StoreEntry(
+                        Path.GetFileName(filePath)
+                    )
+                );
+            }
+
+            foreach (var dirPath in Directory.EnumerateDirectories(current))
+            {
+                if (dirPath.EndsWith(".git")) continue;
+
+                entries.Add(
+                    new StoreEntry(
+                        Path.GetFileName(dirPath),
+                        true
+                    )
+                );
+
+                LocalEnumerateEntries(dirPath, entries.Last().Entries);
+            }
+        }
+    }
+
+    public EmptyResult RemoveStoreEntry(string name)
+    {
+        if (!DoStoreEntryExists(name)) return new EmptyResult(new FsEntryNotFoundError());
+
+        if (!VerifyLock()) return new EmptyResult(new GpgDecryptError("Lock check failed"));
+
+        var filePath = GetEntryPath(name);
+        var metadatasFilePath = GetMetadataPath(name);
+        File.Delete(filePath);
+        File.Delete(metadatasFilePath);
+
+        return new EmptyResult();
+    }
+
+    public EmptyResult RenameStoreEntry(string name, string newName, bool duplicate = false)
+    {
+        if (!DoStoreEntryExists(name)) return new EmptyResult(new FsEntryNotFoundError());
+        if (DoStoreEntryExists(newName)) return new EmptyResult(new FsPasswordFileAlreadyExistsError());
+
+        var filePath = GetEntryPath(name);
+        var metadatasFilePath = GetMetadataPath(name);
+        var newFilePath = GetEntryPath(newName);
+        var newMetadatasFilePath = GetMetadataPath(newName);
+
+        if (duplicate)
+        {
+            File.Copy(filePath, newFilePath);
+            File.Copy(metadatasFilePath, newMetadatasFilePath);
+        }
+        else
+        {
+            File.Move(filePath, newFilePath);
+            File.Move(metadatasFilePath, newMetadatasFilePath);
+        }
+
+        return new EmptyResult();
+    }
+
+    public Result<Password?, Error?> RetrieveStoreEntryPassword(string name)
+    {
+        if (!DoStoreEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
+
+        var filePath = Path.Join(GetStoreLocation(), name);
+
+        var (password, error) = AppService.Instance.DecryptPassword(filePath);
+        return error is not null
+            ? new Result<Password?, Error?>(error)
+            : new Result<Password?, Error?>(password);
+    }
+
+    public Result<MetadataCollection?, Error?> RetrieveStoreEntryMetadatas(string name)
+    {
+        if (!DoStoreEntryExists(name, true))
+        {
+            return new Result<MetadataCollection?, Error?>(new MetadataCollection
+            {
+                new("created", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
+                new("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
+            });
+        }
+
+        var filePath = Path.Join(GetStoreLocation(), name);
+        var metadatasFilePath = GetMetadataPath(filePath);
+
+        var (metadatas, error) = AppService.Instance.DecryptMetadatas(metadatasFilePath);
+        return error is not null
+            ? new Result<MetadataCollection?, Error?>(error)
+            : new Result<MetadataCollection?, Error?>(metadatas);
+    }
+
+    public EmptyResult EditStoreEntryMetadatas(string name, MetadataCollection metadatas)
+    {
+        return !DoStoreEntryExists(name, true)
+            ? new EmptyResult(new FsEntryNotFoundError())
+            : UpdateModifedMetadata(name);
+    }
+
+    public EmptyResult EditStoreEntryPassword(string name, Password password)
+    {
+        if (!DoStoreEntryExists(name)) return new EmptyResult(new FsEntryNotFoundError());
+
+        UpdateModifedMetadata(name);
+
+        var filePath = GetEntryPath(name);
+        var resultEncryptPassword = AppService.Instance.EncryptPassword(filePath, password);
+        return resultEncryptPassword.HasError ? new EmptyResult(resultEncryptPassword.Error!) : new EmptyResult();
+    }
+
     public EmptyResult AddStoreEntry(string name, Password password)
     {
         if (DoStoreEntryExists(name))
             return new EmptyResult(new FsPasswordFileAlreadyExistsError());
 
-        var filePath = Path.Join(GetStoreLocation(), name);
+        var filePath = GetEntryPath(name);
         if (name.Contains('/') || name.Contains('\\'))
         {
             var dirName = Path.GetDirectoryName(filePath)!;
@@ -79,9 +276,9 @@ public class FsService : IService
         return new EmptyResult(resultEncryptPassword.Error!);
     }
 
-    public bool DoStoreEntryExists(string name, bool byPath = false)
+    public bool DoStoreEntryExists(string name, bool checkMetadatas = false)
     {
-        return File.Exists(Path.Join(GetStoreLocation(), name));
+        return File.Exists(checkMetadatas ? GetMetadataPath(name) : GetEntryPath(name));
     }
 
     public EmptyResult DestroyStore()
@@ -156,8 +353,36 @@ public class FsService : IService
 
     #region Private methods
 
-    private string GetMetadataPath(string path)
+    private string GetEntryPath(string name)
     {
+        return Path.Join(GetStoreLocation(), name);
+    }
+
+    private EmptyResult UpdateModifedMetadata(string name)
+    {
+        var (metadatas, error) = RetrieveStoreEntryMetadatas(name);
+        if (error is not null) return new EmptyResult(error);
+
+        var index = metadatas!.FindIndex(m => m.Key == "modified");
+
+        if (index != -1)
+        {
+            metadatas[index].Value = DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss");
+        }
+        else
+        {
+            metadatas.Add(new Metadata("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"),
+                MetadataType.Internal));
+        }
+
+        var metadatasFilePath = GetMetadataPath(name);
+        var resultEncryptMetadatas = AppService.Instance.EncryptMetadatas(metadatasFilePath, metadatas);
+        return resultEncryptMetadatas.HasError ? new EmptyResult(resultEncryptMetadatas.Error!) : new EmptyResult();
+    }
+
+    private string GetMetadataPath(string name)
+    {
+        var path = GetEntryPath(name);
         return path.Insert(path.LastIndexOf(".gpg", StringComparison.OrdinalIgnoreCase), ".m");
     }
 

@@ -22,6 +22,22 @@ public class MetadataCollection : ICollection<Metadata>
         _entries = entries;
     }
 
+    public Metadata this[int index]
+    {
+        get => _entries[index];
+        set => _entries[index] = value;
+    }
+
+    public int FindIndex(Func<Metadata, bool> fn)
+    {
+        for (var i = 0; i < _entries.Count; ++i)
+        {
+            if (fn(_entries[i])) return i;
+        }
+
+        return -1;
+    }
+
     public IEnumerator<Metadata> GetEnumerator()
     {
         return _entries.GetEnumerator();

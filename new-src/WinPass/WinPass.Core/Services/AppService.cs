@@ -52,6 +52,21 @@ public class AppService : IService
 
     #region Public methods
 
+    public Result<List<MetadataCollection?>, Error?> DecryptManyMetadatas(List<Tuple<string, string>> items)
+    {
+        return _gpgService.DecryptManyMetadatas(items);
+    }
+    
+    public Result<Password?, Error?> DecryptPassword(string path)
+    {
+        return _gpgService.DecryptPassword(path);
+    }
+    
+    public Result<MetadataCollection?, Error?> DecryptMetadatas(string path)
+    {
+        return _gpgService.DecryptMetadatas(path);
+    }
+    
     public EmptyResult EncryptPassword(string path, Password password)
     {
         return _gpgService.EncryptPassword(path, password);

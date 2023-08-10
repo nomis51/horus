@@ -75,6 +75,34 @@ public class GpgService : IService
         }
     }
 
+    public Result<List<MetadataCollection?>, Error?> DecryptManyMetadatas(List<Tuple<string, string>> items)
+    {
+        var filePaths = items.Select(i => i.Item2);
+        var (lines, error) = DecryptMany(filePaths);
+        if (error is not null) return new Result<List<MetadataCollection?>, Error?>(error);
+
+        List<MetadataCollection?> results = new();
+        for (var i = 0; i < lines.Count; ++i)
+        {
+            try
+            {
+                results.Add(
+                    new MetadataCollection(
+                        items[i].Item1,
+                        JsonConvert.DeserializeObject<List<Metadata>>(lines[i].FromBase64())!
+                    )
+                );
+            }
+            catch (Exception e)
+            {
+                Log.Error("Unable to deserialize metadatas: {Message}", e.Message);
+                results.Add(default);
+            }
+        }
+
+        return new Result<List<MetadataCollection?>, Error?>(results);
+    }
+
     public Result<Password?, Error?> DecryptPassword(string path)
     {
         var (data, error) = DecryptOne(path);
@@ -139,6 +167,27 @@ public class GpgService : IService
     #endregion
 
     #region Private methods
+
+    private Result<List<string>, Error?> DecryptMany(IEnumerable<string> filePaths)
+    {
+        try
+        {
+            return new Result<List<string>, Error?>(
+                GetPowerShellInstance(true)
+                    .AddArgument("-Command")
+                    .AddArgument("foreach($filePath in (" +
+                                 string.Join(", ", filePaths) +
+                                 ")) { gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $filePath; echo \"\" }")
+                    .Invoke<string>()
+                    .ToList()
+            );
+        }
+        catch (Exception e)
+        {
+            Log.Error("Unable to decrypt many: {Message}", e.Message);
+            return new Result<List<string>, Error?>(new GpgDecryptError(e.Message));
+        }
+    }
 
     private Result<string, Error?> DecryptOne(string filePath)
     {
