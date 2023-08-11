@@ -1,10 +1,17 @@
 ﻿using WinPass.Commands.Abstractions;
+using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
 
 namespace WinPass.Commands;
 
 public class ClearClipboard : ICommand
 {
+    #region Constants
+
+    private const int NbClipboardPollutionIterations = 20;
+
+    #endregion
+    
     #region Public methods
 
     public void Run(List<string> args)
@@ -13,6 +20,13 @@ public class ClearClipboard : ICommand
         if (!int.TryParse(args[0], out var intValue)) return;
 
         Thread.Sleep(1000 * intValue);
+
+        // To polluate any clipboard history tracker
+        for (var i = 0; i < NbClipboardPollutionIterations; ++i)
+        {
+            ClipboardHelper.Copy(Guid.NewGuid().ToString().ToBase64());
+        }
+
         ClipboardHelper.Clear();
     }
 

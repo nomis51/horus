@@ -53,6 +53,7 @@ public class Show : ICommand
             {
                 case "-c":
                     copy = true;
+                    showPassword = true;
                     break;
 
                 case "-f":
@@ -76,6 +77,11 @@ public class Show : ICommand
 
                     break;
             }
+        }
+
+        if (!showPassword && !showMetadata)
+        {
+            showMetadata = true;
         }
 
         if (copy && dontClear)

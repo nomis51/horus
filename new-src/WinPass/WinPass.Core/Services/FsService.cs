@@ -217,7 +217,7 @@ public class FsService : IService
     {
         if (!DoStoreEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
 
-        var filePath = Path.Join(GetStoreLocation(), name);
+        var filePath = GetEntryPath(name);
 
         var (password, error) = AppService.Instance.DecryptPassword(filePath);
         return error is not null
