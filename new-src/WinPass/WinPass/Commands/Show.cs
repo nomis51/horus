@@ -28,6 +28,13 @@ public class Show : ICommand
         }
 
         var name = args[^1];
+        
+        if (!AppService.Instance.DoStoreEntryExists(name))
+        {
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordDoesntExists")}[/]");
+            return; 
+        }
+        
         args.RemoveAt(args.Count - 1);
 
         var (settings, errorSettings) = AppService.Instance.GetSettings();

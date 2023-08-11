@@ -26,6 +26,13 @@ public class Rename : ICommand
         }
 
         var name = args[^1];
+        
+        if (!AppService.Instance.DoStoreEntryExists(name))
+        {
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordDoesntExists")}[/]");
+            return; 
+        }
+        
         var duplicate = false;
 
         for (var i = 0; i < args.Count - 1; ++i)

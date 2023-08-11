@@ -35,6 +35,12 @@ public class Edit : ICommand
         }
 
         var name = args[^1];
+        
+        if (!AppService.Instance.DoStoreEntryExists(name))
+        {
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordDoesntExists")}[/]");
+            return; 
+        }
 
         var (metadatas, error) = AppService.Instance.GetMetadatas(name);
         if (error is not null)

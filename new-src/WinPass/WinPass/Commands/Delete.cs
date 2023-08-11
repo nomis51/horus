@@ -27,6 +27,12 @@ public class Delete : ICommand
 
         var name = args.Last();
 
+        if (!AppService.Instance.DoStoreEntryExists(name))
+        {
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordDoesntExists")}[/]");
+            return; 
+        }
+
         var choice = AnsiConsole
             .Ask<string>(Locale.Get("questions.confirmDeletePassword", new object[] { name }), "n")
             .ToLower();
