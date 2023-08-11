@@ -16,13 +16,18 @@ public class FsService : IService
     #region Constants
 
     private const string StoreFolderName = ".winpass";
+    private const string MigrationStoreFolderName = $"{StoreFolderName}-migration";
     public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
 
     private readonly string _storeFolderPathTemplate =
         $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{StoreFolderName}/";
 
+    private readonly string _migrationStoreFolderPathTemplate =
+        $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{MigrationStoreFolderName}/";
+
     private readonly string _storeFolderPath;
+    private readonly string _migrationStoreFolderPath;
 
     #endregion
 
@@ -37,11 +42,73 @@ public class FsService : IService
     public FsService()
     {
         _storeFolderPath = Environment.ExpandEnvironmentVariables(_storeFolderPathTemplate);
+        _migrationStoreFolderPath = Environment.ExpandEnvironmentVariables(_migrationStoreFolderPathTemplate);
     }
 
     #endregion
 
     #region Public methods
+
+    public EmptyResult MigrateStore(string gpgId)
+    {
+        if (!VerifyLock()) return new EmptyResult(new GpgDecryptError("Lock check failed"));
+
+        List<Tuple<string, string>> storeFilePaths = new();
+        EnumerateFilePaths(GetStoreLocation(), storeFilePaths);
+
+        foreach (var (_, filePath) in storeFilePaths)
+        {
+            var newFilePath = filePath.Replace(StoreFolderName, MigrationStoreFolderName);
+            var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(filePath);
+            if (errorDecryptMetadatas is not null)
+            {
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(errorDecryptMetadatas.Message));
+            }
+
+            var encryptMetadatasResult = AppService.Instance.EncryptMetadatas(newFilePath, metadatas!, gpgId);
+            if (encryptMetadatasResult.HasError)
+            {
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(encryptMetadatasResult.Error!.Message));
+            }
+
+            var (password, errorDecryptPassword) = AppService.Instance.DecryptPassword(filePath);
+            if (errorDecryptPassword is not null)
+            {
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(errorDecryptPassword.Message));
+            }
+
+            var encryptPasswordResult = AppService.Instance.EncryptPassword(newFilePath, password!, gpgId);
+            if (encryptPasswordResult.HasError)
+            {
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(encryptPasswordResult.Error!.Message));
+            }
+        }
+
+        var existingFiles = Directory.GetFiles(_storeFolderPath, "*.gpg", SearchOption.AllDirectories);
+        foreach (var existingFile in existingFiles)
+        {
+            File.Delete(existingFile);
+        }
+
+        foreach (var newFile in Directory.GetFiles(_migrationStoreFolderPath, "*.gpg", SearchOption.AllDirectories))
+        {
+            File.Move(newFile, newFile.Replace(MigrationStoreFolderName, StoreFolderName));
+        }
+
+        File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
+
+        var resultGitCommit = AppService.Instance.GitCommit($"Migrate store to new GPG keypair '{gpgId}'");
+        if (resultGitCommit.HasError)
+        {
+            return new EmptyResult(resultGitCommit.Error!);
+        }
+
+        return new EmptyResult();
+    }
 
     public EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "")
     {
@@ -69,11 +136,12 @@ public class FsService : IService
         List<Tuple<string, string>> items = new();
         var storePath = GetStoreLocation();
 
-        LocalEnumerateFilePaths(storePath);
+        EnumerateFilePaths(storePath, items);
 
         var (lstMetadatas, error) = AppService.Instance.DecryptManyMetadatas(items);
         if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
 
+        // TODO: search
         List<StoreEntry> entries = new();
         LocalSearchEntries(storePath, string.Empty);
 
@@ -106,29 +174,6 @@ public class FsService : IService
 
                 var name = Path.GetFileName(dirPath);
                 LocalSearchEntries(dirPath, $"{currenPath}/{name}");
-            }
-        }
-
-        void LocalEnumerateFilePaths(string current)
-        {
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var filePath in Directory.EnumerateFiles(current))
-            {
-                if (!filePath.EndsWith(".gpg")) continue;
-
-                items.Add(
-                    Tuple.Create(
-                        filePath.Replace(storePath, string.Empty),
-                        filePath
-                    )
-                );
-            }
-
-            foreach (var dirPath in Directory.EnumerateDirectories(current))
-            {
-                if (dirPath.EndsWith(".git")) continue;
-
-                LocalEnumerateFilePaths(dirPath);
             }
         }
     }
@@ -449,6 +494,29 @@ public class FsService : IService
     #endregion
 
     #region Private methods
+
+    private void EnumerateFilePaths(string current, List<Tuple<string, string>> filePaths)
+    {
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        foreach (var filePath in Directory.EnumerateFiles(current))
+        {
+            if (!filePath.EndsWith(".gpg")) continue;
+
+            filePaths.Add(
+                Tuple.Create(
+                    filePath.Replace(GetStoreLocation(), string.Empty),
+                    filePath
+                )
+            );
+        }
+
+        foreach (var dirPath in Directory.EnumerateDirectories(current))
+        {
+            if (dirPath.EndsWith(".git")) continue;
+
+            EnumerateFilePaths(dirPath, filePaths);
+        }
+    }
 
     private EmptyResult CreateGitIgnore()
     {

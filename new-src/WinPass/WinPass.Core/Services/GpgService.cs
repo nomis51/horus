@@ -46,14 +46,14 @@ public class GpgService : IService
         return DecryptOne(path);
     }
 
-    public EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas)
+    public EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas, string gpgId = "")
     {
-        return EncryptOne(path, metadatas.ToString());
+        return EncryptOne(path, metadatas.ToString(), gpgId);
     }
 
-    public EmptyResult EncryptPassword(string path, Password password)
+    public EmptyResult EncryptPassword(string path, Password password, string gpgId = "")
     {
-        return EncryptOne(path, password.ToString());
+        return EncryptOne(path, password.ToString(), gpgId);
     }
 
     public Result<MetadataCollection?, Error?> DecryptMetadatas(string path)
@@ -217,10 +217,21 @@ public class GpgService : IService
         }
     }
 
-    private EmptyResult EncryptOne(string filePath, string value)
+    private EmptyResult EncryptOne(string filePath, string value, string gpgId = "")
     {
-        var (id, error) = AppService.Instance.GetStoreId();
-        if (error is not null) return new EmptyResult(error);
+        string id;
+
+        if (string.IsNullOrEmpty(gpgId))
+        {
+            var (gid, error) = AppService.Instance.GetStoreId();
+            if (error is not null) return new EmptyResult(error);
+
+            id = gid;
+        }
+        else
+        {
+            id = gpgId;
+        }
 
         try
         {

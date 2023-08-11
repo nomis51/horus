@@ -56,6 +56,11 @@ public class AppService : IService
 
     #region Public methods
 
+    public EmptyResult MigrateStore(string gpgId)
+    {
+        return _fsService.MigrateStore(gpgId);
+    }
+    
     public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
     {
         return _fsService.SearchStoreEntries(text);
@@ -223,14 +228,14 @@ public class AppService : IService
         return _gpgService.DecryptMetadatas(path);
     }
 
-    public EmptyResult EncryptPassword(string path, Password password)
+    public EmptyResult EncryptPassword(string path, Password password, string gpgId = "")
     {
-        return _gpgService.EncryptPassword(path, password);
+        return _gpgService.EncryptPassword(path, password, gpgId);
     }
 
-    public EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas)
+    public EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas, string gpgId = "")
     {
-        return _gpgService.EncryptMetadatas(path, metadatas);
+        return _gpgService.EncryptMetadatas(path, metadatas, gpgId);
     }
 
     public void GitDeleteRepository()
