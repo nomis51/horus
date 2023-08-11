@@ -286,7 +286,7 @@ public class FsService : IService
             }
         }
 
-        var metadatasFilePath = GetMetadataPath(filePath);
+        var metadatasFilePath = GetMetadataPath(name);
         var resultEncryptMetadatas = AppService.Instance.EncryptMetadatas(metadatasFilePath, new MetadataCollection
         {
             new("created", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
@@ -455,7 +455,7 @@ public class FsService : IService
 
     private string GetEntryPath(string name)
     {
-        return Path.Join(GetStoreLocation(), name);
+        return Path.Join(GetStoreLocation(), $"{name}.gpg");
     }
 
     private EmptyResult UpdateModifedMetadata(string name)
