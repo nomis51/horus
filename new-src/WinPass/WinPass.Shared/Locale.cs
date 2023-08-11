@@ -141,7 +141,11 @@ public static class Locale
                 { "questions.confirmNewPassword", "Confirm the new password: " },
                 { "error.passwordCantEmpty", "Password can't be empty" },
                 { "error.passwordDontMatch", "Passwords don't match" },
-                { "error.passwordDoesntExists", "Password does not exist" }
+                { "error.passwordDoesntExists", "Password does not exist" },
+                {
+                    "questions.confirmMigrateStore",
+                    "Are you sure you wan to migrate the store to use the new GPG keypair?"
+                },
             }
         },
 
@@ -295,7 +299,11 @@ public static class Locale
                 { "questions.confirmNewPassword", "Confirmer le nouveau mot de passe: " },
                 { "error.passwordCantEmpty", "Le mot de passe ne peut pas être vide" },
                 { "error.passwordDontMatch", "Les mots de passe de correspondent pas" },
-                { "error.passwordDoesntExists", "Le mot de passe n'existe pas" }
+                { "error.passwordDoesntExists", "Le mot de passe n'existe pas" },
+                {
+                    "questions.confirmMigrateStore",
+                    "Êtes-vous sûr de vouloir migrer le magasin de mots de passe vers la nouvelle pair de clés GPG?"
+                },
             }
         },
         {
@@ -448,7 +456,11 @@ public static class Locale
                 { "questions.confirmNewPassword", "Bestätigen sie das neue passwort: " },
                 { "error.passwordCantEmpty", "Das passwort darf nicht leer sein" },
                 { "error.passwordDontMatch", "Passwörter stimmen nicht überein" },
-                { "error.passwordDoesntExists", "Das passwort existiert nicht" }
+                { "error.passwordDoesntExists", "Das passwort existiert nicht" },
+                {
+                    "questions.confirmMigrateStore",
+                    "Sind sie sicher, dass sie den store migrieren möchten, um das neue GPG-Schlüsselpaar zu verwenden?"
+                },
             }
         },
     };
