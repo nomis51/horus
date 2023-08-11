@@ -372,7 +372,7 @@ public class FsService : IService
 
     public string GetStoreLocation()
     {
-        if(!Directory.Exists(_storeFolderPath)) Directory.CreateDirectory(_storeFolderPath);
+        if (!Directory.Exists(_storeFolderPath)) Directory.CreateDirectory(_storeFolderPath);
         return _storeFolderPath;
     }
 
@@ -417,10 +417,20 @@ public class FsService : IService
         File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
 
         var gitCommitResult = AppService.Instance.GitCommit("Add '.gpg-id' file");
-        if (!gitCommitResult.HasError) return new EmptyResult();
+        if (gitCommitResult.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(gitCommitResult.Error!);
+        }
 
-        AppService.Instance.GitDeleteRepository();
-        return new EmptyResult(gitCommitResult.Error!);
+        var resultGitIgnore = CreateGitIgnore();
+        if (resultGitIgnore.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(resultGitIgnore.Error!);
+        }
+
+        return new EmptyResult();
     }
 
     public bool IsStoreInitialized()
@@ -438,6 +448,32 @@ public class FsService : IService
     #endregion
 
     #region Private methods
+
+    private EmptyResult CreateGitIgnore()
+    {
+        var path = Path.Join(GetStoreLocation(), ".gitignore");
+        if (File.Exists(path))
+        {
+            var data = File.ReadAllLines(path).ToList();
+            if (data.Any(t => t == AppLockFileName)) return new EmptyResult();
+
+            data.Add(AppLockFileName);
+            File.WriteAllText(path, string.Join("\n", data));
+        }
+        else
+        {
+            File.WriteAllText(path, AppLockFileName);
+        }
+
+        var gitCommitResult = AppService.Instance.GitCommit("Add lock file to'.gitignore' file");
+        if (gitCommitResult.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(gitCommitResult.Error!);
+        }
+
+        return new EmptyResult();
+    }
 
     private EmptyResult CreateStoreFolder()
     {

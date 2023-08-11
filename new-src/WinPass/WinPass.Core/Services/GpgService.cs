@@ -193,17 +193,20 @@ public class GpgService : IService
     {
         try
         {
+            var pwsh = GetPowerShellInstance()
+                .AddArgument("--quiet")
+                .AddArgument("--yes")
+                .AddArgument("--compress-algo=none")
+                .AddArgument("--no-encrypt-to")
+                .AddArgument("--decrypt")
+                .AddArgument(filePath);
+            var lines = pwsh.Invoke<string>().ToList();
+            lines.AddRange(pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message));
+
             return new Result<string, Error?>(
                 string.Join(
                     string.Empty,
-                    GetPowerShellInstance(true)
-                        .AddArgument("--quiet")
-                        .AddArgument("--yes")
-                        .AddArgument("--compress-algo=none")
-                        .AddArgument("--no-encrypt-to")
-                        .AddArgument("--decrypt")
-                        .AddArgument(filePath)
-                        .Invoke<string>()
+                    lines
                 )
             );
         }
