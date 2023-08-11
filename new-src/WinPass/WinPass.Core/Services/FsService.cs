@@ -147,11 +147,13 @@ public class FsService : IService
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var filePath in Directory.EnumerateFiles(current))
             {
-                if (!filePath.EndsWith(".gpg")) continue;
+                if (!filePath.EndsWith(".gpg") || filePath.EndsWith(".m.gpg")) continue;
 
                 entries.Add(
                     new StoreEntry(
                         Path.GetFileName(filePath)
+                            .Split(".", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                            .First()
                     )
                 );
             }
