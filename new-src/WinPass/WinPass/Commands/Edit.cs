@@ -63,17 +63,7 @@ public class Edit : ICommand
                     )
             );
 
-            if (choice == Locale.Get("quit"))
-            {
-                var resultEditMetadatas = AppService.Instance.EditMetadatas(name, metadatas);
-
-                AnsiConsole.MarkupLine(
-                    resultEditMetadatas.HasError
-                        ? $"[{Cli.GetErrorColor(resultEditMetadatas.Error!.Severity)}]{resultEditMetadatas.Error!.Message}[/]"
-                        : $"[green]{Locale.Get("changesSaved")}[/]");
-
-                break;
-            }
+            if (choice == Locale.Get("quit")) break;
 
             if (choice == Locale.Get("thePassword"))
             {

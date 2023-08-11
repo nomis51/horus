@@ -236,8 +236,7 @@ public class FsService : IService
             });
         }
 
-        var filePath = Path.Join(GetStoreLocation(), name);
-        var metadatasFilePath = GetMetadataPath(filePath);
+        var metadatasFilePath = GetMetadataPath(name);
 
         var (metadatas, error) = AppService.Instance.DecryptMetadatas(metadatasFilePath);
         return error is not null
@@ -249,7 +248,7 @@ public class FsService : IService
     {
         if (!DoStoreEntryExists(name, true)) return new EmptyResult(new FsEntryNotFoundError());
 
-        var result = UpdateModifedMetadata(name);
+        var result = UpdateModifedMetadata(name, metadatas);
         if (result.HasError) return new EmptyResult(result.Error!);
 
         var resultGitCommit = AppService.Instance.GitCommit($"Password metadata '{name}' updated");
@@ -494,10 +493,20 @@ public class FsService : IService
         return Path.Join(GetStoreLocation(), $"{name}.gpg");
     }
 
-    private EmptyResult UpdateModifedMetadata(string name)
+    private EmptyResult UpdateModifedMetadata(string name, MetadataCollection? metadataCollection = null)
     {
-        var (metadatas, error) = RetrieveStoreEntryMetadatas(name);
-        if (error is not null) return new EmptyResult(error);
+        MetadataCollection metadatas;
+        if (metadataCollection is null)
+        {
+            var (m, error) = RetrieveStoreEntryMetadatas(name);
+            if (error is not null) return new EmptyResult(error);
+
+            metadatas = m;
+        }
+        else
+        {
+            metadatas = metadataCollection;
+        }
 
         var index = metadatas!.FindIndex(m => m.Key == "modified");
 
