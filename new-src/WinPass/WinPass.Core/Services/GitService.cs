@@ -201,15 +201,20 @@ public class GitService : IService
     {
         try
         {
-            var lines = GetPowerShellInstance()
+            var pwsh = GetPowerShellInstance()
                 .AddArgument("add")
                 .AddArgument("--all")
                 .AddArgument("--")
-                .AddArgument(":!.lock")
-                .Invoke<string>();
-            if (lines.FirstOrDefault()
-                    ?.StartsWith("The following paths are ignored by one of your .gitignore files:") ?? true)
+                .AddArgument(":!.lock");
+            var lines = pwsh.Invoke<string>().ToList();
+            lines.AddRange(pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message));
+
+            if (lines.Any() &&
+                lines.First(e =>
+                    e.StartsWith("The following paths are ignored by one of your .gitignore files:")) is not null)
+            {
                 return new EmptyResult(new GitAddFailedError());
+            }
         }
         catch (Exception e)
         {
@@ -219,12 +224,11 @@ public class GitService : IService
 
         try
         {
-            // TODO: catch from output if it failed
-            GetPowerShellInstance()
+            var pwsh = GetPowerShellInstance()
                 .AddArgument("commit")
                 .AddArgument("-m")
-                .AddArgument($"\"{message}\"")
-                .Invoke();
+                .AddArgument($"\"{message}\"");
+            pwsh.Invoke<string>();
         }
         catch (Exception e)
         {
