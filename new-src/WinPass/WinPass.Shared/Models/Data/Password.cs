@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
+using WinPass.Shared.Extensions;
 
 namespace WinPass.Shared.Models.Data;
 
@@ -25,7 +26,7 @@ public class Password : IDisposable
 
     public override string ToString()
     {
-        return ValueAsString;
+        return ValueAsString.ToBase64();
     }
 
     public void Dispose()
