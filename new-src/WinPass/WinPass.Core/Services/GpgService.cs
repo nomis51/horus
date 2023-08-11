@@ -221,7 +221,7 @@ public class GpgService : IService
 
         try
         {
-            GetPowerShellInstance(true)
+            var pwsh = GetPowerShellInstance(true)
                 .AddArgument("-Command")
                 .AddArgument("Write-Output")
                 .AddArgument(value)
@@ -236,6 +236,14 @@ public class GpgService : IService
                 .AddArgument(id)
                 .AddArgument("--output")
                 .AddArgument(filePath);
+            pwsh.Invoke<string>();
+            var errors = pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message).ToList();
+
+            if (errors.FirstOrDefault(e => e.Contains("encryption failed")) is not null)
+            {
+                return new EmptyResult(new GpgEncryptError(string.Join("\n", errors)));
+            }
+
             return new EmptyResult();
         }
         catch (Exception e)
@@ -249,7 +257,7 @@ public class GpgService : IService
     {
         var pwsh = PowerShell.Create();
         pwsh.Runspace.SessionStateProxy.Path.SetLocation(AppService.Instance.GetStoreLocation());
-        pwsh.AddCommand(GpgProcessName);
+        pwsh.AddCommand(usePwshDirectly ? "pwsh" : GpgProcessName);
         return pwsh;
     }
 
