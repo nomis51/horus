@@ -28,6 +28,11 @@ public class MetadataCollection : ICollection<Metadata>
         set => _entries[index] = value;
     }
 
+    public void RemoveAt(int index)
+    {
+        _entries.RemoveAt(index);
+    }
+
     public int FindIndex(Func<Metadata, bool> fn)
     {
         for (var i = 0; i < _entries.Count; ++i)

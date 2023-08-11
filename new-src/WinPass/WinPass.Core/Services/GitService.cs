@@ -80,7 +80,10 @@ public class GitService : IService
 
     public void DeleteRepository()
     {
-        var directory = new DirectoryInfo(AppService.Instance.GetStoreLocation())
+        var path = AppService.Instance.GetStoreLocation();
+        if (!Directory.Exists(path)) return;
+        
+        var directory = new DirectoryInfo(path)
             { Attributes = FileAttributes.Normal };
 
         foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))

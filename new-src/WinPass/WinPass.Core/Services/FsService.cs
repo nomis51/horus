@@ -1,10 +1,12 @@
 ﻿using Serilog;
 using WinPass.Core.Abstractions;
 using WinPass.Shared.Enums;
+using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
 using WinPass.Shared.Models.Display;
 using WinPass.Shared.Models.Errors.Fs;
+using WinPass.Shared.Models.Errors.Git;
 using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
@@ -40,6 +42,27 @@ public class FsService : IService
     #endregion
 
     #region Public methods
+
+    public EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "")
+    {
+        var (settings, error) = AppService.Instance.GetSettings();
+        if (error is not null) return new EmptyResult(error);
+
+        var newPassword = new Password(
+            name,
+            PasswordHelper.Generate(
+                length <= 0 ? settings!.DefaultLength : length,
+                string.IsNullOrWhiteSpace(customAlphabet) ? settings!.DefaultCustomAlphabet : customAlphabet
+            )
+        );
+
+        var result = DoStoreEntryExists(name)
+            ? EditStoreEntryPassword(name, newPassword)
+            : AddStoreEntry(name, newPassword);
+        newPassword.Dispose();
+
+        return result;
+    }
 
     public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
     {
@@ -160,7 +183,8 @@ public class FsService : IService
         File.Delete(filePath);
         File.Delete(metadatasFilePath);
 
-        return new EmptyResult();
+        var resultGitCommit = AppService.Instance.GitCommit($"Remove password '{name}'");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
     }
 
     public EmptyResult RenameStoreEntry(string name, string newName, bool duplicate = false)
@@ -184,7 +208,9 @@ public class FsService : IService
             File.Move(metadatasFilePath, newMetadatasFilePath);
         }
 
-        return new EmptyResult();
+        var resultGitCommit =
+            AppService.Instance.GitCommit($"{(duplicate ? "Rename" : "Duplicate")} password '{name}' to '{newName}'");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
     }
 
     public Result<Password?, Error?> RetrieveStoreEntryPassword(string name)
@@ -221,20 +247,28 @@ public class FsService : IService
 
     public EmptyResult EditStoreEntryMetadatas(string name, MetadataCollection metadatas)
     {
-        return !DoStoreEntryExists(name, true)
-            ? new EmptyResult(new FsEntryNotFoundError())
-            : UpdateModifedMetadata(name);
+        if (!DoStoreEntryExists(name, true)) return new EmptyResult(new FsEntryNotFoundError());
+
+        var result = UpdateModifedMetadata(name);
+        if (result.HasError) return new EmptyResult(result.Error!);
+
+        var resultGitCommit = AppService.Instance.GitCommit($"Password metadata '{name}' updated");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
     }
 
     public EmptyResult EditStoreEntryPassword(string name, Password password)
     {
         if (!DoStoreEntryExists(name)) return new EmptyResult(new FsEntryNotFoundError());
 
-        UpdateModifedMetadata(name);
+        var result = UpdateModifedMetadata(name);
+        if (result.HasError) return new EmptyResult(result.Error!);
 
         var filePath = GetEntryPath(name);
         var resultEncryptPassword = AppService.Instance.EncryptPassword(filePath, password);
-        return resultEncryptPassword.HasError ? new EmptyResult(resultEncryptPassword.Error!) : new EmptyResult();
+        if (resultEncryptPassword.HasError) return new EmptyResult(resultEncryptPassword.Error!);
+
+        var resultGitCommit = AppService.Instance.GitCommit($"Password '{name}' updated");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
     }
 
     public EmptyResult AddStoreEntry(string name, Password password)
@@ -261,7 +295,11 @@ public class FsService : IService
         if (resultEncryptMetadatas.HasError) return new EmptyResult(resultEncryptMetadatas.Error!);
 
         var resultEncryptPassword = AppService.Instance.EncryptPassword(filePath, password);
-        if (!resultEncryptPassword.HasError) return new EmptyResult();
+        if (!resultEncryptPassword.HasError)
+        {
+            var resultGitCommit = AppService.Instance.GitCommit($"Insert password '{name}')");
+            return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
+        }
 
         if (File.Exists(filePath))
         {
@@ -345,6 +383,53 @@ public class FsService : IService
             : new Result<string, Error?>(File.ReadAllText(path));
     }
 
+    public EmptyResult InitializeStoreFolder(string gpgId, string gitUrl)
+    {
+        if (IsStoreInitialized()) return new EmptyResult(new FsStoreAlreadyInitializedError());
+
+        if (!AppService.Instance.GitClone(gitUrl))
+        {
+            return new EmptyResult(new GitCloneFailedError());
+        }
+
+        var createStoreResult = CreateStoreFolder();
+        if (createStoreResult.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(createStoreResult.Error!);
+        }
+
+        var (isValid, error) = AppService.Instance.IsGpgIdValid(gpgId);
+
+        if (error is not null)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(error);
+        }
+
+        if (!isValid)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(new GpgInvalidKeyError());
+        }
+
+        File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
+
+        var gitCommitResult = AppService.Instance.GitCommit("Add '.gpg-id' file");
+        if (!gitCommitResult.HasError) return new EmptyResult();
+
+        AppService.Instance.GitDeleteRepository();
+        return new EmptyResult(gitCommitResult.Error!);
+    }
+
+    public bool IsStoreInitialized()
+    {
+        if (!Directory.Exists(_storeFolderPath)) return false;
+
+        var gpgIdFilePath = Path.Join(_storeFolderPath, GpgIdFileName);
+        return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
+    }
+
     public void Initialize()
     {
     }
@@ -352,6 +437,20 @@ public class FsService : IService
     #endregion
 
     #region Private methods
+
+    private EmptyResult CreateStoreFolder()
+    {
+        if (Directory.Exists(_storeFolderPath))
+        {
+            var files = Directory.EnumerateFileSystemEntries(_storeFolderPath).ToList();
+            return files.Contains(GpgIdFileName)
+                ? new EmptyResult(new FsStoreFolderAlreadyExistsError())
+                : new EmptyResult();
+        }
+
+        Directory.CreateDirectory(_storeFolderPath);
+        return new EmptyResult();
+    }
 
     private string GetEntryPath(string name)
     {

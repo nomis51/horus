@@ -1,6 +1,10 @@
 ﻿using WinPass.Core.Abstractions;
+using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
+using WinPass.Shared.Models.Display;
+using WinPass.Shared.Models.Errors.Git;
+using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
 
@@ -52,21 +56,173 @@ public class AppService : IService
 
     #region Public methods
 
+    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
+    {
+        return _fsService.SearchStoreEntries(text);
+    }
+
+    public EmptyResult DestroyStore()
+    {
+        return _fsService.DestroyStore();
+    }
+    
+    public Result<string, Error?> GitGetRemoteRepositoryName()
+    {
+        return _gitService.GetRemoteRepositoryName();
+    }
+    
+    public EmptyResult GitPush()
+    {
+        return _gitService.Push();
+    }
+    
+    public ResultStruct<bool, Error?> GitIsAheadOfRemote()
+    {
+        return _gitService.IsAheadOfRemote();
+    }
+    
+    public string ExecuteGitCommand(string[] args)
+    {
+        return _gitService.Execute(args);
+    }
+    
+    public EmptyResult RenameStoreEntry(string name, string newName, bool duplicate = false)
+    {
+        return _fsService.RenameStoreEntry(name, newName, duplicate);
+    }
+    
+    public EmptyResult DeleteStoreEntry(string name)
+    {
+        return _fsService.RemoveStoreEntry(name);
+    }
+    
+    public EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "")
+    {
+        return _fsService.GenerateNewPassword(name, length, customAlphabet);
+    }
+
+    public EmptyResult EditPassword(string name, Password password)
+    {
+        return _fsService.EditStoreEntryPassword(name, password);
+    }
+
+    public EmptyResult EditMetadatas(string name, MetadataCollection metadatas)
+    {
+        return _fsService.EditStoreEntryMetadatas(name, metadatas);
+    }
+
+    public EmptyResult InsertPassword(string name, Password password)
+    {
+        return _fsService.AddStoreEntry(name, password);
+    }
+
+    public bool DoStoreEntryExists(string name)
+    {
+        return _fsService.DoStoreEntryExists(name);
+    }
+
+    public Result<List<StoreEntry>, Error?> GetStoreEntries()
+    {
+        return _fsService.RetrieveStoreEntries();
+    }
+
+    public Result<MetadataCollection, Error?> GetMetadatas(string name)
+    {
+        var (metadatas, error) = _fsService.RetrieveStoreEntryMetadatas(name);
+        return error is not null
+            ? new Result<MetadataCollection, Error?>(error)
+            : new Result<MetadataCollection, Error?>(metadatas!);
+    }
+
+    public Result<Password?, Error?> GetPassword(string name, bool copy = true, int timeout = 10)
+    {
+        var (password, error) = _fsService.RetrieveStoreEntryPassword(name);
+        if (error is not null) return new Result<Password?, Error?>(error);
+
+        if (!copy) return new Result<Password?, Error?>(password);
+
+        ClipboardHelper.Copy(password!.ValueAsString);
+        password.Dispose();
+
+        ProcessHelper.Fork(new[] { "cc", timeout <= 0 ? "10" : timeout.ToString() });
+        return new Result<Password?, Error?>(password);
+    }
+
+    public bool IsStoreInitialized()
+    {
+        return _fsService.IsStoreInitialized();
+    }
+
+    public ResultStruct<bool, Error?> IsGpgIdValid(string id)
+    {
+        return _gpgService.IsIdValid(id);
+    }
+
+    public bool GitClone(string url)
+    {
+        return _gitService.Clone(url);
+    }
+
+    public EmptyResult GitCommit(string message)
+    {
+        return _gitService.Commit(message);
+    }
+
+    public EmptyResult InitializeStoreFolder(string gpgId, string gitUrl)
+    {
+        return _fsService.InitializeStoreFolder(gitUrl, gpgId);
+    }
+
+    public ResultStruct<byte, Error?> Verify()
+    {
+        var gitOk = false;
+        var gpgOk = false;
+        var tasks = new Task[2];
+        tasks[0] = Task.Run(() => gpgOk = _gpgService.Verify());
+        tasks[1] = Task.Run(() => gitOk = _gitService.Verify());
+        Task.WaitAll(tasks);
+
+        if (!gpgOk) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
+        return !gitOk
+            ? new ResultStruct<byte, Error?>(new GitNotInstalledError())
+            : new ResultStruct<byte, Error?>(0);
+    }
+
+    public bool AcquireLock()
+    {
+        return _fsService.AcquireLock();
+    }
+
+    public void ReleaseLock()
+    {
+        _fsService.ReleaseLock();
+    }
+
+    public Result<Settings?, Error?> GetSettings()
+    {
+        return _settingsService.GetSettings();
+    }
+
+    public EmptyResult SaveSettings(Settings settings)
+    {
+        return _settingsService.SaveSettings(settings);
+    }
+
     public Result<List<MetadataCollection?>, Error?> DecryptManyMetadatas(List<Tuple<string, string>> items)
     {
         return _gpgService.DecryptManyMetadatas(items);
     }
-    
+
     public Result<Password?, Error?> DecryptPassword(string path)
     {
         return _gpgService.DecryptPassword(path);
     }
-    
+
     public Result<MetadataCollection?, Error?> DecryptMetadatas(string path)
     {
         return _gpgService.DecryptMetadatas(path);
     }
-    
+
     public EmptyResult EncryptPassword(string path, Password password)
     {
         return _gpgService.EncryptPassword(path, password);
