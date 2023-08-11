@@ -121,7 +121,7 @@ public class GpgService : IService
 
             if (lines.FirstOrDefault()?.StartsWith("gpg: error reading key: No public key") ?? true)
                 return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
-            if (!lines.FirstOrDefault()?.StartsWith("pub") ?? true)
+            if (!lines.Any(e => e.StartsWith("pub")))
                 return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
 
             if (string.IsNullOrEmpty(id))

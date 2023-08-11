@@ -363,7 +363,7 @@ public class FsService : IService
         }
         catch (Exception e)
         {
-            Log.Error("Unable to acquire lock: {Messagse}", e.Message);
+            Log.Error("Unable to acquire lock: {Message}", e.Message);
             return false;
         }
 
@@ -372,6 +372,7 @@ public class FsService : IService
 
     public string GetStoreLocation()
     {
+        if(!Directory.Exists(_storeFolderPath)) Directory.CreateDirectory(_storeFolderPath);
         return _storeFolderPath;
     }
 

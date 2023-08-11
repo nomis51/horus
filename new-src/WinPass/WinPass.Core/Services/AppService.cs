@@ -170,7 +170,7 @@ public class AppService : IService
 
     public EmptyResult InitializeStoreFolder(string gpgId, string gitUrl)
     {
-        return _fsService.InitializeStoreFolder(gitUrl, gpgId);
+        return _fsService.InitializeStoreFolder(gpgId, gitUrl);
     }
 
     public ResultStruct<byte, Error?> Verify()

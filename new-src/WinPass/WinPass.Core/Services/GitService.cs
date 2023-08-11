@@ -82,7 +82,7 @@ public class GitService : IService
     {
         var path = AppService.Instance.GetStoreLocation();
         if (!Directory.Exists(path)) return;
-        
+
         var directory = new DirectoryInfo(path)
             { Attributes = FileAttributes.Normal };
 
@@ -129,7 +129,7 @@ public class GitService : IService
             tmpPath = Path.GetTempPath();
         }
 
-        var dirName = Path.GetFileName(url).Split(".git").FirstOrDefault() ?? string.Empty;
+        var dirName = Guid.NewGuid().ToString();
         if (string.IsNullOrEmpty(dirName)) return false;
 
         var dirPath = Path.Join(tmpPath, dirName);
@@ -137,23 +137,30 @@ public class GitService : IService
 
         try
         {
-            var lines = GetPowerShellInstance()
-                .AddArgument("--version")
-                .Invoke<string>();
+            var pwsh = GetPowerShellInstance()
+                .AddArgument("clone")
+                .AddArgument(url)
+                .AddArgument($"{dirPath}");
+            pwsh.Invoke<string>();
+            // For some reason, git clone output to stderr even thought there is no error
+            var lines = pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message);
+
             if (!lines.FirstOrDefault()?.Contains("Cloning into") ?? true)
             {
-                if (Directory.Exists(dirName)) Directory.Delete(dirName, true);
+                if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
             }
         }
         catch (Exception e)
         {
             Log.Warning("Unable to verify git installation: {Message}", e.Message);
-            if (Directory.Exists(dirName)) Directory.Delete(dirName, true);
+            if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
         }
 
         if (!Directory.Exists(dirPath)) return false;
 
         var storeLocation = AppService.Instance.GetStoreLocation();
+        if (Directory.Exists(storeLocation)) Directory.Delete(storeLocation);
+
         Directory.Move(dirPath, storeLocation);
         if (!Directory.Exists(Path.Join(storeLocation, ".git"))) return false;
 
@@ -177,6 +184,10 @@ public class GitService : IService
         try
         {
             output = string.Join("\n", pwsh.Invoke<string>());
+            if (pwsh.HadErrors)
+            {
+                output += $"\n\n{string.Join("\n", pwsh.Streams.Error.ReadAll())}";
+            }
         }
         catch (Exception e)
         {
