@@ -18,13 +18,20 @@ public class Cli
             return;
         }
 
-        if (args.Length == 0)
+        var lstArgs = args.ToList();
+
+        if (lstArgs.Count == 0)
         {
-            args = new[] { "ls" };
+            lstArgs.Add("ls");
         }
 
-        var commandArgs = args.Skip(1).ToList();
-        switch (args[0])
+        if (lstArgs[0] == "get")
+        {
+            lstArgs = new List<string> { "show", "-c", lstArgs[1] };
+        }
+
+        var commandArgs = lstArgs.Skip(1).ToList();
+        switch (lstArgs[0])
         {
             case "init":
                 new Init().Run(commandArgs);
@@ -89,6 +96,7 @@ public class Cli
                 break;
 
             case "destroy":
+            case "terminate":
                 new Destroy().Run(commandArgs);
                 break;
 
