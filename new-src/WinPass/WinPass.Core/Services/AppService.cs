@@ -270,6 +270,11 @@ public class AppService : IAppService
         _gitService = dependencies.GitService;
         _gpgService = dependencies.GpgService;
         _settingsService = dependencies.SettingsService;
+
+        _fsService.Initialize();
+        _gitService.Initialize();
+        _gpgService.Initialize();
+        _settingsService.Initialize();
     }
 
     #endregion

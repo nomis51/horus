@@ -16,16 +16,10 @@ public class FsService : IFsService
 {
     #region Constants
 
-    private const string StoreFolderName = ".winpass";
-    private const string MigrationStoreFolderName = $"{StoreFolderName}-migration";
+    private readonly string _storeFolderName;
+    private readonly string _migrationStoreFolderName;
     public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
-
-    private readonly string _storeFolderPathTemplate =
-        $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{StoreFolderName}/";
-
-    private readonly string _migrationStoreFolderPathTemplate =
-        $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{MigrationStoreFolderName}/";
 
     private readonly string _storeFolderPath;
     private readonly string _migrationStoreFolderPath;
@@ -40,10 +34,16 @@ public class FsService : IFsService
 
     #region Constructors
 
-    public FsService()
+    public FsService(string storeFolderName = ".winpass")
     {
-        _storeFolderPath = Environment.ExpandEnvironmentVariables(_storeFolderPathTemplate);
-        _migrationStoreFolderPath = Environment.ExpandEnvironmentVariables(_migrationStoreFolderPathTemplate);
+        _storeFolderName = storeFolderName;
+        _migrationStoreFolderName = $"{_storeFolderName}-migration";
+
+        _storeFolderPath =
+            Environment.ExpandEnvironmentVariables(
+                $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_storeFolderName}/");
+        _migrationStoreFolderPath = Environment.ExpandEnvironmentVariables(
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_migrationStoreFolderName}/");
     }
 
     #endregion
@@ -65,7 +65,7 @@ public class FsService : IFsService
             if (filePath.EndsWith(".m.gpg")) continue;
 
             var metadataFilePath = filePath.Replace(".gpg", ".m.gpg");
-            var newMetadataFilePath = metadataFilePath.Replace(StoreFolderName, MigrationStoreFolderName);
+            var newMetadataFilePath = metadataFilePath.Replace(_storeFolderName, _migrationStoreFolderName);
             var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(metadataFilePath);
             if (errorDecryptMetadatas is not null)
             {
@@ -80,7 +80,7 @@ public class FsService : IFsService
                 return new EmptyResult(new GpgDecryptError(encryptMetadatasResult.Error!.Message));
             }
 
-            var newFilePath = filePath.Replace(StoreFolderName, MigrationStoreFolderName);
+            var newFilePath = filePath.Replace(_storeFolderName, _migrationStoreFolderName);
             var (password, errorDecryptPassword) = AppService.Instance.DecryptPassword(filePath);
             if (errorDecryptPassword is not null)
             {
@@ -104,7 +104,7 @@ public class FsService : IFsService
 
         foreach (var newFile in Directory.GetFiles(_migrationStoreFolderPath, "*.gpg", SearchOption.AllDirectories))
         {
-            File.Move(newFile, newFile.Replace(MigrationStoreFolderName, StoreFolderName));
+            File.Move(newFile, newFile.Replace(_migrationStoreFolderName, _storeFolderName));
         }
 
         File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
@@ -244,6 +244,11 @@ public class FsService : IFsService
                 );
 
                 LocalEnumerateEntries(dirPath, entries.Last().Entries);
+
+                if (entries.Last().Entries.Count == 0)
+                {
+                    entries.Remove(entries.Last());
+                }
             }
         }
     }
@@ -303,14 +308,7 @@ public class FsService : IFsService
 
     public Result<MetadataCollection?, Error?> RetrieveStoreEntryMetadatas(string name)
     {
-        if (!DoStoreEntryExists(name, true))
-        {
-            return new Result<MetadataCollection?, Error?>(new MetadataCollection
-            {
-                new("created", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
-                new("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
-            });
-        }
+        if (!DoStoreEntryExists(name, true)) return new Result<MetadataCollection?, Error?>(new FsEntryNotFoundError());
 
         var metadatasFilePath = GetMetadataPath(name);
 
