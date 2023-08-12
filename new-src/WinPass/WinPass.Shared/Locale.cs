@@ -146,6 +146,7 @@ public static class Locale
                     "questions.confirmMigrateStore",
                     "Are you sure you wan to migrate the store to use the new GPG keypair?"
                 },
+                { "storeMigrated", "Stored migrated successfully!" }
             }
         },
 
@@ -304,6 +305,7 @@ public static class Locale
                     "questions.confirmMigrateStore",
                     "Êtes-vous sûr de vouloir migrer le magasin de mots de passe vers la nouvelle pair de clés GPG?"
                 },
+                { "storeMigrated", "Magasin de mots de passe migré avec succès!" }
             }
         },
         {
@@ -461,6 +463,7 @@ public static class Locale
                     "questions.confirmMigrateStore",
                     "Sind sie sicher, dass sie den store migrieren möchten, um das neue GPG-Schlüsselpaar zu verwenden?"
                 },
+                { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" }
             }
         },
     };

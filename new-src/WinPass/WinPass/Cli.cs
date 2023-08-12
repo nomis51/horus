@@ -92,6 +92,10 @@ public class Cli
                 new Destroy().Run(commandArgs);
                 break;
 
+            case "migrate":
+                new Migrate().Run(commandArgs);
+                break;
+
             default:
                 AnsiConsole.MarkupLine("[red]Invalid command[/]");
                 break;

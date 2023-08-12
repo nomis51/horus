@@ -1,6 +1,7 @@
 ﻿using Serilog;
 using WinPass.Core.Abstractions;
 using WinPass.Shared.Enums;
+using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
@@ -56,23 +57,30 @@ public class FsService : IService
         List<Tuple<string, string>> storeFilePaths = new();
         EnumerateFilePaths(GetStoreLocation(), storeFilePaths);
 
+        if (Directory.Exists(_migrationStoreFolderPath)) Directory.Delete(_migrationStoreFolderPath, true);
+        Directory.CreateDirectory(_migrationStoreFolderPath);
+
         foreach (var (_, filePath) in storeFilePaths)
         {
-            var newFilePath = filePath.Replace(StoreFolderName, MigrationStoreFolderName);
-            var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(filePath);
+            if (filePath.EndsWith(".m.gpg")) continue;
+            
+            var metadataFilePath = filePath.Replace(".gpg", ".m.gpg");
+            var newMetadataFilePath = metadataFilePath.Replace(StoreFolderName, MigrationStoreFolderName);
+            var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(metadataFilePath);
             if (errorDecryptMetadatas is not null)
             {
                 Directory.Delete(_migrationStoreFolderPath);
                 return new EmptyResult(new GpgDecryptError(errorDecryptMetadatas.Message));
             }
 
-            var encryptMetadatasResult = AppService.Instance.EncryptMetadatas(newFilePath, metadatas!, gpgId);
+            var encryptMetadatasResult = AppService.Instance.EncryptMetadatas(newMetadataFilePath, metadatas!, gpgId);
             if (encryptMetadatasResult.HasError)
             {
                 Directory.Delete(_migrationStoreFolderPath);
                 return new EmptyResult(new GpgDecryptError(encryptMetadatasResult.Error!.Message));
             }
 
+            var newFilePath = filePath.Replace(StoreFolderName, MigrationStoreFolderName);
             var (password, errorDecryptPassword) = AppService.Instance.DecryptPassword(filePath);
             if (errorDecryptPassword is not null)
             {
@@ -100,6 +108,8 @@ public class FsService : IService
         }
 
         File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
+
+        if (Directory.Exists(_migrationStoreFolderPath)) Directory.Delete(_migrationStoreFolderPath, true);
 
         var resultGitCommit = AppService.Instance.GitCommit($"Migrate store to new GPG keypair '{gpgId}'");
         if (resultGitCommit.HasError)
@@ -549,13 +559,14 @@ public class FsService : IService
         if (Directory.Exists(_storeFolderPath))
         {
             var files = Directory.EnumerateFileSystemEntries(_storeFolderPath).ToList();
-            return files.Contains(GpgIdFileName)
-                ? new EmptyResult(new FsStoreFolderAlreadyExistsError())
-                : new EmptyResult();
+            if (files.Contains(GpgIdFileName)) return new EmptyResult(new FsStoreFolderAlreadyExistsError());
+            if (files.Contains(AppLockFileName)) return new EmptyResult();
+
+            return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName);
         }
 
         Directory.CreateDirectory(_storeFolderPath);
-        return new EmptyResult();
+        return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName);
     }
 
     private string GetEntryPath(string name)
@@ -617,7 +628,7 @@ public class FsService : IService
         var (content, error) = AppService.Instance.Decrypt(tmpFile);
         File.Delete(tmpFile);
 
-        return error is null && content == AppLockFileName;
+        return error is null && content.FromBase64() == AppLockFileName;
     }
 
     #endregion
