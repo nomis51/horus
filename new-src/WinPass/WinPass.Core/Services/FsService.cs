@@ -151,10 +151,10 @@ public class FsService : IService
 
         EnumerateFilePaths(storePath, items);
 
-        var (lstMetadatas, error) = AppService.Instance.DecryptManyMetadatas(items);
+        var (lstMetadatas, error) =
+            AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
         if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
 
-        // TODO: search
         var loweredText = text.Trim().ToLower();
         List<StoreEntry> entries = new();
         LocalSearchEntries(storePath, string.Empty);
@@ -166,10 +166,10 @@ public class FsService : IService
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var filePath in Directory.EnumerateFiles(current))
             {
-                if (!filePath.EndsWith(".gpg")) continue;
+                if (!filePath.EndsWith(".m.gpg")) continue;
 
-                var name = Path.GetFileName(filePath);
-                var currentEntryPath = $"{currenPath}/{name}";
+                var path = Path.GetFileName(filePath);
+                var currentEntryPath = string.IsNullOrEmpty(currenPath) ? path : $"{currenPath}/{path}";
                 var metadatas = lstMetadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
 
                 List<string> metadataFound = new();
@@ -179,11 +179,12 @@ public class FsService : IService
                     {
                         if (!metadata.Key.ToLower().Contains(loweredText) &&
                             !metadata.Value.ToLower().Contains(loweredText)) continue;
-                        
+
                         metadataFound.Add(metadata.ToString());
                     }
                 }
 
+                var name = path.Split(".").First();
                 if (!name.ToLower().Contains(loweredText) && !metadataFound.Any()) continue;
 
                 entries.Add(

@@ -16,6 +16,12 @@ public class GpgService : IService
 
     private const string GpgProcessName = "gpg";
 
+    private const string DecryptManyCommandTemplate =
+        "\"Invoke-Command -ScriptBlock {0}\"";
+
+    private const string DecryptManyForeachTemplate =
+        "foreach(`$filePath in @({0})){ gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt `$filePath; echo `\"`\"}";
+
     #endregion
 
     #region Public methods
@@ -172,15 +178,24 @@ public class GpgService : IService
     {
         try
         {
-            return new Result<List<string>, Error?>(
-                GetPowerShellInstance(true)
-                    .AddArgument("-Command")
-                    .AddArgument("foreach($filePath in (" +
-                                 string.Join(", ", filePaths) +
-                                 ")) { gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $filePath; echo \"\" }")
-                    .Invoke<string>()
-                    .ToList()
+            var scriptBlock = ScriptBlock.Create(
+                "foreach($filePath in @(" + string.Join(",", filePaths.Select(f => $"\"{f}\"")) +
+                ")){ gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $filePath; echo \"\"}"
             );
+            var pwsh = GetPowerShellInstance(noSetup: true);
+            pwsh.AddCommand("Invoke-Command")
+                .AddArgument(scriptBlock);
+            var lines = pwsh.Invoke<string>()
+                .Where(l => !string.IsNullOrEmpty(l))
+                .ToList();
+
+            if (!lines.Any())
+            {
+                return new Result<List<string>, Error?>(new GpgDecryptError(string.Join("\n",
+                    pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message))));
+            }
+
+            return new Result<List<string>, Error?>(lines);
         }
         catch (Exception e)
         {
@@ -267,9 +282,11 @@ public class GpgService : IService
         }
     }
 
-    private PowerShell GetPowerShellInstance(bool usePwshDirectly = false)
+    private PowerShell GetPowerShellInstance(bool usePwshDirectly = false, bool noSetup = false)
     {
         var pwsh = PowerShell.Create();
+        if (noSetup) return pwsh;
+
         pwsh.Runspace.SessionStateProxy.Path.SetLocation(AppService.Instance.GetStoreLocation());
         pwsh.AddCommand(usePwshDirectly ? "pwsh" : GpgProcessName);
         return pwsh;
