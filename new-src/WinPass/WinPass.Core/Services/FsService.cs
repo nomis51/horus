@@ -63,7 +63,7 @@ public class FsService : IService
         foreach (var (_, filePath) in storeFilePaths)
         {
             if (filePath.EndsWith(".m.gpg")) continue;
-            
+
             var metadataFilePath = filePath.Replace(".gpg", ".m.gpg");
             var newMetadataFilePath = metadataFilePath.Replace(StoreFolderName, MigrationStoreFolderName);
             var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(metadataFilePath);
@@ -143,6 +143,9 @@ public class FsService : IService
 
     public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
     {
+        if (string.IsNullOrWhiteSpace(text))
+            return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
+
         List<Tuple<string, string>> items = new();
         var storePath = GetStoreLocation();
 
@@ -152,6 +155,7 @@ public class FsService : IService
         if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
 
         // TODO: search
+        var loweredText = text.Trim().ToLower();
         List<StoreEntry> entries = new();
         LocalSearchEntries(storePath, string.Empty);
 
@@ -168,12 +172,26 @@ public class FsService : IService
                 var currentEntryPath = $"{currenPath}/{name}";
                 var metadatas = lstMetadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
 
+                List<string> metadataFound = new();
+                if (metadatas is not null)
+                {
+                    foreach (var metadata in metadatas)
+                    {
+                        if (!metadata.Key.ToLower().Contains(loweredText) &&
+                            !metadata.Value.ToLower().Contains(loweredText)) continue;
+                        
+                        metadataFound.Add(metadata.ToString());
+                    }
+                }
+
+                if (!name.ToLower().Contains(loweredText) && !metadataFound.Any()) continue;
+
                 entries.Add(
                     new StoreEntry(
                         name,
                         false,
-                        metadatas is not null,
-                        null
+                        metadataFound.Any(),
+                        metadataFound
                     )
                 );
             }

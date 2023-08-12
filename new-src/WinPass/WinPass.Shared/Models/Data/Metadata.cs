@@ -18,4 +18,9 @@ public class Metadata
         Value = value;
         Type = type;
     }
+
+    public override string ToString()
+    {
+        return $"{Key}: {Value}";
+    }
 }
