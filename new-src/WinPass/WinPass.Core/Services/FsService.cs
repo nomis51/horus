@@ -1,5 +1,5 @@
 ﻿using Serilog;
-using WinPass.Core.Abstractions;
+using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
@@ -12,7 +12,7 @@ using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
 
-public class FsService : IService
+public class FsService : IFsService
 {
     #region Constants
 

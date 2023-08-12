@@ -1,16 +1,34 @@
 ﻿using Spectre.Console;
 using WinPass.Commands;
+using WinPass.Core;
 using WinPass.Core.Services;
+using WinPass.Shared;
 using WinPass.Shared.Enums;
 
 namespace WinPass;
 
 public class Cli
 {
+    #region Constructors
+
+    public Cli()
+    {
+        AppService.Instance.Initialize(new AppServiceDependenciesProvider(
+            new FsService(),
+            new GitService(),
+            new GpgService(),
+            new SettingsService()
+        ));
+    }
+
+    #endregion
+
     #region Public methods
 
     public void Run(string[] args)
     {
+        SetAppLanguage();
+
         var (_, error) = AppService.Instance.Verify();
         if (error is not null)
         {
@@ -131,6 +149,19 @@ public class Cli
         AnsiConsole.MarkupLine(
             "[red]Unable to acquire lock. There must be another instance of winpass currently running[/]");
         return false;
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private static void SetAppLanguage()
+    {
+        var (settings, error) = AppService.Instance.GetSettings();
+        if (error is null && settings is not null)
+        {
+            Locale.SetLanguage(settings.Language);
+        }
     }
 
     #endregion

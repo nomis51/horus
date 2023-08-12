@@ -1,4 +1,4 @@
-﻿using WinPass.Core.Abstractions;
+﻿using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
@@ -8,7 +8,7 @@ using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
 
-public class AppService : IService
+public class AppService : IAppService
 {
     #region Singleton
 
@@ -35,10 +35,10 @@ public class AppService : IService
 
     #region Services
 
-    private readonly FsService _fsService;
-    private readonly GpgService _gpgService;
-    private readonly GitService _gitService;
-    private readonly SettingsService _settingsService;
+    private IFsService _fsService;
+    private IGpgService _gpgService;
+    private IGitService _gitService;
+    private ISettingsService _settingsService;
 
     #endregion
 
@@ -46,10 +46,6 @@ public class AppService : IService
 
     private AppService()
     {
-        _fsService = new FsService();
-        _gpgService = new GpgService();
-        _gitService = new GitService();
-        _settingsService = new SettingsService();
     }
 
     #endregion
@@ -60,7 +56,7 @@ public class AppService : IService
     {
         return _fsService.MigrateStore(gpgId);
     }
-    
+
     public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
     {
         return _fsService.SearchStoreEntries(text);
@@ -70,37 +66,37 @@ public class AppService : IService
     {
         return _fsService.DestroyStore();
     }
-    
+
     public Result<string, Error?> GitGetRemoteRepositoryName()
     {
         return _gitService.GetRemoteRepositoryName();
     }
-    
+
     public EmptyResult GitPush()
     {
         return _gitService.Push();
     }
-    
+
     public ResultStruct<bool, Error?> GitIsAheadOfRemote()
     {
         return _gitService.IsAheadOfRemote();
     }
-    
+
     public string ExecuteGitCommand(string[] args)
     {
         return _gitService.Execute(args);
     }
-    
+
     public EmptyResult RenameStoreEntry(string name, string newName, bool duplicate = false)
     {
         return _fsService.RenameStoreEntry(name, newName, duplicate);
     }
-    
+
     public EmptyResult DeleteStoreEntry(string name)
     {
         return _fsService.RemoveStoreEntry(name);
     }
-    
+
     public EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "")
     {
         return _fsService.GenerateNewPassword(name, length, customAlphabet);
@@ -268,8 +264,12 @@ public class AppService : IService
         return _fsService.GetStoreId();
     }
 
-    public void Initialize()
+    public void Initialize(AppServiceDependenciesProvider dependencies)
     {
+        _fsService = dependencies.FsService;
+        _gitService = dependencies.GitService;
+        _gpgService = dependencies.GpgService;
+        _settingsService = dependencies.SettingsService;
     }
 
     #endregion

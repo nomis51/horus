@@ -1,14 +1,13 @@
 ﻿using System.Management.Automation;
 using System.Runtime.InteropServices;
 using Serilog;
-using WinPass.Core.Abstractions;
-using WinPass.Shared.Helpers;
+using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Git;
 
 namespace WinPass.Core.Services;
 
-public class GitService : IService
+public class GitService : IGitService
 {
     #region Constants
 

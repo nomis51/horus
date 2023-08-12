@@ -1,8 +1,7 @@
-﻿using System.Management;
-using System.Management.Automation;
+﻿using System.Management.Automation;
 using Newtonsoft.Json;
 using Serilog;
-using WinPass.Core.Abstractions;
+using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Extensions;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
@@ -10,17 +9,11 @@ using WinPass.Shared.Models.Errors.Gpg;
 
 namespace WinPass.Core.Services;
 
-public class GpgService : IService
+public class GpgService : IGpgService
 {
     #region Constants
 
     private const string GpgProcessName = "gpg";
-
-    private const string DecryptManyCommandTemplate =
-        "\"Invoke-Command -ScriptBlock {0}\"";
-
-    private const string DecryptManyForeachTemplate =
-        "foreach(`$filePath in @({0})){ gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt `$filePath; echo `\"`\"}";
 
     #endregion
 

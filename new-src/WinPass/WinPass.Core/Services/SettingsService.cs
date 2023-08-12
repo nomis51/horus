@@ -1,12 +1,12 @@
 ﻿using Serilog;
-using WinPass.Core.Abstractions;
+using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
 using WinPass.Shared.Models.Errors.Settings;
 
 namespace WinPass.Core.Services;
 
-public class SettingsService : IService
+public class SettingsService : ISettingsService
 {
     #region Constants
 

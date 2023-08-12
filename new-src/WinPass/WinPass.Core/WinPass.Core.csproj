@@ -12,4 +12,10 @@
       <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
     </ItemGroup>
 
+
+
+
+
+
+
 </Project>
