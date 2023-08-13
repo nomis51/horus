@@ -469,7 +469,7 @@ public static class Locale
                 },
                 { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" },
                 { "exportDone", "Export completed" },
-                { "questions.exportPath", "Enter the path to save the exported store: " }
+                { "questions.exportPath", "Geben sie den pfad zum speichern des exportierten passwortspeichers ein: " }
             }
         },
     };
