@@ -43,4 +43,4 @@ mkdir ../release
 Add-Type -Assembly "System.IO.Compression.FileSystem" ;
 [System.IO.Compression.ZipFile]::CreateFromDirectory("../build", "../release/WinPass-linux.zip");
 
-# Remove-Item -Force -Recurse ../build
+Remove-Item -Force -Recurse ../build
