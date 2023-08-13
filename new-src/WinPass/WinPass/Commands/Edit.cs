@@ -126,7 +126,7 @@ public class Edit : ICommand
                     newPasswordConfirm = null;
                     GC.Collect();
 
-                    var pwd = new Password(name, newPassword);
+                    var pwd = new Password(newPassword);
                     newPassword = null;
                     GC.Collect();
 

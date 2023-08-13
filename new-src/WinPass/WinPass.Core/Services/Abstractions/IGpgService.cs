@@ -6,7 +6,7 @@ namespace WinPass.Core.Services.Abstractions;
 public interface IGpgService : IService
 {
     bool Verify();
-    EmptyResult Encrypt(string path, string value);
+    EmptyResult Encrypt(string path, string value, string gpgId = "");
     Result<string, Error?> Decrypt(string path);
     EmptyResult EncryptMetadatas(string path, MetadataCollection metadatas, string gpgId = "");
     EmptyResult EncryptPassword(string path, Password password, string gpgId = "");

@@ -35,9 +35,9 @@ public class GpgService : IGpgService
         }
     }
 
-    public EmptyResult Encrypt(string path, string value)
+    public EmptyResult Encrypt(string path, string value, string gpgId = "")
     {
-        return EncryptOne(path, value);
+        return EncryptOne(path, value, gpgId);
     }
 
     public Result<string, Error?> Decrypt(string path)
@@ -107,7 +107,7 @@ public class GpgService : IGpgService
         var (data, error) = DecryptOne(path);
         return error is not null
             ? new Result<Password?, Error?>(error)
-            : new Result<Password?, Error?>(new Password(path, data.FromBase64()));
+            : new Result<Password?, Error?>(new Password(data.FromBase64()));
     }
 
     public ResultStruct<bool, Error?> IsIdValid(string id = "")

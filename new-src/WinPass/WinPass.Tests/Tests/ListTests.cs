@@ -1,8 +1,9 @@
 ﻿using WinPass.Core;
 using WinPass.Core.Services;
 using WinPass.Shared.Models.Display;
+using WinPass.Tests.Mocks;
 
-namespace WinPass.Tests;
+namespace WinPass.Tests.Tests;
 
 public class ListTests
 {
@@ -12,7 +13,7 @@ public class ListTests
     {
         AppService.Instance.Initialize(new AppServiceDependenciesProvider(
             new FsService(TestHelper.TestAppFolder),
-            new GitService(),
+            new DisabledGitService(),
             new GpgService(),
             new SettingsService()
         ));
@@ -33,9 +34,9 @@ public class ListTests
         var (entries, error) = AppService.Instance.GetStoreEntries();
 
         // Assert
+        TestHelper.Done();
         Assert.Null(error);
         Assert.Empty(entries);
-        TestHelper.Done();
     }
 
     [Fact]
@@ -93,10 +94,10 @@ public class ListTests
         var (entries, error) = AppService.Instance.GetStoreEntries();
 
         // Assert
+        TestHelper.Done();
         Assert.Null(error);
         Assert.NotEmpty(entries);
         Assert.Equivalent(expectedEntries, entries);
-        TestHelper.Done();
     }
 
     #endregion

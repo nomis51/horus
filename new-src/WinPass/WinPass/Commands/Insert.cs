@@ -63,7 +63,7 @@ public class Insert : ICommand
         passwordConfirm = null;
         GC.Collect();
 
-        var pwd = new Password(name, password);
+        var pwd = new Password(password);
         password = null;
         GC.Collect();
 

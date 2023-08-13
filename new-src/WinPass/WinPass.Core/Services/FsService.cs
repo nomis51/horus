@@ -126,7 +126,6 @@ public class FsService : IFsService
         if (error is not null) return new EmptyResult(error);
 
         var newPassword = new Password(
-            name,
             PasswordHelper.Generate(
                 length <= 0 ? settings!.DefaultLength : length,
                 string.IsNullOrWhiteSpace(customAlphabet) ? settings!.DefaultCustomAlphabet : customAlphabet
@@ -449,7 +448,7 @@ public class FsService : IFsService
         return _storeFolderPath;
     }
 
-    public Result<string, Error?> GetStoreId()
+    public virtual Result<string, Error?> GetStoreId()
     {
         var path = Path.Join(GetStoreLocation(), GpgIdFileName);
         return !File.Exists(path)

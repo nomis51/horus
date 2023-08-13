@@ -249,9 +249,9 @@ public class AppService : IAppService
         return _gpgService.Decrypt(path);
     }
 
-    public EmptyResult Encrypt(string path, string value)
+    public EmptyResult Encrypt(string path, string value, string gpgId = "")
     {
-        return _gpgService.Encrypt(path, value);
+        return _gpgService.Encrypt(path, value, gpgId);
     }
 
     public string GetStoreLocation()
