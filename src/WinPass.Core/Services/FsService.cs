@@ -380,7 +380,7 @@ public class FsService : IFsService
         var resultEncryptPassword = AppService.Instance.EncryptPassword(filePath, password);
         if (!resultEncryptPassword.HasError)
         {
-            var resultGitCommit = AppService.Instance.GitCommit($"Insert password '{name}')");
+            var resultGitCommit = AppService.Instance.GitCommit($"Insert password '{name}'");
             return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
         }
 
