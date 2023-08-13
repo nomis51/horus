@@ -593,7 +593,7 @@ public class FsService : IFsService
         }
 
         Directory.CreateDirectory(_storeFolderPath);
-        return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName);
+        return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName, gpgId);
     }
 
     private string GetEntryPath(string name)
@@ -655,7 +655,7 @@ public class FsService : IFsService
         var (content, error) = AppService.Instance.Decrypt(tmpFile);
         File.Delete(tmpFile);
 
-        return error is null && content.FromBase64() == AppLockFileName;
+        return error is null && content == AppLockFileName;
     }
 
     #endregion

@@ -62,7 +62,7 @@ public class GpgService : IGpgService
 
         try
         {
-            var lstMetadata = JsonConvert.DeserializeObject<List<Metadata>>(data.FromBase64());
+            var lstMetadata = JsonConvert.DeserializeObject<List<Metadata>>(data);
             return lstMetadata is null
                 ? new Result<MetadataCollection?, Error?>(new GpgDecryptError("Resulting data was null"))
                 : new Result<MetadataCollection?, Error?>(new MetadataCollection(path, lstMetadata));
@@ -107,7 +107,7 @@ public class GpgService : IGpgService
         var (data, error) = DecryptOne(path);
         return error is not null
             ? new Result<Password?, Error?>(error)
-            : new Result<Password?, Error?>(new Password(data.FromBase64()));
+            : new Result<Password?, Error?>(new Password(data));
     }
 
     public ResultStruct<bool, Error?> IsIdValid(string id = "")
@@ -215,7 +215,7 @@ public class GpgService : IGpgService
                 string.Join(
                     string.Empty,
                     lines
-                )
+                ).FromBase64()
             );
         }
         catch (Exception e)
@@ -246,7 +246,7 @@ public class GpgService : IGpgService
             var pwsh = GetPowerShellInstance(true)
                 .AddArgument("-Command")
                 .AddArgument("Write-Output")
-                .AddArgument(value)
+                .AddArgument(value.ToBase64())
                 .AddArgument("|")
                 .AddArgument(GpgProcessName)
                 .AddArgument("--quiet")

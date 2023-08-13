@@ -80,6 +80,6 @@ public class MetadataCollection : ICollection<Metadata>
 
     public override string ToString()
     {
-        return JsonConvert.SerializeObject(_entries).ToBase64();
+        return JsonConvert.SerializeObject(_entries);
     }
 }
