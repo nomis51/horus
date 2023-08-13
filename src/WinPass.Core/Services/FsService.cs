@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using System.IO.Compression;
+using Serilog;
 using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
 using WinPass.Shared.Extensions;
@@ -49,6 +50,16 @@ public class FsService : IFsService
     #endregion
 
     #region Public methods
+
+    public EmptyResult ExportStore(string savePath)
+    {
+        if (!IsStoreInitialized()) return new EmptyResult(new FsStoreNotInitializedError());
+
+        var filePath = Path.Join(savePath, $"winpass-export-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.zip");
+        ZipFile.CreateFromDirectory(GetStoreLocation(), filePath, CompressionLevel.NoCompression, false);
+
+        return new EmptyResult();
+    }
 
     public EmptyResult MigrateStore(string gpgId)
     {
@@ -465,7 +476,7 @@ public class FsService : IFsService
             return new EmptyResult(new GitCloneFailedError());
         }
 
-        var createStoreResult = CreateStoreFolder();
+        var createStoreResult = CreateStoreFolder(gpgId);
         if (createStoreResult.HasError)
         {
             AppService.Instance.GitDeleteRepository();
@@ -570,7 +581,7 @@ public class FsService : IFsService
         return new EmptyResult();
     }
 
-    private EmptyResult CreateStoreFolder()
+    private EmptyResult CreateStoreFolder(string gpgId)
     {
         if (Directory.Exists(_storeFolderPath))
         {
@@ -578,7 +589,7 @@ public class FsService : IFsService
             if (files.Contains(GpgIdFileName)) return new EmptyResult(new FsStoreFolderAlreadyExistsError());
             if (files.Contains(AppLockFileName)) return new EmptyResult();
 
-            return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName);
+            return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName, gpgId);
         }
 
         Directory.CreateDirectory(_storeFolderPath);

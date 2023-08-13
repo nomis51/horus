@@ -158,7 +158,7 @@ public class GitService : IGitService
         if (!Directory.Exists(dirPath)) return false;
 
         var storeLocation = AppService.Instance.GetStoreLocation();
-        if (Directory.Exists(storeLocation)) Directory.Delete(storeLocation);
+        if (Directory.Exists(storeLocation)) DeleteRepository();
 
         Directory.Move(dirPath, storeLocation);
         if (!Directory.Exists(Path.Join(storeLocation, ".git"))) return false;
@@ -207,13 +207,6 @@ public class GitService : IGitService
                 .AddArgument(":!.lock");
             var lines = pwsh.Invoke<string>().ToList();
             lines.AddRange(pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message));
-
-            if (lines.Any() &&
-                lines.First(e =>
-                    e.StartsWith("The following paths are ignored by one of your .gitignore files:")) is not null)
-            {
-                return new EmptyResult(new GitAddFailedError());
-            }
         }
         catch (Exception e)
         {

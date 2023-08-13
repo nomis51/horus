@@ -6,6 +6,7 @@ namespace WinPass.Core.Services.Abstractions;
 
 public interface IFsService : IService
 {
+    EmptyResult ExportStore(string savePath);
     EmptyResult MigrateStore(string gpgId);
     EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "");
     Result<List<StoreEntry>, Error?> SearchStoreEntries(string text);

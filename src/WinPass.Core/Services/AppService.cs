@@ -52,6 +52,11 @@ public class AppService : IAppService
 
     #region Public methods
 
+    public EmptyResult ExportStore(string savePath)
+    {
+        return _fsService.ExportStore(savePath);
+    }
+    
     public EmptyResult MigrateStore(string gpgId)
     {
         return _fsService.MigrateStore(gpgId);

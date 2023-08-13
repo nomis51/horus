@@ -122,6 +122,10 @@ public class Cli
                 new Migrate().Run(commandArgs);
                 break;
 
+            case "export":
+                new Export().Run(commandArgs);
+                break;
+
             default:
                 AnsiConsole.MarkupLine("[red]Invalid command[/]");
                 break;

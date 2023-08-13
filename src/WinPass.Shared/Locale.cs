@@ -146,7 +146,9 @@ public static class Locale
                     "questions.confirmMigrateStore",
                     "Are you sure you wan to migrate the store to use the new GPG keypair?"
                 },
-                { "storeMigrated", "Stored migrated successfully!" }
+                { "storeMigrated", "Stored migrated successfully!" },
+                { "exportDone", "Store exported to {0} successfully!" },
+                { "questions.exportPath", "Enter the path to save the exported store: " }
             }
         },
 
@@ -305,7 +307,9 @@ public static class Locale
                     "questions.confirmMigrateStore",
                     "Êtes-vous sûr de vouloir migrer le magasin de mots de passe vers la nouvelle pair de clés GPG?"
                 },
-                { "storeMigrated", "Magasin de mots de passe migré avec succès!" }
+                { "storeMigrated", "Magasin de mots de passe migré avec succès!" },
+                { "exportDone", "Magasin de mots de passe exporté vers {0} avec succès!" },
+                { "questions.exportPath", "Entrer le chemin où enregistrer l'exportation du magasin de mot de passe: " }
             }
         },
         {
@@ -463,7 +467,9 @@ public static class Locale
                     "questions.confirmMigrateStore",
                     "Sind sie sicher, dass sie den store migrieren möchten, um das neue GPG-Schlüsselpaar zu verwenden?"
                 },
-                { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" }
+                { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" },
+                { "exportDone", "Export completed" },
+                { "questions.exportPath", "Enter the path to save the exported store: " }
             }
         },
     };
