@@ -1,75 +1,66 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using WinPass.Core;
 using WinPass.Core.Services;
-using WinPass.Shared.Models;
+using WinPass.Shared.Models.Data;
+using WinPass.Shared.Models.Errors.Fs;
+using WinPass.Tests.Mocks;
 
 namespace WinPass.Tests.Tests;
 
-public class InsertTests : Test
+public class InsertTests
 {
-    #region Members
-
-    private readonly Cli _sut;
-    private const string GpgId = "F76E20A0A9DF6C1F236D1DC5F8DFEDDF0640812A";
-    private readonly string _storePath;
-    private readonly string _gpgIdFilePath;
-
-    #endregion
-
     #region Constructors
 
-    public InsertTests(StringBuilder stdout) : base(stdout)
+    public InsertTests()
     {
-        _sut = new Cli();
-        _storePath = Environment.ExpandEnvironmentVariables("%USERPROFILE%/.password-store");
-        _gpgIdFilePath = Path.Join(_storePath, ".gpg-id");
+        AppService.Instance.Initialize(new AppServiceDependenciesProvider(
+            new TestGpgIdFsService(TestHelper.TestAppFolder),
+            new DisabledGitService(),
+            new GpgService(),
+            new SettingsService()
+        ));
     }
 
     #endregion
 
     #region Tests
 
-    public void ShouldErrorWithPasswordNameRequired()
+    [Fact]
+    public void InsertEntry_ShouldErrorEntryAlreadyExists()
     {
         // Arrange
-        Stdout.Clear();
-        if (Directory.Exists(_storePath)) Directory.Delete(_storePath, true);
-        _sut.Run(new[] { "init", GpgId });
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
+        File.WriteAllText(Path.Join(TestHelper.GetStorePath(), "test.gpg"), "random");
 
         // Act
-        _sut.Run(new[] { "insert" });
+        Assert.True(AppService.Instance.AcquireLock());
+        var result = AppService.Instance.InsertPassword("test", new Password("random"));
+        AppService.Instance.ReleaseLock();
 
         // Assert
-        Debug.Assert(Stdout.ToString().Contains("Password name argument required"));
+        TestHelper.Done();
+        Assert.True(result.HasError);
+        Assert.IsType<FsPasswordFileAlreadyExistsError>(result.Error);
     }
-
-    public void ShouldErrorWithPasswordNameAlreadyExists()
+    
+    [Fact]
+    public void InsertEntry_ShouldInsertPassword()
     {
         // Arrange
-        Stdout.Clear();
-        if (Directory.Exists(_storePath)) Directory.Delete(_storePath, true);
-        _sut.Run(new[] { "init", GpgId });
-        File.WriteAllText(Path.Join(_storePath, "test.gpg"), string.Empty);
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
 
         // Act
-        _sut.Run(new[] { "insert", "test" });
+        Assert.True(AppService.Instance.AcquireLock());
+        var result = AppService.Instance.InsertPassword("test", new Password("random"));
+        AppService.Instance.ReleaseLock();
+        var (resultPassword, error) = AppService.Instance.GetPassword("test", false);
 
         // Assert
-        Debug.Assert(Stdout.ToString().Contains("Password for test already exists"));
-    }
-
-    public void ShouldInsertThePassword()
-    {
-        // Arrange
-        Stdout.Clear();
-        if (Directory.Exists(_storePath)) Directory.Delete(_storePath, true);
-        _sut.Run(new[] { "init", GpgId });
-
-        // Act
-        var (_, error) = AppService.Instance.InsertPassword("test", new Password("test"));
-
-        // Assert
-        Debug.Assert(error is null);
+        TestHelper.Done();
+        Assert.False(result.HasError);
+        Assert.Null(error);
+        Assert.Equal("random", resultPassword!.ValueAsString);
     }
 
     #endregion

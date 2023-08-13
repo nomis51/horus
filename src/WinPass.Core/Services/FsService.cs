@@ -1,184 +1,365 @@
-﻿using WinPass.Shared.Abstractions;
+﻿using System.IO.Compression;
+using Serilog;
+using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
+using WinPass.Shared.Extensions;
+using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
+using WinPass.Shared.Models.Data;
+using WinPass.Shared.Models.Display;
 using WinPass.Shared.Models.Errors.Fs;
+using WinPass.Shared.Models.Errors.Git;
 using WinPass.Shared.Models.Errors.Gpg;
-using WinPass.Shared.Models.Fs;
-using WinPass.Shared.Models;
 
 namespace WinPass.Core.Services;
 
-public class FsService : IService
+public class FsService : IFsService
 {
     #region Constants
 
-    private const string WinpassEnvVariableName = "WINPASS_SETTINGS";
-    private const string StoreFolderName = ".password-store";
-    private const string GpgIdFileName = ".gpg-id";
+    private readonly string _storeFolderName;
+    private readonly string _migrationStoreFolderName;
+    public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
-    public const string GpgLockContent = "lock";
-
-    private readonly string _storeFolderPathTemplate =
-        $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{StoreFolderName}/";
 
     private readonly string _storeFolderPath;
+    private readonly string _migrationStoreFolderPath;
 
     #endregion
 
     #region Members
 
     private FileStream? _lockFileStream;
-    private Settings? _settings;
 
     #endregion
 
     #region Constructors
 
-    public FsService()
+    public FsService(string storeFolderName = ".winpass")
     {
-        _storeFolderPath = Environment.ExpandEnvironmentVariables(_storeFolderPathTemplate);
+        _storeFolderName = storeFolderName;
+        _migrationStoreFolderName = $"{_storeFolderName}-migration";
+
+        _storeFolderPath =
+            Environment.ExpandEnvironmentVariables(
+                $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_storeFolderName}/");
+        _migrationStoreFolderPath = Environment.ExpandEnvironmentVariables(
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_migrationStoreFolderName}/");
     }
 
     #endregion
 
     #region Public methods
 
-    public bool AcquireLock()
+    public EmptyResult ExportStore(string savePath)
     {
-        if (_lockFileStream is not null) return false;
+        if (!IsStoreInitialized()) return new EmptyResult(new FsStoreNotInitializedError());
 
-        var filePath = Path.Join(GetStorePath(), AppLockFileName);
-        if (!File.Exists(filePath))
-        {
-            var id = GetGpgId();
-            var gpg = new Gpg.Gpg(id);
-            if (string.IsNullOrEmpty(id)) return false;
+        var filePath = Path.Join(savePath, $"winpass-export-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.zip");
+        ZipFile.CreateFromDirectory(GetStoreLocation(), filePath, CompressionLevel.NoCompression, false);
 
-            var (_, error) = AppService.Instance.Encrypt(gpg, filePath, GpgLockContent);
-            if (error is not null) return false;
-
-            AppService.Instance.GitIgnore(filePath);
-        }
-
-        try
-        {
-            _lockFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-
-        return true;
+        return new EmptyResult();
     }
 
-    public void ReleaseLock()
+    public EmptyResult MigrateStore(string gpgId)
     {
-        if (_lockFileStream is null) return;
-        _lockFileStream.Close();
-        _lockFileStream = null;
-    }
+        if (!VerifyLock()) return new EmptyResult(new GpgDecryptError("Lock check failed"));
 
-    public ResultStruct<byte, Error?> DestroyStore()
-    {
-        var id = GetGpgId();
-        if (string.IsNullOrEmpty(id)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+        List<Tuple<string, string>> storeFilePaths = new();
+        EnumerateFilePaths(GetStoreLocation(), storeFilePaths);
 
-        var gpg = new Gpg.Gpg(id);
-        if (!VerifyLock(gpg)) return new ResultStruct<byte, Error?>(new GpgDecryptLockFileError());
+        if (Directory.Exists(_migrationStoreFolderPath)) Directory.Delete(_migrationStoreFolderPath, true);
+        Directory.CreateDirectory(_migrationStoreFolderPath);
 
-        AppService.Instance.ReleaseLock();
-        AppService.Instance.DeleteRepository(GetStorePath());
-        return new ResultStruct<byte, Error?>(0);
-    }
-
-    public ResultStruct<byte, Error?> SaveSettings(Settings settings)
-    {
-        var data = settings.ToString();
-        Environment.SetEnvironmentVariable(WinpassEnvVariableName, data, EnvironmentVariableTarget.User);
-        return new ResultStruct<byte, Error?>(0);
-
-        // var filePath = Path.Join(_storeFolderPath, ".settings");
-        // var value = settings.ToString();
-        //
-        // File.WriteAllText(filePath, value);
-        // return new ResultStruct<byte, Error?>(0);
-    }
-
-    public Result<Settings?, Error?> GetSettings()
-    {
-        if (_settings is not null) return new Result<Settings?, Error?>(_settings);
-
-        var data = Environment.GetEnvironmentVariable(WinpassEnvVariableName, EnvironmentVariableTarget.User);
-        if (string.IsNullOrEmpty(data)) return new Result<Settings?, Error?>(new Settings());
-
-        var settings = new Settings();
-        var parts = data.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        foreach (var part in parts)
+        foreach (var (_, filePath) in storeFilePaths)
         {
-            var values = part.Split("=", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (values.Length != 2) continue;
+            if (filePath.EndsWith(".m.gpg")) continue;
 
-            switch (values[0])
+            var metadataFilePath = filePath.Replace(".gpg", ".m.gpg");
+            var newMetadataFilePath = metadataFilePath.Replace(_storeFolderName, _migrationStoreFolderName);
+            var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(metadataFilePath);
+            if (errorDecryptMetadatas is not null)
             {
-                case nameof(Settings.ClearTimeout):
-                    if (!int.TryParse(values[1], out var clearTimeout)) continue;
-                    settings.ClearTimeout = clearTimeout;
-                    break;
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(errorDecryptMetadatas.Message));
+            }
 
-                case nameof(Settings.DefaultLength):
-                    if (!int.TryParse(values[1], out var defaultLength)) continue;
-                    settings.DefaultLength = defaultLength;
-                    break;
+            var encryptMetadatasResult = AppService.Instance.EncryptMetadatas(newMetadataFilePath, metadatas!, gpgId);
+            if (encryptMetadatasResult.HasError)
+            {
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(encryptMetadatasResult.Error!.Message));
+            }
 
-                case nameof(Settings.DefaultCustomAlphabet):
-                    settings.DefaultCustomAlphabet = values[1];
-                    break;
+            var newFilePath = filePath.Replace(_storeFolderName, _migrationStoreFolderName);
+            var (password, errorDecryptPassword) = AppService.Instance.DecryptPassword(filePath);
+            if (errorDecryptPassword is not null)
+            {
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(errorDecryptPassword.Message));
+            }
 
-                case nameof(Settings.Language):
-                    settings.Language = values[1];
-                    break;
+            var encryptPasswordResult = AppService.Instance.EncryptPassword(newFilePath, password!, gpgId);
+            if (encryptPasswordResult.HasError)
+            {
+                Directory.Delete(_migrationStoreFolderPath);
+                return new EmptyResult(new GpgDecryptError(encryptPasswordResult.Error!.Message));
             }
         }
 
-        _settings = settings;
+        var existingFiles = Directory.GetFiles(_storeFolderPath, "*.gpg", SearchOption.AllDirectories);
+        foreach (var existingFile in existingFiles)
+        {
+            File.Delete(existingFile);
+        }
 
-        return new Result<Settings?, Error?>(_settings);
+        foreach (var newFile in Directory.GetFiles(_migrationStoreFolderPath, "*.gpg", SearchOption.AllDirectories))
+        {
+            File.Move(newFile, newFile.Replace(_migrationStoreFolderName, _storeFolderName));
+        }
 
-        // var filePath = Path.Join(_storeFolderPath, ".settings");
-        // if (!File.Exists(filePath)) return new Result<Settings?, Error?>(new Settings());
-        //
-        // var data = File.ReadAllText(filePath);
-        //
-        // try
-        // {
-        //     var settings = JsonConvert.DeserializeObject<Settings>(data);
-        //     return new Result<Settings?, Error?>(settings);
-        // }
-        // catch (Exception e)
-        // {
-        //     Log.Error("Unable to parse settings: {Message}", e.Message);
-        // }
-        //
-        // return new Result<Settings?, Error?>(new Settings());
+        File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
+
+        if (Directory.Exists(_migrationStoreFolderPath)) Directory.Delete(_migrationStoreFolderPath, true);
+
+        var resultGitCommit = AppService.Instance.GitCommit($"Migrate store to new GPG keypair '{gpgId}'");
+        if (resultGitCommit.HasError)
+        {
+            return new EmptyResult(resultGitCommit.Error!);
+        }
+
+        return new EmptyResult();
     }
 
-    public string GetStorePath()
+    public EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "")
     {
-        return _storeFolderPath;
+        var (settings, error) = AppService.Instance.GetSettings();
+        if (error is not null) return new EmptyResult(error);
+
+        var newPassword = new Password(
+            PasswordHelper.Generate(
+                length <= 0 ? settings!.DefaultLength : length,
+                string.IsNullOrWhiteSpace(customAlphabet) ? settings!.DefaultCustomAlphabet : customAlphabet
+            )
+        );
+
+        var result = DoStoreEntryExists(name)
+            ? EditStoreEntryPassword(name, newPassword)
+            : AddStoreEntry(name, newPassword);
+        newPassword.Dispose();
+
+        return result;
     }
 
-    public ResultStruct<byte, Error?> InsertEntry(string name, Password password)
+    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
     {
-        var gpgKeyId = GetGpgId();
-        if (string.IsNullOrEmpty(gpgKeyId)) return new ResultStruct<byte, Error?>(new FsGpgIdKeyNotFoundError());
+        if (string.IsNullOrWhiteSpace(text))
+            return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
 
-        var gpg = new Gpg.Gpg(gpgKeyId);
+        List<Tuple<string, string>> items = new();
+        var storePath = GetStoreLocation();
 
-        if (DoEntryExists(name))
-            return new ResultStruct<byte, Error?>(new FsPasswordFileAlreadyExistsError());
+        EnumerateFilePaths(storePath, items);
 
-        var filePath = GetPath(name);
+        var (lstMetadatas, error) =
+            AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
+        if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
+
+        var loweredText = text.Trim().ToLower();
+        List<StoreEntry> entries = new();
+        LocalSearchEntries(storePath, string.Empty);
+
+        return new Result<List<StoreEntry>, Error?>(entries);
+
+        void LocalSearchEntries(string current, string currenPath)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var filePath in Directory.EnumerateFiles(current))
+            {
+                if (!filePath.EndsWith(".m.gpg")) continue;
+
+                var path = Path.GetFileName(filePath);
+                var currentEntryPath = string.IsNullOrEmpty(currenPath) ? path : $"{currenPath}/{path}";
+                var metadatas = lstMetadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
+
+                List<string> metadataFound = new();
+                if (metadatas is not null)
+                {
+                    foreach (var metadata in metadatas)
+                    {
+                        if (!metadata.Key.ToLower().Contains(loweredText) &&
+                            !metadata.Value.ToLower().Contains(loweredText)) continue;
+
+                        metadataFound.Add(metadata.ToString());
+                    }
+                }
+
+                var name = path.Split(".").First();
+                if (!name.ToLower().Contains(loweredText) && !metadataFound.Any()) continue;
+
+                entries.Add(
+                    new StoreEntry(
+                        name,
+                        false,
+                        metadataFound.Any(),
+                        metadataFound
+                    )
+                );
+            }
+
+            foreach (var dirPath in Directory.EnumerateDirectories(current))
+            {
+                if (dirPath.EndsWith(".git")) continue;
+
+                var name = Path.GetFileName(dirPath);
+                LocalSearchEntries(dirPath, $"{currenPath}/{name}");
+            }
+        }
+    }
+
+    public Result<List<StoreEntry>, Error?> RetrieveStoreEntries()
+    {
+        List<StoreEntry> results = new();
+        var storePath = GetStoreLocation();
+
+        LocalEnumerateEntries(storePath, results);
+
+        return new Result<List<StoreEntry>, Error?>(results);
+
+        void LocalEnumerateEntries(string current, ICollection<StoreEntry> entries)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var filePath in Directory.EnumerateFiles(current))
+            {
+                if (!filePath.EndsWith(".gpg") || filePath.EndsWith(".m.gpg")) continue;
+
+                entries.Add(
+                    new StoreEntry(
+                        Path.GetFileName(filePath)
+                            .Split(".", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                            .First()
+                    )
+                );
+            }
+
+            foreach (var dirPath in Directory.EnumerateDirectories(current))
+            {
+                if (dirPath.EndsWith(".git")) continue;
+
+                entries.Add(
+                    new StoreEntry(
+                        Path.GetFileName(dirPath),
+                        true
+                    )
+                );
+
+                LocalEnumerateEntries(dirPath, entries.Last().Entries);
+
+                if (entries.Last().Entries.Count == 0)
+                {
+                    entries.Remove(entries.Last());
+                }
+            }
+        }
+    }
+
+    public EmptyResult RemoveStoreEntry(string name)
+    {
+        if (!DoStoreEntryExists(name)) return new EmptyResult(new FsEntryNotFoundError());
+
+        if (!VerifyLock()) return new EmptyResult(new GpgDecryptError("Lock check failed"));
+
+        var filePath = GetEntryPath(name);
+        var metadatasFilePath = GetMetadataPath(name);
+        File.Delete(filePath);
+        File.Delete(metadatasFilePath);
+
+        var resultGitCommit = AppService.Instance.GitCommit($"Remove password '{name}'");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
+    }
+
+    public EmptyResult RenameStoreEntry(string name, string newName, bool duplicate = false)
+    {
+        if (!DoStoreEntryExists(name)) return new EmptyResult(new FsEntryNotFoundError());
+        if (DoStoreEntryExists(newName)) return new EmptyResult(new FsPasswordFileAlreadyExistsError());
+
+        var filePath = GetEntryPath(name);
+        var metadatasFilePath = GetMetadataPath(name);
+        var newFilePath = GetEntryPath(newName);
+        var newMetadatasFilePath = GetMetadataPath(newName);
+
+        if (duplicate)
+        {
+            File.Copy(filePath, newFilePath);
+            File.Copy(metadatasFilePath, newMetadatasFilePath);
+        }
+        else
+        {
+            File.Move(filePath, newFilePath);
+            File.Move(metadatasFilePath, newMetadatasFilePath);
+        }
+
+        var resultGitCommit =
+            AppService.Instance.GitCommit($"{(duplicate ? "Rename" : "Duplicate")} password '{name}' to '{newName}'");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
+    }
+
+    public Result<Password?, Error?> RetrieveStoreEntryPassword(string name)
+    {
+        if (!DoStoreEntryExists(name)) return new Result<Password?, Error?>(new FsEntryNotFoundError());
+
+        var filePath = GetEntryPath(name);
+
+        var (password, error) = AppService.Instance.DecryptPassword(filePath);
+        return error is not null
+            ? new Result<Password?, Error?>(error)
+            : new Result<Password?, Error?>(password);
+    }
+
+    public Result<MetadataCollection?, Error?> RetrieveStoreEntryMetadatas(string name)
+    {
+        if (!DoStoreEntryExists(name, true)) return new Result<MetadataCollection?, Error?>(new FsEntryNotFoundError());
+
+        var metadatasFilePath = GetMetadataPath(name);
+
+        var (metadatas, error) = AppService.Instance.DecryptMetadatas(metadatasFilePath);
+        return error is not null
+            ? new Result<MetadataCollection?, Error?>(error)
+            : new Result<MetadataCollection?, Error?>(metadatas);
+    }
+
+    public EmptyResult EditStoreEntryMetadatas(string name, MetadataCollection metadatas)
+    {
+        if (!DoStoreEntryExists(name, true)) return new EmptyResult(new FsEntryNotFoundError());
+
+        var result = UpdateModifedMetadata(name, metadatas);
+        if (result.HasError) return new EmptyResult(result.Error!);
+
+        var resultGitCommit = AppService.Instance.GitCommit($"Password metadata '{name}' updated");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
+    }
+
+    public EmptyResult EditStoreEntryPassword(string name, Password password)
+    {
+        if (!DoStoreEntryExists(name)) return new EmptyResult(new FsEntryNotFoundError());
+
+        var result = UpdateModifedMetadata(name);
+        if (result.HasError) return new EmptyResult(result.Error!);
+
+        var filePath = GetEntryPath(name);
+        var resultEncryptPassword = AppService.Instance.EncryptPassword(filePath, password);
+        if (resultEncryptPassword.HasError) return new EmptyResult(resultEncryptPassword.Error!);
+
+        var resultGitCommit = AppService.Instance.GitCommit($"Password '{name}' updated");
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
+    }
+
+    public EmptyResult AddStoreEntry(string name, Password password)
+    {
+        if (DoStoreEntryExists(name))
+            return new EmptyResult(new FsPasswordFileAlreadyExistsError());
+
+        var filePath = GetEntryPath(name);
         if (name.Contains('/') || name.Contains('\\'))
         {
             var dirName = Path.GetDirectoryName(filePath)!;
@@ -188,153 +369,151 @@ public class FsService : IService
             }
         }
 
-        var createdMetadata =
-            password.Metadata.FirstOrDefault(m => m is { Type: MetadataType.Internal, Key: "created" });
-        if (createdMetadata is null)
+        var metadatasFilePath = GetMetadataPath(name);
+        var resultEncryptMetadatas = AppService.Instance.EncryptMetadatas(metadatasFilePath, new MetadataCollection
         {
-            password.Metadata.Add(new Metadata("created", $"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss}",
-                MetadataType.Internal));
+            new("created", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
+            new("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
+        });
+        if (resultEncryptMetadatas.HasError) return new EmptyResult(resultEncryptMetadatas.Error!);
+
+        var resultEncryptPassword = AppService.Instance.EncryptPassword(filePath, password);
+        if (!resultEncryptPassword.HasError)
+        {
+            var resultGitCommit = AppService.Instance.GitCommit($"Insert password '{name}')");
+            return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
         }
 
-        var (_, errorEncrypt) = AppService.Instance.Encrypt(gpg, filePath, password.ToString());
-        if (!DoEntryExists(name))
-            return new ResultStruct<byte, Error?>(new GpgEncryptError("Resulting entry not found"));
-
-        return errorEncrypt is not null
-            ? new ResultStruct<byte, Error?>(errorEncrypt)
-            : new ResultStruct<byte, Error?>(0);
-    }
-
-    public ResultStruct<byte, Error?> EditEntry(string name, Password password)
-    {
-        if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
-
-        var filePath = GetPath(name);
-        if (password.ValueBytes is null || password.ValueBytes.Length == 0)
+        if (File.Exists(filePath))
         {
-            var (existingPassword, errorExistingPassword) = AppService.Instance.GetPassword(name);
-            if (errorExistingPassword is not null || existingPassword is null)
-                return new ResultStruct<byte, Error?>(new FsEditPasswordFailedError());
-
-            password.ValueBytes = existingPassword.ValueBytes;
-            existingPassword.Dispose();
-            existingPassword = null;
-            GC.Collect();
+            File.Delete(filePath);
         }
 
-        var filePathBak = $"{filePath}.bak";
-        if (File.Exists(filePathBak)) File.Delete(filePathBak);
-
-        File.Move(filePath, filePathBak);
-
-        var modifiedMetadata =
-            password.Metadata.FirstOrDefault(m => m is { Type: MetadataType.Internal, Key: "modified" });
-        if (modifiedMetadata is not null)
+        if (File.Exists(metadatasFilePath))
         {
-            modifiedMetadata.Value = $"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss}";
-        }
-        else
-        {
-            password.Metadata.Add(new Metadata("modified", $"{DateTime.Now:yyyy-MM-dd HH':'mm':'ss}",
-                MetadataType.Internal));
+            File.Delete(metadatasFilePath);
         }
 
-        var (_, errorInsertPassword) = AppService.Instance.InsertPassword(name, password, true);
-        password.Dispose();
-        password = null;
-        GC.Collect();
-        if (errorInsertPassword is not null)
+        return new EmptyResult(resultEncryptPassword.Error!);
+    }
+
+    public bool DoStoreEntryExists(string name, bool checkMetadatas = false)
+    {
+        return File.Exists(checkMetadatas ? GetMetadataPath(name) : GetEntryPath(name));
+    }
+
+    public EmptyResult DestroyStore()
+    {
+        if (!VerifyLock()) return new EmptyResult(new GpgDecryptLockFileError());
+
+        ReleaseLock();
+        AppService.Instance.GitDeleteRepository();
+        return new EmptyResult();
+    }
+
+    public void ReleaseLock()
+    {
+        if (_lockFileStream is null) return;
+        _lockFileStream.Close();
+        _lockFileStream = null;
+    }
+
+    public bool AcquireLock()
+    {
+        if (_lockFileStream is not null) return false;
+
+        var filePath = Path.Join(GetStoreLocation(), AppLockFileName);
+        if (!File.Exists(filePath))
         {
-            if (File.Exists(filePath)) File.Delete(filePath);
-            File.Move(filePathBak, filePath);
-            return new ResultStruct<byte, Error?>(errorInsertPassword);
+            var resultEncrypt = AppService.Instance.Encrypt(filePath, AppLockFileName);
+            if (resultEncrypt.HasError)
+            {
+                Log.Error("Unable to encrypt lock file: {Message}", resultEncrypt.Error!.Message);
+                return false;
+            }
+
+            var resultGitIgnore = AppService.Instance.GitIgnore(filePath);
+            if (resultGitIgnore.HasError)
+            {
+                Log.Error("Unable to git ignore lock file: {Message}", resultGitIgnore.Error!.Message);
+                return false;
+            }
         }
 
-        File.Delete(filePathBak);
-        return new ResultStruct<byte, Error?>(0);
-    }
-
-    public ResultStruct<byte, Error?> RenameEntry(string name, string newName, bool duplicate = false)
-    {
-        if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
-
-        var filePath = GetPath(name);
-        var newFilePath = GetPath(newName);
-
-        if (duplicate)
+        try
         {
-            File.Copy(filePath, newFilePath);
+            _lockFileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
         }
-        else
+        catch (Exception e)
         {
-            File.Move(filePath, newFilePath);
+            Log.Error("Unable to acquire lock: {Message}", e.Message);
+            return false;
         }
 
-        return new ResultStruct<byte, Error?>(0);
+        return true;
     }
 
-    public ResultStruct<byte, Error?> DeleteEntry(string name)
+    public string GetStoreLocation()
     {
-        if (!DoEntryExists(name)) return new ResultStruct<byte, Error?>(new FsEntryNotFoundError());
-
-        var filePath = GetPath(name);
-        File.Delete(filePath);
-        return new ResultStruct<byte, Error?>(0);
+        if (!Directory.Exists(_storeFolderPath)) Directory.CreateDirectory(_storeFolderPath);
+        return _storeFolderPath;
     }
 
-    public List<StoreEntry> SearchFiles(string term)
+    public virtual Result<string, Error?> GetStoreId()
     {
-        List<StoreEntry> entries = new();
-        EnumerateGpgFiles(_storeFolderPath, entries, term);
-        return entries;
+        var path = Path.Join(GetStoreLocation(), GpgIdFileName);
+        return !File.Exists(path)
+            ? new Result<string, Error?>(new FsGpgIdKeyNotFoundError())
+            : new Result<string, Error?>(File.ReadAllText(path));
     }
 
-    public bool DoEntryExists(string name)
+    public EmptyResult InitializeStoreFolder(string gpgId, string gitUrl)
     {
-        var filePath = GetPath(name);
-        return File.Exists(filePath);
-    }
+        if (IsStoreInitialized()) return new EmptyResult(new FsStoreAlreadyInitializedError());
 
-    public string GetGpgId()
-    {
-        var filePath = Path.Join(_storeFolderPath, GpgIdFileName);
-        return !File.Exists(filePath) ? string.Empty : File.ReadAllText(filePath).Trim();
-    }
+        if (!AppService.Instance.GitClone(gitUrl))
+        {
+            return new EmptyResult(new GitCloneFailedError());
+        }
 
-    public string GetPath(string name)
-    {
-        return Path.Join(_storeFolderPath, $"{name}.gpg");
-    }
+        var createStoreResult = CreateStoreFolder(gpgId);
+        if (createStoreResult.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(createStoreResult.Error!);
+        }
 
-    public Result<List<StoreEntry>?, Error?> ListStoreEntries()
-    {
-        if (!IsStoreInitialized())
-            return new Result<List<StoreEntry>?, Error?>(new FsStoreNotInitializedError());
+        var (isValid, error) = AppService.Instance.IsGpgIdValid(gpgId);
 
-        List<StoreEntry> entries = new();
-        EnumerateGpgFiles(_storeFolderPath, entries);
-        return new Result<List<StoreEntry>?, Error?>(entries);
-    }
+        if (error is not null)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(error);
+        }
 
-    public ResultStruct<byte, Error?> InitializeStoreFolder(string gpgKey)
-    {
-        if (IsStoreInitialized()) return new ResultStruct<byte, Error?>(new FsStoreAlreadyInitializedError());
-        var gpg = new Gpg.Gpg(gpgKey);
+        if (!isValid)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(new GpgInvalidKeyError());
+        }
 
-        var result = CreateStoreFolder();
-        if (result.Item2 is not null) return result;
+        File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
 
-        var (ok, error) = AppService.Instance.IsKeyValid(gpg);
+        var gitCommitResult = AppService.Instance.GitCommit("Add '.gpg-id' file");
+        if (gitCommitResult.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(gitCommitResult.Error!);
+        }
 
-        if (error is not null) return new ResultStruct<byte, Error?>(error);
-        if (!ok) return new ResultStruct<byte, Error?>(new GpgInvalidKeyError());
+        var resultGitIgnore = CreateGitIgnore();
+        if (resultGitIgnore.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(resultGitIgnore.Error!);
+        }
 
-        File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgKey);
-        return new ResultStruct<byte, Error?>(0);
-    }
-
-    public void Initialize()
-    {
+        return new EmptyResult();
     }
 
     public bool IsStoreInitialized()
@@ -345,11 +524,122 @@ public class FsService : IService
         return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
     }
 
+    public void Initialize()
+    {
+    }
+
     #endregion
 
     #region Private methods
 
-    private bool VerifyLock(Gpg.Gpg gpg)
+    private void EnumerateFilePaths(string current, List<Tuple<string, string>> filePaths)
+    {
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        foreach (var filePath in Directory.EnumerateFiles(current))
+        {
+            if (!filePath.EndsWith(".gpg")) continue;
+
+            filePaths.Add(
+                Tuple.Create(
+                    filePath.Replace(GetStoreLocation(), string.Empty),
+                    filePath
+                )
+            );
+        }
+
+        foreach (var dirPath in Directory.EnumerateDirectories(current))
+        {
+            if (dirPath.EndsWith(".git")) continue;
+
+            EnumerateFilePaths(dirPath, filePaths);
+        }
+    }
+
+    private EmptyResult CreateGitIgnore()
+    {
+        var path = Path.Join(GetStoreLocation(), ".gitignore");
+        if (File.Exists(path))
+        {
+            var data = File.ReadAllLines(path).ToList();
+            if (data.Any(t => t == AppLockFileName)) return new EmptyResult();
+
+            data.Add(AppLockFileName);
+            File.WriteAllText(path, string.Join("\n", data));
+        }
+        else
+        {
+            File.WriteAllText(path, AppLockFileName);
+        }
+
+        var gitCommitResult = AppService.Instance.GitCommit("Add lock file to'.gitignore' file");
+        if (gitCommitResult.HasError)
+        {
+            AppService.Instance.GitDeleteRepository();
+            return new EmptyResult(gitCommitResult.Error!);
+        }
+
+        return new EmptyResult();
+    }
+
+    private EmptyResult CreateStoreFolder(string gpgId)
+    {
+        if (Directory.Exists(_storeFolderPath))
+        {
+            var files = Directory.EnumerateFileSystemEntries(_storeFolderPath).ToList();
+            if (files.Contains(GpgIdFileName)) return new EmptyResult(new FsStoreFolderAlreadyExistsError());
+            if (files.Contains(AppLockFileName)) return new EmptyResult();
+
+            return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName, gpgId);
+        }
+
+        Directory.CreateDirectory(_storeFolderPath);
+        return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName);
+    }
+
+    private string GetEntryPath(string name)
+    {
+        return Path.Join(GetStoreLocation(), $"{name}.gpg");
+    }
+
+    private EmptyResult UpdateModifedMetadata(string name, MetadataCollection? metadataCollection = null)
+    {
+        MetadataCollection metadatas;
+        if (metadataCollection is null)
+        {
+            var (m, error) = RetrieveStoreEntryMetadatas(name);
+            if (error is not null) return new EmptyResult(error);
+
+            metadatas = m;
+        }
+        else
+        {
+            metadatas = metadataCollection;
+        }
+
+        var index = metadatas!.FindIndex(m => m.Key == "modified");
+
+        if (index != -1)
+        {
+            metadatas[index].Value = DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss");
+        }
+        else
+        {
+            metadatas.Add(new Metadata("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"),
+                MetadataType.Internal));
+        }
+
+        var metadatasFilePath = GetMetadataPath(name);
+        var resultEncryptMetadatas = AppService.Instance.EncryptMetadatas(metadatasFilePath, metadatas);
+        return resultEncryptMetadatas.HasError ? new EmptyResult(resultEncryptMetadatas.Error!) : new EmptyResult();
+    }
+
+    private string GetMetadataPath(string name)
+    {
+        var path = GetEntryPath(name);
+        return path.Insert(path.LastIndexOf(".gpg", StringComparison.OrdinalIgnoreCase), ".m");
+    }
+
+    private bool VerifyLock()
     {
         if (_lockFileStream is null) return false;
 
@@ -362,79 +652,10 @@ public class FsService : IService
         var tmpFile = Path.GetTempFileName();
         File.WriteAllBytes(tmpFile, ms.ToArray());
 
-        var (_, error) = AppService.Instance.DecryptLock(gpg, tmpFile);
+        var (content, error) = AppService.Instance.Decrypt(tmpFile);
         File.Delete(tmpFile);
 
-        return error is null;
-    }
-
-    private void EnumerateGpgFiles(string path, List<StoreEntry> entries, string searchText = "")
-    {
-        foreach (var filePath in Directory.EnumerateFiles(path))
-        {
-            if (!filePath.EndsWith(".gpg")) continue;
-
-            var doSearch = !string.IsNullOrEmpty(searchText);
-            var fileName = Path.GetFileName(filePath).Split(".gpg").First();
-
-            List<string> metadata = new();
-            if (doSearch)
-            {
-                var name = Path.Join(path, fileName)[_storeFolderPath.Length..];
-                var (password, error) = AppService.Instance.GetPassword(name);
-                if (error is null && password is not null)
-                {
-                    foreach (var passwordMetadata in password.Metadata)
-                    {
-                        if (!passwordMetadata.Key.Contains(searchText) && !passwordMetadata.Value.Contains(searchText))
-                            continue;
-
-                        metadata.Add(passwordMetadata.ToString());
-                    }
-                }
-            }
-
-            if (doSearch && !fileName.Contains(searchText) && !metadata.Any()) continue;
-
-            entries.Add(
-                new StoreEntry(
-                    fileName,
-                    highlight: doSearch && (fileName.Contains(searchText) || metadata.Any()),
-                    metadata: metadata
-                )
-            );
-        }
-
-        foreach (var dir in Directory.EnumerateDirectories(path))
-        {
-            if (dir.StartsWith(".git")) continue;
-            var dirName = Path.GetFileName(dir);
-
-            entries.Add(
-                new StoreEntry(dirName, true, !string.IsNullOrEmpty(searchText) && dirName.Contains(searchText)));
-
-            var lastEntry = entries.Last();
-            EnumerateGpgFiles(dir, lastEntry.Entries, searchText);
-
-            if (!lastEntry.Entries.Any() && !lastEntry.Highlight)
-            {
-                entries.RemoveAt(entries.Count - 1);
-            }
-        }
-    }
-
-    private ResultStruct<byte, Error?> CreateStoreFolder()
-    {
-        if (Directory.Exists(_storeFolderPath))
-        {
-            var files = Directory.EnumerateFileSystemEntries(_storeFolderPath).ToList();
-            return files.Contains(GpgIdFileName)
-                ? new ResultStruct<byte, Error?>(new FsStoreFolderAlreadyExistsError())
-                : new ResultStruct<byte, Error?>(0);
-        }
-
-        Directory.CreateDirectory(_storeFolderPath);
-        return new ResultStruct<byte, Error?>(0);
+        return error is null && content.FromBase64() == AppLockFileName;
     }
 
     #endregion

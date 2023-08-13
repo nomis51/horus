@@ -1,61 +1,128 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using TextCopy;
+using WinPass.Core;
+using WinPass.Core.Services;
+using WinPass.Shared.Models.Data;
 using WinPass.Shared.Models.Errors.Fs;
+using WinPass.Tests.Mocks;
 
 namespace WinPass.Tests.Tests;
 
-public class ShowTests : Test
+public class ShowTests
 {
-    #region Members
-
-    private readonly Cli _sut;
-    private const string GpgId = "F76E20A0A9DF6C1F236D1DC5F8DFEDDF0640812A";
-    private readonly string _storePath;
-    private readonly string _gpgIdFilePath;
-
-    #endregion
-
     #region Constructors
 
-    public ShowTests(StringBuilder stdout):base(stdout)
+    public ShowTests()
     {
-        _sut = new Cli();
-        _storePath = Environment.ExpandEnvironmentVariables("%USERPROFILE%/.password-store");
-        _gpgIdFilePath = Path.Join(_storePath, ".gpg-id");
+        AppService.Instance.Initialize(new AppServiceDependenciesProvider(
+            new FsService(TestHelper.TestAppFolder),
+            new DisabledGitService(),
+            new GpgService(),
+            new SettingsService()
+        ));
     }
 
     #endregion
 
     #region Tests
 
-    public void ShouldErrorWithPasswordNameRequired()
+    [Fact]
+    public void ShowMetadatas_ShouldDisplayNothingDoesntExists()
     {
         // Arrange
-        Stdout.Clear();
-        if (Directory.Exists(_storePath)) Directory.Delete(_storePath, true);
-        Directory.CreateDirectory(_storePath);
-        File.WriteAllText(_gpgIdFilePath, GpgId);
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
 
         // Act
-        _sut.Run(new[] { "show" });
+        var (result, error) = AppService.Instance.GetMetadatas("random");
 
         // Assert
-       Debug.Assert(Stdout.ToString().Contains("password name argument required"));
+        TestHelper.Done();
+        Assert.NotNull(error);
+        Assert.IsType<FsEntryNotFoundError>(error);
+        Assert.Null(result);
     }
-    
-    public void ShouldErrorWithEntryNotFound()
+
+    [Fact]
+    public void ShowPassword_ShouldDisplayNothingDoesntExists()
     {
         // Arrange
-        Stdout.Clear();
-        if (Directory.Exists(_storePath)) Directory.Delete(_storePath, true);
-        Directory.CreateDirectory(_storePath);
-        File.WriteAllText(_gpgIdFilePath, GpgId);
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
 
         // Act
-        _sut.Run(new[] { "show", "notfound" });
+        var (result, error) = AppService.Instance.GetPassword("random");
 
         // Assert
-        Debug.Assert(Stdout.ToString().Contains(new FsEntryNotFoundError().Message));
+        TestHelper.Done();
+        Assert.NotNull(error);
+        Assert.IsType<FsEntryNotFoundError>(error);
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void ShowMetadatas_ShouldDisplayMetadatas()
+    {
+        // Arrange
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
+        MetadataCollection metadatas = new()
+        {
+            new Metadata("username", "user123")
+        };
+        var e = AppService.Instance.EncryptMetadatas(Path.Join(TestHelper.GetStorePath(), "test.m.gpg"), metadatas,
+            TestHelper.TestGpgId);
+        Assert.False(e.HasError);
+
+        // Act
+        var (result, error) = AppService.Instance.GetMetadatas("test");
+
+        // Assert
+        TestHelper.Done();
+        Assert.Null(error);
+        Assert.Equivalent(metadatas, result);
+    }
+
+    [Fact]
+    public void ShowPassword_ShouldDisplayThePassword()
+    {
+        // Arrange
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
+        Password password = new("supersecret");
+        var e = AppService.Instance.EncryptPassword(Path.Join(TestHelper.GetStorePath(), "test.gpg"), password,
+            TestHelper.TestGpgId);
+        Assert.False(e.HasError);
+
+        // Act
+        var (result, error) = AppService.Instance.GetPassword("test", false);
+
+        // Assert
+        TestHelper.Done();
+        Assert.Null(error);
+        Assert.Equivalent(password, result);
+    }
+
+    [Fact]
+    public void ShowPassword_ShouldDisplayNothingButCopyToClipboard()
+    {
+        // Arrange
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
+        Password password = new("supersecret");
+        var e = AppService.Instance.EncryptPassword(Path.Join(TestHelper.GetStorePath(), "test.gpg"), password,
+            TestHelper.TestGpgId);
+        Assert.False(e.HasError);
+
+        // Act
+        var (result, error) = AppService.Instance.GetPassword("test", true, 2);
+
+        // Assert
+        TestHelper.Done();
+        Assert.Null(error);
+        Assert.Null(result!.Value);
+        Assert.Equivalent(password.ValueAsString, ClipboardService.GetText());
+        Thread.Sleep(4000);
+        Assert.Equal(string.Empty, ClipboardService.GetText());
     }
 
     #endregion

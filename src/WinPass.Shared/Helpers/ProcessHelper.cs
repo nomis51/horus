@@ -9,10 +9,7 @@ public static class ProcessHelper
 
     public static void Fork(string[] args, string workingDirectory = "")
     {
-        var asm = Assembly.GetEntryAssembly();
-        if (asm is null) return;
-        
-        _ = Exec(asm.Location.Replace(".dll", ".exe"), args, workingDirectory, false);
+        _ = Exec(nameof(WinPass) + ".exe", args, workingDirectory, false);
     }
 
     public static Tuple<bool, string, string> Exec(string program, string[] args, string workingDirectory = "",

@@ -1,26 +1,25 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Management.Automation;
+using System.Runtime.InteropServices;
 using Serilog;
-using WinPass.Shared.Abstractions;
-using WinPass.Shared.Helpers;
+using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Errors.Git;
 
 namespace WinPass.Core.Services;
 
-public class GitService : IService
+public class GitService : IGitService
 {
     #region Constants
 
-    private const string Git = "git";
+    private const string GitProcessName = "git";
 
     #endregion
 
     #region Public methods
 
-    public Result<string, Error?> GetRemoteRepositoryName(string path)
+    public Result<string, Error?> GetRemoteRepositoryName()
     {
-        var gitFolder = Path.Join(path, ".git");
+        var gitFolder = Path.Join(AppService.Instance.GetStoreLocation(), ".git");
         if (!Directory.Exists(gitFolder)) return new Result<string, Error?>(new GitNotARepositoryError());
 
         var configFilePath = Path.Join(gitFolder, "config");
@@ -42,44 +41,49 @@ public class GitService : IService
             : new Result<string, Error?>(url[(index + 1)..endIndex]);
     }
 
-    public ResultStruct<byte, Error?> Push(string path)
+    public EmptyResult Push()
     {
-        var (ok, _, error) = ProcessHelper.Exec(Git, new[] { "push" }, workingDirectory: path);
-        return !ok ? new ResultStruct<byte, Error?>(new GitPushFailedError(error)) : new ResultStruct<byte, Error?>(0);
-    }
-
-    public ResultStruct<bool, Error?> IsAheadOfRemote(string path)
-    {
-        var (okFetch, _, errorFetch) = ProcessHelper.Exec(Git, new[] { "fetch" }, workingDirectory: path);
-        if (!okFetch) return new ResultStruct<bool, Error?>(new GitFetchFailedError(errorFetch));
-
-        var (okStatus, resultStatus, errorStatus) = ProcessHelper.Exec(Git, new[] { "status" }, workingDirectory: path);
-        return !okStatus
-            ? new ResultStruct<bool, Error?>(new GitStatusFailedError(errorStatus))
-            : new ResultStruct<bool, Error?>(resultStatus.Contains("Your branch is ahead of 'origin/master'"));
-    }
-
-    public void Ignore(string filePath, string path)
-    {
-        var gitignoreFilePath = Path.Join(path, ".gitignore");
-        var ignorePath = filePath.Replace(path, string.Empty);
-        if (!File.Exists(gitignoreFilePath))
+        try
         {
-            File.WriteAllText(gitignoreFilePath, ignorePath);
-            var (_, error) = Commit("Add .gitignore", path);
+            GetPowerShellInstance()
+                .AddArgument("push")
+                .Invoke<string>();
+            return new EmptyResult();
         }
-        else
+        catch (Exception e)
         {
-            var data = File.ReadAllText(gitignoreFilePath);
-            data += $"{Environment.NewLine}{ignorePath}";
-            File.WriteAllText(gitignoreFilePath, data);
-            var (_, error) = Commit("Add .gitignore", path);
+            Log.Error("Error while performing git push: {Message}", e.Message);
+            return new EmptyResult(new GitPushFailedError(e.Message));
         }
     }
 
-    public void DeleteRepository(string path)
+    public ResultStruct<bool, Error?> IsAheadOfRemote()
     {
-        var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
+        try
+        {
+            var lines = GetPowerShellInstance()
+                .AddArgument("fetch")
+                .AddStatement()
+                .AddCommand(GitProcessName)
+                .AddArgument("status")
+                .Invoke<string>();
+            return new ResultStruct<bool, Error?>(
+                lines.FirstOrDefault()?.Contains("Your branch is ahead of 'origin/master'") ?? true);
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git fetch or git status: {Message}", e.Message);
+            return new ResultStruct<bool, Error?>(new GitFetchFailedError(e.Message));
+        }
+    }
+
+    public void DeleteRepository()
+    {
+        var path = AppService.Instance.GetStoreLocation();
+        if (!Directory.Exists(path)) return;
+
+        var directory = new DirectoryInfo(path)
+            { Attributes = FileAttributes.Normal };
 
         foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
         {
@@ -93,8 +97,10 @@ public class GitService : IService
     {
         try
         {
-            var (ok, result, error) = ProcessHelper.Exec(Git, new[] { "--version" });
-            return ok && result.StartsWith("git version") && string.IsNullOrEmpty(error);
+            var lines = GetPowerShellInstance()
+                .AddArgument("--version")
+                .Invoke<string>();
+            return lines.FirstOrDefault()?.StartsWith("git version") ?? false;
         }
         catch (Exception e)
         {
@@ -103,7 +109,7 @@ public class GitService : IService
         }
     }
 
-    public bool Clone(string url, string path)
+    public bool Clone(string url)
     {
         var tmpPath = string.Empty;
 
@@ -122,24 +128,42 @@ public class GitService : IService
             tmpPath = Path.GetTempPath();
         }
 
-        var dirName = Path.GetFileName(url).Split(".git").FirstOrDefault() ?? string.Empty;
+        var dirName = Guid.NewGuid().ToString();
         if (string.IsNullOrEmpty(dirName)) return false;
 
         var dirPath = Path.Join(tmpPath, dirName);
         if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
 
-        var (okClone, _, errorClone) = ProcessHelper.Exec(Git, new[] { "clone", url }, tmpPath);
-        if (!okClone || !errorClone.StartsWith("Cloning into"))
+        try
         {
-            if (Directory.Exists(dirName)) Directory.Delete(dirName, true);
+            var pwsh = GetPowerShellInstance()
+                .AddArgument("clone")
+                .AddArgument(url)
+                .AddArgument($"{dirPath}");
+            pwsh.Invoke<string>();
+            // For some reason, git clone output to stderr even thought there is no error
+            var lines = pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message);
+
+            if (!lines.FirstOrDefault()?.Contains("Cloning into") ?? true)
+            {
+                if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Unable to verify git installation: {Message}", e.Message);
+            if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
         }
 
         if (!Directory.Exists(dirPath)) return false;
 
-        Directory.Move(dirPath, path);
-        if (!Directory.Exists(Path.Join(path, ".git"))) return false;
+        var storeLocation = AppService.Instance.GetStoreLocation();
+        if (Directory.Exists(storeLocation)) DeleteRepository();
 
-        var gpgIdFilePath = Path.Join(path, ".gpg-id");
+        Directory.Move(dirPath, storeLocation);
+        if (!Directory.Exists(Path.Join(storeLocation, ".git"))) return false;
+
+        var gpgIdFilePath = Path.Join(storeLocation, FsService.GpgIdFileName);
         if (File.Exists(gpgIdFilePath)) File.Delete(gpgIdFilePath);
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && Directory.Exists(tmpPath)) Directory.Delete(tmpPath);
@@ -147,28 +171,104 @@ public class GitService : IService
         return true;
     }
 
-    public Tuple<string, string> Execute(string[] args)
+    public string Execute(string[] args)
     {
-        var (_, result, error) = ProcessHelper.Exec(Git, args, AppService.Instance.GetStorePath());
-        return Tuple.Create(result, error);
+        var pwsh = GetPowerShellInstance();
+        foreach (var arg in args)
+        {
+            pwsh.AddArgument(arg);
+        }
+
+        var output = string.Empty;
+        try
+        {
+            output = string.Join("\n", pwsh.Invoke<string>());
+            if (pwsh.HadErrors)
+            {
+                output += $"\n\n{string.Join("\n", pwsh.Streams.Error.ReadAll())}";
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing user git command: {Message}", e.Message);
+        }
+
+        return output;
     }
 
-    public ResultStruct<byte, Error?> Commit(string message, string path)
+    public EmptyResult Commit(string message)
     {
-        var (okAdd, _, errorAdd) = ProcessHelper.Exec(Git, new[] { "add", "--all", "--", ":!.lock" }, path);
-        if (!okAdd && !string.IsNullOrEmpty(errorAdd) &&
-            !errorAdd.StartsWith("The following paths are ignored by one of your .gitignore files:"))
-            return new ResultStruct<byte, Error?>(new GitAddFailedError());
+        try
+        {
+            var pwsh = GetPowerShellInstance()
+                .AddArgument("add")
+                .AddArgument("--all")
+                .AddArgument("--")
+                .AddArgument(":!.lock");
+            var lines = pwsh.Invoke<string>().ToList();
+            lines.AddRange(pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git add: {Message}", e.Message);
+            return new EmptyResult(new GitAddFailedError());
+        }
 
-        var (okCommit, _, errorCommit) = ProcessHelper.Exec(Git, new[] { "commit", "-m", $"\"{message}\"" }, path);
-        if (!okCommit && !string.IsNullOrEmpty(errorCommit))
-            return new ResultStruct<byte, Error?>(new GitCommitFailedError());
+        try
+        {
+            var pwsh = GetPowerShellInstance()
+                .AddArgument("commit")
+                .AddArgument("-m")
+                .AddArgument($"\"{message}\"");
+            pwsh.Invoke<string>();
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git commit: {Message}", e.Message);
+            return new EmptyResult(new GitCommitFailedError());
+        }
 
-        return new ResultStruct<byte, Error?>(0);
+        return new EmptyResult();
+    }
+
+    public EmptyResult Ignore(string filePath)
+    {
+        var storeLocation = AppService.Instance.GetStoreLocation();
+        var gitignoreFilePath = Path.Join(storeLocation, ".gitignore");
+        var ignorePath = filePath.Replace(storeLocation, string.Empty);
+
+        if (!File.Exists(gitignoreFilePath))
+        {
+            File.WriteAllText(gitignoreFilePath, ignorePath);
+            var error = Commit("Add .gitignore");
+            if (error.HasError) return new EmptyResult(error.Error!);
+        }
+        else
+        {
+            var data = File.ReadAllText(gitignoreFilePath);
+            data += $"{Environment.NewLine}{ignorePath}";
+            File.WriteAllText(gitignoreFilePath, data);
+            var error = Commit("Add .gitignore");
+            if (error.HasError) return new EmptyResult(error.Error!);
+        }
+
+        return new EmptyResult();
     }
 
     public void Initialize()
     {
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private PowerShell GetPowerShellInstance()
+    {
+        var pwsh = PowerShell.Create();
+        pwsh.Runspace.SessionStateProxy.Path.SetLocation(AppService.Instance.GetStoreLocation());
+        pwsh.AddCommand(GitProcessName);
+        return pwsh;
     }
 
     #endregion

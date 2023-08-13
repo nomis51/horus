@@ -66,7 +66,7 @@ public static class Locale
                 { "help.description.version", "Show the version" },
                 { "cli.args.passwordNameRequired", "Password name argument required" },
                 { "questions.whatToEditOn", "What do you want to edit on" },
-                { "saveAndQuit", "Save and quit" },
+                { "quit", "Quit" },
                 { "thePassword", "The password" },
                 { "theMetadata", "The metadata" },
                 { "changesSaved", "Changes saved" },
@@ -140,7 +140,15 @@ public static class Locale
                 { "questions.enterNewPassword", "Enter the new password: " },
                 { "questions.confirmNewPassword", "Confirm the new password: " },
                 { "error.passwordCantEmpty", "Password can't be empty" },
-                { "error.passwordDontMatch", "Passwords don't match" }
+                { "error.passwordDontMatch", "Passwords don't match" },
+                { "error.passwordDoesntExists", "Password does not exist" },
+                {
+                    "questions.confirmMigrateStore",
+                    "Are you sure you wan to migrate the store to use the new GPG keypair?"
+                },
+                { "storeMigrated", "Stored migrated successfully!" },
+                { "exportDone", "Store exported to {0} successfully!" },
+                { "questions.exportPath", "Enter the path to save the exported store: " }
             }
         },
 
@@ -202,7 +210,7 @@ public static class Locale
                 { "help.description.version", "Afficher la version" },
                 { "cli.args.passwordNameRequired", "Le nom du mot de passe est requis en argument" },
                 { "questions.whatToEditOn", "Que voulez-vous modifier sur" },
-                { "saveAndQuit", "Sauvegarder et quitter" },
+                { "quit", "Quitter" },
                 { "thePassword", "Le mot de passe" },
                 { "theMetadata", "Les métadonnées" },
                 { "changesSaved", "Changements sauvegardés" },
@@ -281,7 +289,10 @@ public static class Locale
                     "questions.syncChangesBeforeDelete",
                     "Voulez-vous sauvegarder les changements sur le dépôt distant avant de supprimer le magasin de mot de passe? (o/n)"
                 },
-                { "newVersionAvailable", "[green]La nouvelle version {0} est maintenant disponible! Naviguer sur {1} pour télécharger la mise à jour[/]" },
+                {
+                    "newVersionAvailable",
+                    "[green]La nouvelle version {0} est maintenant disponible! Naviguer sur {1} pour télécharger la mise à jour[/]"
+                },
                 { "error.osNotSupported", "[yellow]WinPass ne supporte que Windows et Linux[/]" },
                 { "error.occured", "[red]Une erreur est survenue. Veuillez vérifier les logs situé ici {0}[/]" },
                 { "questions.generateNewPassword", "Générer une nouveau mot de passe" },
@@ -290,7 +301,15 @@ public static class Locale
                 { "questions.enterNewPassword", "Entrer le nouveau mot de passe: " },
                 { "questions.confirmNewPassword", "Confirmer le nouveau mot de passe: " },
                 { "error.passwordCantEmpty", "Le mot de passe ne peut pas être vide" },
-                { "error.passwordDontMatch", "Les mots de passe de correspondent pas" }
+                { "error.passwordDontMatch", "Les mots de passe de correspondent pas" },
+                { "error.passwordDoesntExists", "Le mot de passe n'existe pas" },
+                {
+                    "questions.confirmMigrateStore",
+                    "Êtes-vous sûr de vouloir migrer le magasin de mots de passe vers la nouvelle pair de clés GPG?"
+                },
+                { "storeMigrated", "Magasin de mots de passe migré avec succès!" },
+                { "exportDone", "Magasin de mots de passe exporté vers {0} avec succès!" },
+                { "questions.exportPath", "Entrer le chemin où enregistrer l'exportation du magasin de mot de passe: " }
             }
         },
         {
@@ -354,7 +373,7 @@ public static class Locale
                 { "help.description.version", "Version anzeigen" },
                 { "cli.args.passwordNameRequired", "Argument für den passwortnamen erforderlich" },
                 { "questions.whatToEditOn", "Was möchten sie bearbeiten" },
-                { "saveAndQuit", "Speichern und beenden" },
+                { "quit", "Beenden" },
                 { "thePassword", "Das passwort" },
                 { "theMetadata", "Die metadaten" },
                 { "changesSaved", "Änderungen gespeichert" },
@@ -427,16 +446,30 @@ public static class Locale
                     "questions.syncChangesBeforeDelete",
                     "Möchten sie diese änderungen vor dem löschen des shops übernehmen? (j/n)"
                 },
-                { "newVersionAvailable", "[green]Neue version {0} verfügbar! Gehen sie zu {1}, um das update herunterzuladen[/]" },
+                {
+                    "newVersionAvailable",
+                    "[green]Neue version {0} verfügbar! Gehen sie zu {1}, um das update herunterzuladen[/]"
+                },
                 { "error.osNotSupported", "[yellow]WinPass unterstützt nur Windows und Linux[/]" },
-                { "error.occured", "[red]Es ist ein fehler aufgetreten. Bitte sehen sie sich die protokolle unter {0} an.[/]" },
+                {
+                    "error.occured",
+                    "[red]Es ist ein fehler aufgetreten. Bitte sehen sie sich die protokolle unter {0} an.[/]"
+                },
                 { "questions.generateNewPassword", "Generieren sie ein neues passwort" },
                 { "questions.enterPasswordManually", "Geben sie ein neues kennwort ein" },
                 { "questions.whatToDo", "Was möchten sie tun?" },
                 { "questions.enterNewPassword", "Geben sie das neue passwort ein: " },
                 { "questions.confirmNewPassword", "Bestätigen sie das neue passwort: " },
                 { "error.passwordCantEmpty", "Das passwort darf nicht leer sein" },
-                { "error.passwordDontMatch", "Passwörter stimmen nicht überein" }
+                { "error.passwordDontMatch", "Passwörter stimmen nicht überein" },
+                { "error.passwordDoesntExists", "Das passwort existiert nicht" },
+                {
+                    "questions.confirmMigrateStore",
+                    "Sind sie sicher, dass sie den store migrieren möchten, um das neue GPG-Schlüsselpaar zu verwenden?"
+                },
+                { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" },
+                { "exportDone", "Export completed" },
+                { "questions.exportPath", "Geben sie den pfad zum speichern des exportierten passwortspeichers ein: " }
             }
         },
     };
