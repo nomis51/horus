@@ -399,3 +399,4 @@ FodyWeavers.xsd
 src/.idea
 build
 new-src/.idea
+release
