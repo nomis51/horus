@@ -8,6 +8,7 @@
     <Authors>nomis51</Authors>
     <AssemblyVersion>2.0.0</AssemblyVersion>
     <FileVersion>2.0.0</FileVersion>
+    <PackageVersion>2.0.0</PackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
