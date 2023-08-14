@@ -21,7 +21,7 @@ public static class Locale
                 { "settings.language", "Language of the application" },
                 { "settings.passphrasCacheTimeout", "Passphrase cache timeout" },
                 { "questions.language", "Language" },
-                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)"},
+                { "questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)" },
                 { "save", "Save" },
                 { "cancel", "Cancel" },
                 { "questions.whatToEdit", "What do you want to edit" },
@@ -151,8 +151,12 @@ public static class Locale
                 { "storeMigrated", "Stored migrated successfully!" },
                 { "exportDone", "Store exported to {0} successfully!" },
                 { "questions.exportPath", "Enter the path to save the exported store: " },
-                {"searching", "Searching"},
-                {"mayTakeTime", "May take some time"},
+                { "searching", "Searching" },
+                { "mayTakeTime", "May take some time" },
+                {
+                    "settings.passphraseCacheMessage",
+                    "This setting will alter the default behavior of GPG of putting the passphrase in cache for 10 minutes. You can disable this behavior completely by entering 0 (zero). [yellow]Be aware, if you disable this feature, GPG will ask for your passphrase [bold]every time[/] it needs to decrypt something.[/] [yellow]Meaning, when performing a search using the command '(search|find) -m [text]', you'll be asked to enter your passphrase for [bold]every entry[/] currently in your store. [/]It is suggested to not disable this feature and set a value [blue]60[/] seconds or less for safe and convenient usage."
+                }
             }
         },
 
@@ -165,7 +169,7 @@ public static class Locale
                 { "settings.language", "Langage de l'application" },
                 { "settings.passphrasCacheTimeout", "Passphrase cache timeout" },
                 { "questions.language", "Langage" },
-                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)"},
+                { "questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)" },
                 { "save", "Sauvegarder" },
                 { "cancel", "Annuler" },
                 { "questions.whatToEdit", "Que voulez-vous modifier" },
@@ -315,9 +319,15 @@ public static class Locale
                 },
                 { "storeMigrated", "Magasin de mots de passe migré avec succès!" },
                 { "exportDone", "Magasin de mots de passe exporté vers {0} avec succès!" },
-                { "questions.exportPath", "Entrer le chemin où enregistrer l'exportation du magasin de mot de passe: " },
-                {"searching", "Recherche"},
-                {"mayTakeTime", "Peut prendre un moment"},
+                {
+                    "questions.exportPath", "Entrer le chemin où enregistrer l'exportation du magasin de mot de passe: "
+                },
+                { "searching", "Recherche" },
+                { "mayTakeTime", "Peut prendre un moment" },
+                {
+                    "settings.passphraseCacheMessage",
+                    "Ce paramètre altère le comportement par défaut de GPG qui est de mettre en cache le mot de passe maitre pendant 10 minutes. Vous pouvez désactiver ce comportement entrant la valeur 0 (zéro). [yellow]Cependant, si vous désactiver cette fonctionnalité, GPG vous demandera alors votre mot de passe maitre [bold]à chaque fois[/] qu'il aura besoin de décrypter quelque chose.[/] [yellow]Cela implique, que lorsque la command de recherche '(search|find) -m [texte]' est exécutée, vous sera invité à entrer votre mot de passe maitre [bold]à chaque entrée[/] présentement dans le magasin de mots de passe. [/]Il est suggéré de ne pas désactiver cette fonctionnalité et d'indiquer une valeur d'au plus [blue]60[/] secondes pour expérience d'utilisateur sécuritaire et conviviale."
+                }
             }
         },
         {
@@ -329,7 +339,7 @@ public static class Locale
                 { "settings.language", "Sprache der bewerbung" },
                 { "settings.passphrasCacheTimeout", "Passphrase cache timeout" },
                 { "questions.language", "Spracheff" },
-                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)"},
+                { "questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)" },
                 { "save", "Speichern" },
                 { "cancel", "Stornieren" },
                 { "questions.whatToEdit", "Was möchten sie bearbeiten" },
@@ -480,8 +490,12 @@ public static class Locale
                 { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" },
                 { "exportDone", "Shop erfolgreich nach {0} exportiert!" },
                 { "questions.exportPath", "Geben sie den pfad zum speichern des exportierten passwortspeichers ein" },
-                {"searching", "Suchen"},
-                {"mayTakeTime", "Kann einige zeit dauern"},
+                { "searching", "Suchen" },
+                { "mayTakeTime", "Kann einige zeit dauern" },
+                {
+                    "settings.passphraseCacheMessage",
+                    "Diese einstellung ändert das standardverhalten von GPG, die passphrase 10 minuten lang im cache zu speichern. Sie können dieses Verhalten vollständig deaktivieren, indem sie 0 (null) eingeben. [yellow]Beachten Sie, dass GPG jedes mal, wenn etwas entschlüsselt werden muss, [bold]nach ihrer passphrase fragt, wenn Sie diese funktion deaktivieren.[/] [yellow]Das heißt, wenn Sie eine suche mit dem befehl '(search |find) -m [text]', werden sie aufgefordert, ihre passphrase für [bold]jeden eintrag[/] einzugeben, der sich derzeit in ihrem shop befindet. [/]Es wird empfohlen, diese funktion nicht zu deaktivieren und für eine sichere und bequeme nutzung einen wert von [blue]60[/] sekunden oder weniger festzulegen."
+                }
             }
         },
     };
