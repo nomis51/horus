@@ -77,6 +77,11 @@ public class Config : ICommand
                     AnsiConsole.Ask($"{Locale.Get("questions.clearTimeout")}: ", settings.ClearTimeout);
             }
 
+            if (choice == Locale.Get("settings.disablePassPhraseCaching"))
+            {
+                AppService.Instance.DisableGpgPassPhraseCaching();
+            }
+
             if (choice == Locale.Get("settings.language"))
             {
                 settings.Language = AnsiConsole.Prompt(

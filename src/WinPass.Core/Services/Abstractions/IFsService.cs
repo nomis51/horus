@@ -26,4 +26,5 @@ public interface IFsService : IService
     Result<string, Error?> GetStoreId();
     EmptyResult InitializeStoreFolder(string gpgId, string gitUrl);
     bool IsStoreInitialized();
+    EmptyResult DisablePassPhraseCaching();
 }

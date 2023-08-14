@@ -14,4 +14,5 @@ public interface IGpgService : IService
     Result<List<MetadataCollection?>, Error?> DecryptManyMetadatas(List<Tuple<string, string>> items);
     Result<Password?, Error?> DecryptPassword(string path);
     ResultStruct<bool, Error?> IsIdValid(string id = "");
+    EmptyResult RestartGpgAgent();
 }

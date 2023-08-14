@@ -52,6 +52,16 @@ public class AppService : IAppService
 
     #region Public methods
 
+    public EmptyResult RestartGpgAgent()
+    {
+        return _gpgService.RestartGpgAgent();
+    }
+    
+    public EmptyResult DisableGpgPassPhraseCaching()
+    {
+        return _fsService.DisablePassPhraseCaching();
+    }
+    
     public EmptyResult ExportStore(string savePath)
     {
         return _fsService.ExportStore(savePath);

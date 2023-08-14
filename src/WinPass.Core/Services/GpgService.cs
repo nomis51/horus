@@ -159,6 +159,24 @@ public class GpgService : IGpgService
         }
     }
 
+    public EmptyResult RestartGpgAgent()
+    {
+        try
+        {
+            PowerShell.Create()
+                .AddCommand("gpgconf")
+                .AddArgument("--kill")
+                .AddArgument("gpg-agent")
+                .Invoke();
+        }
+        catch (Exception e)
+        {
+            return new EmptyResult(new GpgDecryptError(e.Message));
+        }
+
+        return new EmptyResult();
+    }
+
     public void Initialize()
     {
     }

@@ -2,7 +2,6 @@
 using Serilog;
 using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
-using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
@@ -522,6 +521,24 @@ public class FsService : IFsService
 
         var gpgIdFilePath = Path.Join(_storeFolderPath, GpgIdFileName);
         return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
+    }
+
+    public EmptyResult DisablePassPhraseCaching()
+    {
+        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
+            "Roaming", "gnupg", "gpg-agent.conf"));
+        
+        if (!File.Exists(confFilePath))
+        {
+            File.WriteAllText(confFilePath, "max-cache-ttl 0");
+        }
+        else
+        {
+            File.AppendAllText(confFilePath, "max-cache-ttl 0");
+        }
+
+        return AppService.Instance.RestartGpgAgent();
     }
 
     public void Initialize()
