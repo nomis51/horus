@@ -38,15 +38,8 @@ public class Cli
 
         var lstArgs = args.ToList();
 
-        if (lstArgs.Count == 0)
-        {
-            lstArgs.Add("ls");
-        }
+        HandleAliases(lstArgs);
 
-        if (lstArgs[0] == "get")
-        {
-            lstArgs = new List<string> { "show", "-c", lstArgs[1] };
-        }
 
         var commandArgs = lstArgs.Skip(1).ToList();
         switch (lstArgs[0])
@@ -158,6 +151,27 @@ public class Cli
     #endregion
 
     #region Private methods
+
+    private static List<string> HandleAliases(List<string> args)
+    {
+        if (args.Count == 0)
+        {
+            args.Add("ls");
+            return args;
+        }
+
+        if (args[0] == "get")
+        {
+            return new List<string> { "show", "-c", args[1] };
+        }
+
+        if (args[0] == "show" && args.Contains("-a"))
+        {
+            return new List<string> { "show", "-f", "-p", "-m", args.Last() };
+        }
+
+        return args;
+    }
 
     private static void SetAppLanguage()
     {
