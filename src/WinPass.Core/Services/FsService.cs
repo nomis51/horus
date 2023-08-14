@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using Serilog;
 using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
@@ -21,6 +20,7 @@ public class FsService : IFsService
     private readonly string _migrationStoreFolderName;
     public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
+    private const string MetadataCacheFileName = ".cache";
 
     private readonly string _storeFolderPath;
     private readonly string _migrationStoreFolderPath;
@@ -151,7 +151,7 @@ public class FsService : IFsService
         return result;
     }
 
-    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
+    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false)
     {
         if (string.IsNullOrWhiteSpace(text))
             return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
@@ -162,28 +162,20 @@ public class FsService : IFsService
         EnumerateFilePaths(storePath, items);
         if (!items.Any()) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
 
-        if (!AcquireLock())
-            return new Result<List<StoreEntry>, Error?>(new GpgDecryptError("Unable to acquire lock file"));
+        if (!VerifyLock())
+            return new Result<List<StoreEntry>, Error?>(new GpgDecryptError("Unable to verify lock file"));
 
-        ConcurrentBag<MetadataCollection> lstMetadatas = new();
+        List<MetadataCollection> metadatas = new();
 
-        Parallel.ForEach(
-            items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList(),
-            new ParallelOptions
-            {
-                MaxDegreeOfParallelism = 16,
-            },
-            item =>
-            {
-                var (metadatas, error) = AppService.Instance.DecryptMetadatas(item.Item1);
-                if (error is not null) return;
+        if (searchMetadatas)
+        {
+            var (lstMetadatas, error) =
+                AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
+            if (error is not null)
+                return new Result<List<StoreEntry>, Error?>(error);
 
-                lstMetadatas.Add(metadatas!);
-            }
-        );
-        // var (lstMetadatas, error) =
-        //     AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
-        // if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
+            metadatas = lstMetadatas;
+        }
 
         var loweredText = text.Trim().ToLower();
         List<StoreEntry> entries = new();
@@ -199,18 +191,22 @@ public class FsService : IFsService
                 if (!filePath.EndsWith(".m.gpg")) continue;
 
                 var path = Path.GetFileName(filePath);
-                var currentEntryPath = string.IsNullOrEmpty(currenPath) ? path : $"{currenPath}/{path}";
-                var metadatas = lstMetadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
 
                 List<string> metadataFound = new();
-                if (metadatas is not null)
+                if (searchMetadatas)
                 {
-                    foreach (var metadata in metadatas)
-                    {
-                        if (!metadata.Key.ToLower().Contains(loweredText) &&
-                            !metadata.Value.ToLower().Contains(loweredText)) continue;
+                    var currentEntryPath = string.IsNullOrEmpty(currenPath) ? path : $"{currenPath}/{path}";
+                    var entryMetadatas = metadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
 
-                        metadataFound.Add(metadata.ToString());
+                    if (entryMetadatas is not null)
+                    {
+                        foreach (var metadata in entryMetadatas)
+                        {
+                            if (!metadata.Key.ToLower().Contains(loweredText) &&
+                                !metadata.Value.ToLower().Contains(loweredText)) continue;
+
+                            metadataFound.Add(metadata.ToString());
+                        }
                     }
                 }
 

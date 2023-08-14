@@ -56,25 +56,25 @@ public class AppService : IAppService
     {
         return _gpgService.RestartGpgAgent();
     }
-    
+
     public EmptyResult SetPassphraseCacheTimeout(int timeout = 20)
     {
         return _fsService.SetPassphraseCacheTimeout(timeout);
     }
-    
+
     public EmptyResult ExportStore(string savePath)
     {
         return _fsService.ExportStore(savePath);
     }
-    
+
     public EmptyResult MigrateStore(string gpgId)
     {
         return _fsService.MigrateStore(gpgId);
     }
 
-    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
+    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false)
     {
-        return _fsService.SearchStoreEntries(text);
+        return _fsService.SearchStoreEntries(text, searchMetadatas);
     }
 
     public EmptyResult DestroyStore()

@@ -9,7 +9,7 @@ public interface IFsService : IService
     EmptyResult ExportStore(string savePath);
     EmptyResult MigrateStore(string gpgId);
     EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "");
-    Result<List<StoreEntry>, Error?> SearchStoreEntries(string text);
+    Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false);
     Result<List<StoreEntry>, Error?> RetrieveStoreEntries();
     EmptyResult RemoveStoreEntry(string name);
     EmptyResult RenameStoreEntry(string name, string newName, bool duplicate = false);

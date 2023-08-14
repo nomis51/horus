@@ -81,14 +81,14 @@ public class Config : ICommand
             if (choice == Locale.Get("settings.passphrasCacheTimeout"))
             {
                 AnsiConsole.MarkupLine(
-                    "This setting will alter the default behavior of GPG of putting the passphrase in cache for 10 minutes. You cache disable this feature completely by entering 0 (zero).");
+                    "This setting will alter the default behavior of GPG of putting the passphrase in cache for 10 minutes. You can disable this behavior completely by entering 0 (zero).");
                 AnsiConsole.MarkupLine(
-                    "[yellow]Be aware, if you disable this feature, GPG will ask for your passphrase [bold]every time[/] it needs to decrypt something. ");
+                    "[yellow]Be aware, if you disable this feature, GPG will ask for your passphrase [bold]every time[/] it needs to decrypt something.[/]");
                 AnsiConsole.MarkupLine(
-                    "Meaning, when performing a search using the command 'search|find', you'll be asked to enter your passphras for [bold]every entry[/] currently in your store.[/]");
+                    "[yellow]Meaning, when performing a search using the command 'search|find', you'll be asked to enter your passphrase for [bold]every entry[/] currently in your store.[/]");
                 AnsiConsole.MarkupLine(
                     "It is suggested to not disable this feature and set a value between 20 and 60 seconds for safe and convenient usage.");
-                var timeout = AnsiConsole.Ask($"{Locale.Get("questions.passphrasCacheTimeout")}: ", 20);
+                var timeout = AnsiConsole.Ask($"{Locale.Get("questions.passphrasCacheTimeout")} ", 20);
                 AppService.Instance.SetPassphraseCacheTimeout(timeout);
             }
 

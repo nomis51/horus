@@ -190,8 +190,8 @@ public class GpgService : IGpgService
         try
         {
             var scriptBlock = ScriptBlock.Create(
-                "foreach($filePath in @(" + string.Join(",", filePaths.Select(f => $"\"{f}\"")) +
-                ")){ gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $filePath; echo \"\"}"
+                "@(" + string.Join(",", filePaths.Select(f => $"\"{f}\"")) +
+                ") | ForEach-Object -Parallel { gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $_; echo \"\"}"
             );
             var pwsh = GetPowerShellInstance(noSetup: true);
             pwsh.AddCommand("Invoke-Command")

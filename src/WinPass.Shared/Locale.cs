@@ -21,7 +21,7 @@ public static class Locale
                 { "settings.language", "Language of the application" },
                 { "settings.passphrasCacheTimeout", "Passphrase cache timeout" },
                 { "questions.language", "Language" },
-                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds): "},
+                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)"},
                 { "save", "Save" },
                 { "cancel", "Cancel" },
                 { "questions.whatToEdit", "What do you want to edit" },
@@ -150,7 +150,9 @@ public static class Locale
                 },
                 { "storeMigrated", "Stored migrated successfully!" },
                 { "exportDone", "Store exported to {0} successfully!" },
-                { "questions.exportPath", "Enter the path to save the exported store: " }
+                { "questions.exportPath", "Enter the path to save the exported store: " },
+                {"searching", "Searching"},
+                {"mayTakeTime", "May take some time"},
             }
         },
 
@@ -163,7 +165,7 @@ public static class Locale
                 { "settings.language", "Langage de l'application" },
                 { "settings.passphrasCacheTimeout", "Passphrase cache timeout" },
                 { "questions.language", "Langage" },
-                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds): "},
+                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)"},
                 { "save", "Sauvegarder" },
                 { "cancel", "Annuler" },
                 { "questions.whatToEdit", "Que voulez-vous modifier" },
@@ -313,7 +315,9 @@ public static class Locale
                 },
                 { "storeMigrated", "Magasin de mots de passe migré avec succès!" },
                 { "exportDone", "Magasin de mots de passe exporté vers {0} avec succès!" },
-                { "questions.exportPath", "Entrer le chemin où enregistrer l'exportation du magasin de mot de passe: " }
+                { "questions.exportPath", "Entrer le chemin où enregistrer l'exportation du magasin de mot de passe: " },
+                {"searching", "Recherche"},
+                {"mayTakeTime", "Peut prendre un moment"},
             }
         },
         {
@@ -325,7 +329,7 @@ public static class Locale
                 { "settings.language", "Sprache der bewerbung" },
                 { "settings.passphrasCacheTimeout", "Passphrase cache timeout" },
                 { "questions.language", "Spracheff" },
-                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds): "},
+                {"questions.passphrasCacheTimeout", "Passphrase cache timeout (in seconds)"},
                 { "save", "Speichern" },
                 { "cancel", "Stornieren" },
                 { "questions.whatToEdit", "Was möchten sie bearbeiten" },
@@ -474,8 +478,10 @@ public static class Locale
                     "Sind sie sicher, dass sie den store migrieren möchten, um das neue GPG-Schlüsselpaar zu verwenden?"
                 },
                 { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" },
-                { "exportDone", "Export completed" },
-                { "questions.exportPath", "Geben sie den pfad zum speichern des exportierten passwortspeichers ein: " }
+                { "exportDone", "Shop erfolgreich nach {0} exportiert!" },
+                { "questions.exportPath", "Geben sie den pfad zum speichern des exportierten passwortspeichers ein" },
+                {"searching", "Suchen"},
+                {"mayTakeTime", "Kann einige zeit dauern"},
             }
         },
     };
