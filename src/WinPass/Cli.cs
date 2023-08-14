@@ -38,8 +38,7 @@ public class Cli
 
         var lstArgs = args.ToList();
 
-        HandleAliases(lstArgs);
-
+        lstArgs = HandleAliases(lstArgs);
 
         var commandArgs = lstArgs.Skip(1).ToList();
         switch (lstArgs[0])
