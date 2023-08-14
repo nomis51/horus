@@ -57,9 +57,9 @@ public class AppService : IAppService
         return _gpgService.RestartGpgAgent();
     }
     
-    public EmptyResult DisableGpgPassPhraseCaching()
+    public EmptyResult SetPassphraseCacheTimeout(int timeout = 20)
     {
-        return _fsService.DisablePassPhraseCaching();
+        return _fsService.SetPassphraseCacheTimeout(timeout);
     }
     
     public EmptyResult ExportStore(string savePath)

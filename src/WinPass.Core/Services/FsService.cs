@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Collections.Concurrent;
+using System.IO.Compression;
 using Serilog;
 using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
@@ -159,10 +160,30 @@ public class FsService : IFsService
         var storePath = GetStoreLocation();
 
         EnumerateFilePaths(storePath, items);
+        if (!items.Any()) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
 
-        var (lstMetadatas, error) =
-            AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
-        if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
+        if (!AcquireLock())
+            return new Result<List<StoreEntry>, Error?>(new GpgDecryptError("Unable to acquire lock file"));
+
+        ConcurrentBag<MetadataCollection> lstMetadatas = new();
+
+        Parallel.ForEach(
+            items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList(),
+            new ParallelOptions
+            {
+                MaxDegreeOfParallelism = 16,
+            },
+            item =>
+            {
+                var (metadatas, error) = AppService.Instance.DecryptMetadatas(item.Item1);
+                if (error is not null) return;
+
+                lstMetadatas.Add(metadatas!);
+            }
+        );
+        // var (lstMetadatas, error) =
+        //     AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
+        // if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
 
         var loweredText = text.Trim().ToLower();
         List<StoreEntry> entries = new();
@@ -523,19 +544,30 @@ public class FsService : IFsService
         return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
     }
 
-    public EmptyResult DisablePassPhraseCaching()
+    public EmptyResult SetPassphraseCacheTimeout(int timeout)
     {
         var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
             "Roaming", "gnupg", "gpg-agent.conf"));
-        
+
         if (!File.Exists(confFilePath))
         {
-            File.WriteAllText(confFilePath, "max-cache-ttl 0");
+            File.WriteAllText(confFilePath, $"max-cache-ttl {timeout}");
         }
         else
         {
-            File.AppendAllText(confFilePath, "max-cache-ttl 0");
+            var lines = File.ReadAllLines(confFilePath).ToList();
+            var index = lines.FindIndex(l => l.StartsWith("max-cache-ttl"));
+
+            if (index == -1)
+            {
+                File.AppendAllText(confFilePath, $"max-cache-ttl {timeout}");
+            }
+            else
+            {
+                lines[index] = $"max-cache-ttl {timeout}";
+                File.WriteAllLines(confFilePath, lines);
+            }
         }
 
         return AppService.Instance.RestartGpgAgent();
