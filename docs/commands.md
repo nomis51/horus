@@ -150,5 +150,57 @@ Execute any git commands you want directly into the password store and will outp
 `winpass git pull` : will update the local password store with the remote git repository
 `winpass git revert 4945db2` : revert the commit "4945db2" of the password store
 
+## config
+`winpass config`
+
+Let you edit the settings of the application. Settings are stored in the environment variable `WINPASS_SETTINGS`.
+
+Here are the settings you can configure : 
+
+| Setting | Description |
+| - | - |
+| Language | Change the language of the application from : English (default), french or german |
+| Custom alphabet | Set a custom alphabet to generate the passwords. That allow you to not have to provide the argument `-a` everytime you want to generate a new password |
+| Custom length | Set a custom length for the generated passwords (default 20). |
+| Clear timeout | Set the delay (in seconds) before the terminal or clipboard gets cleared automatically after reading a password with the command `show` (default 10) |
+| Passphrase cache timeout | Set the `max-cache-ttl` and `default-cache-ttl` GPG agent settings to the value provided and also adds the `no-allow-external-cache` setting to prevent external keychain/credentials store such as GNOME keychain or Windows credentials manager from caching the passphrase |
+
+### Suggestion
+It is suggested that you set a low value to the passphrase cache timeout. That also prevent external credentials manager from caching your passphrase without your confirmation. Something like 30 to 60 seconds is great, since by default GPG cache your passphrase for 600 seconds (10 minutes) which can be unsecure since any call to GPG would simply decrypt the data without confirmation. By keeping this value low, you'll keep your password store convenient to use while being more secure. **Although, don't put this value too low**,  because GPG might then ask for your passphrase multiple times in a row when performing commands such as `find -m` where it needs to decrypt multiple pieces of information in a short period of time, that would make the experience pretty inconvenient.
+
+### Examples
+`winpass config` : will open the config menu
+
+A passphrase cache timeout of 30 means that GPG will cache your passphrase for 30 seconds before asking for it again. For example, that let you call `winpass show my-password` as much as as you want within those 30 seconds without having to re-enter your passphrase, which can be useful if you have to access multiple passwords or metadata within a short period of time.
+
+## destroy
+`winpass destroy`
+
+Deletes the local version of the password store (doesn't alter the remote version in your git repository)
+
+The command will ask you to confirm that you really want to delete the password store twice and will ask you to type the name of the remote git repository as last confirmation. It will also perform a check with the remite git repository to see if you have local changes that haven't been pushed to the remote git repository, before deleting and will ask you if you want to push those changes to the remote git repository before proceeding, which will make sure you don't loose any piece of unsaved information.
+
+### Examples
+`winpass destroy` : will delete (after 3 confirmations) the local password store
+
+## migrate
+`winpass migrate`
+
+Let you migrate the entire password store to use a new GPG keypair. 
+
+The command will ask you to provide the ID of the new GPG keypair, and will then proceed to decrypt and re-encrypt every entries in the password with the new GPG keypair.
+
+This operation can take a while if you have a lot of entries in the password store.
+
+### Examples
+`winpass migrate` : will migrate the entire password store to use a new GPG keypair after confirmation
+
+## export
+`winpass export`
+
+Export the entire password store into a zip file, ready to be backed up somewhere safe. Note that the entries are **still encrypted** in the zip file and it also contains the git history, if you loose your remote git repository and your local copy, you can always recover everything using that backup zip file.
+
+### Examples
+`winpass export` : export the entire password store (still encrypted) and the git history
 
 

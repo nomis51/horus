@@ -1,9 +1,9 @@
 ![WinPass logo](https://github.com/nomis51/winpass/blob/master/.assets/winpass.png)
 
-A Windows implementation of [zx2c4 password-store](https://www.passwordstore.org/) (Also supports `linux`)
+A Windows / Linux password manager greatly inspired by [zx2c4 password-store](https://www.passwordstore.org/).
 
 ## Why?
-There are several implementations of `pass` targeting different platforms and needs, but the ones supporting Windows are either oudated, unmaintained, buggy or doesn't follow the philosophy of `pass` which is, being a simple, but efficient **terminal-based** password manager. This is why I created `winpass` : a pass-clone, zero configuration, terminal-based Windows supported password manager.
+There are several implementations of `pass` targeting different platforms and needs, but the ones supporting Windows are either oudated, unmaintained, buggy or doesn't follow the philosophy of `pass` which is, being a simple, but efficient **terminal-based** password manager. This is why I created `winpass` : a pass-inspired application, zero configuration, terminal-based Windows and Linux supported password manager, improving on the existing recipe defined by zx2c4.
 
 ## Installation
 - Have [Git](https://git-scm.com/download/win) installed
@@ -18,7 +18,7 @@ There are several implementations of `pass` targeting different platforms and ne
 Upon the first execution, `winpass` will add itself to the `PATH` variable to make it globally available in the terminal. (You might need to restart your terminal)
 
 ## Get started
-- Make sure you've created or imported your GPG keys
+- Make sure you've created or imported your GPG keypair
 - Make sure you have a **private** remote git repository created (e.g. GitHub, GitLab, etc.)
 - Make sure you have authenticated to that remote git repository (SSH, GPG, [GitHub CLI](https://cli.github.com/manual/installation), etc.)
 - Run `winpass init` and follow the instructions
@@ -29,21 +29,14 @@ Upon the first execution, `winpass` will add itself to the `PATH` variable to ma
 To proceed, simply download the new version on [GitHub](https://github.com/nomis51/winpass/releases/latest) and replace the content of your *old* folder with the new update.
 
 ## Usage
-You can execute the command `winpass help` to see all the commands available.
+You can execute the command `winpass help` or navigate to the [commands' page]() to have all the information about how the application works and what commands are available
 
-| **Command**                | **Description**                                                   | **Arguments**                                                                                                                              | **Example**                                      |
-|----------------------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|
-| init                       | Initialize the password store (in %USERPROFILE%/.password-store/ for Windows and ~/.password-store/ for Linux) | None                                                                                                                                       | winpass init                                     |       
-| list, ls, (blank)          | Show the list of passwords in the store                           | None                                                                                                                                       | winpass ls                                       |     
-| show [args] [name]         | Show / copy the password requested by [name]                      | -c : Copy the password. -m : Show metadata. -f : Don't clear the terminal after a while. -p : Show the password (when -m is also provided) | winpass show -c github/work                      |     
-| insert, add [name]         | Insert a new password named [name]                                | None                                                                                                                                       | winpass add github/work                          |     
-| generate [args] [name]     | Generate a new password named [name]                              | -s : Size of the password (default : 20). -a : Custom alphabet. -c : Copy the password.                                                    | winpass generate -c -s=12 -a=abc123* github/work |        
-| remove, delete [name]      | Remove the password named [name]                                  | None                                                                                                                                       | winpass remove github/work                       |      
-| rename, move [args] [name] | Rename or duplicate the pasword named [name]                      | -d : Duplicate the password instead of renaming it                                                                                         | winpass rename -d github/work                    |  
-| find, search, grep [text]  | Find passwords or metadata containing [text]                      | None                                                                                                                                       | winpass find "email: my-email@github.com"        |  
-| git | Execute git command on the password store repository | Any git arguments | winpass git status |
-| version | Show the version | None | winpass version |
-| help                       | Show the help                                                     | None                                                                                                                                       | winpass help                                     |
+## TODOs
+- Add an `import` command 
+  - to import backups from the `export` command
+  - to import passwords from `pass`
+  - to import passwords from a CSV file
+
 
 # Support
 Feel free to open issues if you find any problem or join the [Discord](https://discord.gg/yqDHrqCDq4) server.
