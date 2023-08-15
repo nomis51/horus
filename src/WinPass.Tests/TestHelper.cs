@@ -5,7 +5,7 @@ namespace WinPass.Tests;
 
 public class TestHelper
 {
-    public const string TestGpgId = "1BF7C718F967FE673D3BD0DBE88096F9B8306F99";
+    public const string TestGpgId = "26ABF5CC47DFBB62E7B307A5CAB4B61B7C3CEC7F";
     public const string TestAppFolder = ".winpass-tests";
     private static readonly SemaphoreSlim Lock = new(1, 1);
 
