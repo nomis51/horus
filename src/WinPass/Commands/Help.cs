@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using WinPass.Commands.Abstractions;
 
 namespace WinPass.Commands;
@@ -15,7 +16,17 @@ public class Help : ICommand
 
     public void Run(List<string> args)
     {
-        Process.Start(CommandsPageUrl);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Process.Start("explorer.exe", CommandsPageUrl);
+        }
+        else
+        {
+            Process.Start(new ProcessStartInfo(CommandsPageUrl)
+            {
+                UseShellExecute = true
+            });
+        }
     }
 
     #endregion
