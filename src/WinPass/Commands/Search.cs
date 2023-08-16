@@ -27,8 +27,7 @@ public class Search : ICommand
         }
 
         var searchMetadatas = args.Contains("-m");
-
-        var text = args[0];
+        var text = args.Last();
 
         if (searchMetadatas && !AppService.Instance.VerifyLock())
         {
