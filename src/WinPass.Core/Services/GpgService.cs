@@ -91,8 +91,13 @@ public class GpgService : IGpgService
     public Result<List<MetadataCollection?>, Error?> DecryptManyMetadatas(List<Tuple<string, string>> items)
     {
         var filePaths = items.Select(i => i.Item2);
-        var (lines, error) = DecryptMany(filePaths);
-        if (error is not null) return new Result<List<MetadataCollection?>, Error?>(error);
+
+        List<string> lines = new();
+        foreach (var filePath in filePaths)
+        {
+            var (line, error) = DecryptOne(filePath);
+            lines.Add(error is not null ? string.Empty : line);
+        }
 
         List<MetadataCollection?> results = new();
         for (var i = 0; i < lines.Count; ++i)

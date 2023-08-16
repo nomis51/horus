@@ -1,7 +1,7 @@
-﻿<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="find" type="DotNetProject" factoryName=".NET Project">
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="search" type="DotNetProject" factoryName=".NET Project">
     <option name="EXE_PATH" value="$PROJECT_DIR$/WinPass/bin/Debug/net7.0/WinPass.exe" />
-    <option name="PROGRAM_PARAMETERS" value="find -m test" />
+    <option name="PROGRAM_PARAMETERS" value="search test" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/WinPass/bin/Debug/net7.0" />
     <option name="PASS_PARENT_ENVS" value="1" />
     <option name="USE_EXTERNAL_CONSOLE" value="0" />

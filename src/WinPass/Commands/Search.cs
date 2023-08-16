@@ -53,7 +53,11 @@ public class Search : ICommand
                 entries = results;
             });
 
-        if (!entries.Any()) return;
+        if (!entries.Any())
+        {
+            AnsiConsole.MarkupLine("No entry found");
+            return;
+        }
 
         var tree = new Tree(string.Empty);
         List.RenderEntries(entries, tree);
