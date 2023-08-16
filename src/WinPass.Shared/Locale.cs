@@ -150,7 +150,6 @@ public static class Locale
                 { "storeMigrated", "Stored migrated successfully!" },
                 { "exportDone", "Store exported to {0} successfully!" },
                 { "questions.exportPath", "Enter the path to save the exported store: " },
-                { "searching", "Searching" },
                 { "mayTakeTime", "May take some time" },
                 {
                     "settings.passphraseCacheMessage",
@@ -324,7 +323,6 @@ public static class Locale
                 {
                     "questions.exportPath", "Entrer le chemin où enregistrer l'exportation du magasin de mot de passe: "
                 },
-                { "searching", "Recherche" },
                 { "mayTakeTime", "Peut prendre un moment" },
                 {
                     "settings.passphraseCacheMessage",
@@ -495,7 +493,6 @@ public static class Locale
                 { "storeMigrated", "Der passwortspeicher wurde erfolgreich migriert!" },
                 { "exportDone", "Shop erfolgreich nach {0} exportiert!" },
                 { "questions.exportPath", "Geben sie den pfad zum speichern des exportierten passwortspeichers ein" },
-                { "searching", "Suchen" },
                 { "mayTakeTime", "Kann einige zeit dauern" },
                 {
                     "settings.passphraseCacheMessage",
