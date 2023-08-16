@@ -35,6 +35,11 @@ public class GpgService : IGpgService
                 .AddArgument("/bye")
                 .Invoke();
 
+            if (ok)
+            {
+                StartGpgAgent();
+            }
+
             return ok;
         }
         catch (Exception e)
@@ -168,7 +173,37 @@ public class GpgService : IGpgService
         }
     }
 
-    public EmptyResult RestartGpgAgent()
+    public Result<string, Error?> RestartGpgAgent()
+    {
+        var (result, error) = StopGpgAgent();
+        if (error is not null) return new Result<string, Error?>(error);
+
+        var (result2, error2) = StartGpgAgent();
+        if (error2 is not null) return new Result<string, Error?>(error2);
+
+        return new Result<string, Error?>(string.Join("\n", result, result2));
+    }
+
+    public Result<string, Error?> StartGpgAgent()
+    {
+        try
+        {
+            var lines = PowerShell.Create()
+                .AddCommand("gpg-connect-agent")
+                .AddArgument("reloadagent")
+                .AddArgument("/bye")
+                .Invoke<string>();
+            return lines.FirstOrDefault(l => l.StartsWith("OK")) is not null
+                ? new Result<string, Error?>(string.Join(", ", lines))
+                : new Result<string, Error?>(new GpgDecryptError("Unable to start GPG agent"));
+        }
+        catch (Exception e)
+        {
+            return new Result<string, Error?>(new GpgDecryptError(e.Message));
+        }
+    }
+
+    public Result<string, Error?> StopGpgAgent()
     {
         try
         {
@@ -177,13 +212,12 @@ public class GpgService : IGpgService
                 .AddArgument("--kill")
                 .AddArgument("gpg-agent")
                 .Invoke();
+            return new Result<string, Error?>("");
         }
         catch (Exception e)
         {
-            return new EmptyResult(new GpgDecryptError(e.Message));
+            return new Result<string, Error?>(new GpgDecryptError(e.Message));
         }
-
-        return new EmptyResult();
     }
 
     public void Initialize()

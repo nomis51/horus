@@ -52,9 +52,19 @@ public class AppService : IAppService
 
     #region Public methods
 
-    public EmptyResult RestartGpgAgent()
+    public Result<string, Error?> RestartGpgAgent()
     {
         return _gpgService.RestartGpgAgent();
+    }
+
+    public Result<string, Error?> StartGpgAgent()
+    {
+        return _gpgService.StartGpgAgent();
+    }
+
+    public Result<string, Error?> StopGpgAgent()
+    {
+        return _gpgService.StopGpgAgent();
     }
 
     public EmptyResult SetPassphraseCacheTimeout(int timeout = 20)

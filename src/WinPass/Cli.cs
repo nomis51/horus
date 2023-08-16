@@ -118,6 +118,18 @@ public class Cli
                 new Export().Run(commandArgs);
                 break;
 
+            case "gpg-start-agent":
+                new Gpg().Run(new List<string> { "start" });
+                break;
+
+            case "gpg-stop-agent":
+                new Gpg().Run(new List<string> { "stop" });
+                break;
+
+            case "gpg-restart-agent":
+                new Gpg().Run(new List<string> { "restart" });
+                break;
+
             default:
                 AnsiConsole.MarkupLine("[red]Invalid command[/]");
                 break;

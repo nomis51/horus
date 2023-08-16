@@ -572,7 +572,8 @@ public class FsService : IFsService
             File.WriteAllLines(confFilePath, lines);
         }
 
-        return AppService.Instance.RestartGpgAgent();
+        var (_, error) = AppService.Instance.RestartGpgAgent();
+        return error is not null ? new EmptyResult(error) : new EmptyResult();
     }
 
     public bool VerifyLock()
@@ -593,11 +594,28 @@ public class FsService : IFsService
 
         return error is null && content == AppLockFileName;
     }
-    
+
     public void Verify()
     {
-        EnsureAllowPinentryLoopback();
-        EnsurePinentryModeLoopback();
+        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
+            "Roaming", "gnupg", "gpg-agent.conf"));
+
+        if (!File.Exists(confFilePath))
+        {
+            File.WriteAllText(confFilePath, "no-allow-external-cache");
+        }
+        else
+        {
+            var lines = File.ReadAllLines(confFilePath).ToList();
+            var index = lines.FindIndex(l => l.StartsWith("no-allow-external-cache"));
+
+            if (index != -1) return;
+
+            lines.Add("no-allow-external-cache");
+            File.WriteAllLines(confFilePath, lines);
+            AppService.Instance.RestartGpgAgent();
+        }
     }
 
     public void Initialize()
@@ -607,54 +625,6 @@ public class FsService : IFsService
     #endregion
 
     #region Private methods
-
-    private void EnsureAllowPinentryLoopback()
-    {
-        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
-            "Roaming", "gnupg", "gpg-agent.conf"));
-
-        if (!File.Exists(confFilePath))
-        {
-            File.WriteAllText(confFilePath, "allow-loopback-pinentry");
-        }
-        else
-        {
-            var lines = File.ReadAllLines(confFilePath).ToList();
-            var index = lines.FindIndex(l => l.StartsWith("allow-loopback-pinentry"));
-
-            if (index == -1)
-            {
-                File.AppendAllText(confFilePath, "allow-loopback-pinentry");
-            }
-        }
-    }
-
-    private void EnsurePinentryModeLoopback()
-    {
-        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
-            "Roaming", "gnupg", "gpg.conf"));
-
-        if (!File.Exists(confFilePath))
-        {
-            File.WriteAllText(confFilePath, "pinentry-mode loopback");
-        }
-        else
-        {
-            var lines = File.ReadAllLines(confFilePath).ToList();
-            var index = lines.FindIndex(l => l.StartsWith("pinentry-mode "));
-
-            if (index == -1)
-            {
-                File.AppendAllText(confFilePath, "pinentry-mode loopback");
-            }
-            else
-            {
-                File.WriteAllLines(confFilePath, lines);
-            }
-        }
-    }
 
     private void EnumerateFilePaths(string current, List<Tuple<string, string>> filePaths)
     {
@@ -762,8 +732,6 @@ public class FsService : IFsService
         var path = GetEntryPath(name);
         return path.Insert(path.LastIndexOf(".gpg", StringComparison.OrdinalIgnoreCase), ".m");
     }
-
-  
 
     #endregion
 }

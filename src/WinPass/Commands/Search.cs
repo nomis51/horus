@@ -36,13 +36,22 @@ public class Search : ICommand
             return;
         }
 
-        AnsiConsole.MarkupLine($"Searching{(searchMetadatas ? " (May take some time)" : string.Empty)}...");
-        var (entries, error) = AppService.Instance.SearchStoreEntries(text, searchMetadatas);
-        if (error is not null)
-        {
-            AnsiConsole.MarkupLine($"[{Cli.GetErrorColor(error.Severity)}]{error.Message}[/]");
-            return;
-        }
+        List<StoreEntry> entries = new();
+
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .SpinnerStyle(Style.Parse("blue"))
+            .Start("Searching...", _ =>
+            {
+                var (results, error) = AppService.Instance.SearchStoreEntries(text, searchMetadatas);
+                if (error is not null)
+                {
+                    AnsiConsole.MarkupLine($"[{Cli.GetErrorColor(error.Severity)}]{error.Message}[/]");
+                    return;
+                }
+
+                entries = results;
+            });
 
         if (!entries.Any()) return;
 
