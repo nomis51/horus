@@ -30,7 +30,7 @@ public class Search : ICommand
 
         var text = args[0];
 
-        if (!AppService.Instance.VerifyLock())
+        if (searchMetadatas && !AppService.Instance.VerifyLock())
         {
             AnsiConsole.MarkupLine($"[red]{Locale.Get("error.getLockFailed")}[/]");
             return;
