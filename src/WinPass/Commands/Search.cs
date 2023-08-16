@@ -32,7 +32,7 @@ public class Search : ICommand
 
         if (!AppService.Instance.VerifyLock())
         {
-            AnsiConsole.MarkupLine("[red]Unable to verify lock.[/]");
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.getLockFailed")}[/]");
             return;
         }
 
@@ -41,7 +41,7 @@ public class Search : ICommand
         AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
             .SpinnerStyle(Style.Parse("blue"))
-            .Start("Searching...", _ =>
+            .Start(Locale.Get("searching"), _ =>
             {
                 var (results, error) = AppService.Instance.SearchStoreEntries(text, searchMetadatas);
                 if (error is not null)
@@ -55,7 +55,7 @@ public class Search : ICommand
 
         if (!entries.Any())
         {
-            AnsiConsole.MarkupLine("No entry found");
+            AnsiConsole.MarkupLine(Locale.Get("notEntryFound"));
             return;
         }
 
