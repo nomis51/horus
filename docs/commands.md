@@ -104,9 +104,11 @@ Search the password store for an entry containing `[text]` in its name or a entr
 
 There is an argument available for this command : 
 
-| Argument | Description |
-| - | - |
-| -m | Also perform a search in the metadata of the entries. Note that **this can be way slower**, because the app has to decrypt every entries in the password store, and decryption is a slow process especially noticeable if you have to decrypt many things. For example, on an average machine with 8 cores can take ~10 seconds to search a password store containing 50 entries |
+| Argument | Description                                              |
+| - |----------------------------------------------------------|
+| -m | Also perform a search in the metadata of the entries. ** |
+
+** Note that performing a search on the metadata **can be way slower**, because the application has to decrypt every entries' metadata in the password store, and decryption is a slow process. For example, on an average machine with 8 cores it can take ~300ms per entry, so with password store containing 50 entries, you can expect this command to take ~15 seconds to run.
 
 ### Examples
 `winpass find facebook` : will search for an entry containing "facebook" in its name.
@@ -202,5 +204,15 @@ Export the entire password store into a zip file, ready to be backed up somewher
 
 ### Examples
 `winpass export` : export the entire password store (still encrypted) and the git history
+
+## gpg-...
+There are some commands to manage the gpg-agent that are available as a shortcut within the application :
+
+| Command | Description |
+| - | - |
+| `winpass gpg-start-agent` | Starts the GPG agent, if it wasn't already started |
+| `winpass gpg-stop-agent` | Stops the GPG agent. (On Windows, the agent sometimes gets stuck, so restarting it fixes the issue) |
+| `winpass gpg-restart-agent` | Shortcut of the two previous commands combined |
+
 
 
