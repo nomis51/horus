@@ -90,10 +90,7 @@ public class SearchTests
         // Assert
         TestHelper.Done();
         Assert.Null(error);
-        Assert.NotEmpty(result);
-        Assert.False(result[0].IsFolder);
-        Assert.Empty(result[0].Entries);
-        Assert.Empty(result[0].Metadata);
+        Assert.Empty(result);
     }
 
     [Fact]
@@ -141,10 +138,7 @@ public class SearchTests
         // Assert
         TestHelper.Done();
         Assert.Null(error);
-        Assert.NotEmpty(result);
-        Assert.False(result[0].IsFolder);
-        Assert.Empty(result[0].Entries);
-        Assert.Empty(result[0].Metadata);
+        Assert.Empty(result);
     }
 
     #endregion

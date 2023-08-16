@@ -23,7 +23,7 @@ public class TestHelper
     {
         if (Directory.Exists(GetStorePath())) Directory.Delete(GetStorePath(), true);
         Directory.CreateDirectory(GetStorePath());
-        AppService.Instance.Encrypt(Path.Join(GetStorePath(), ".lock"), ".lock".ToBase64(), TestGpgId);
+        AppService.Instance.Encrypt(Path.Join(GetStorePath(), ".lock"), ".lock", TestGpgId);
         File.WriteAllText(Path.Join(GetStorePath(), ".gpg-id"), TestGpgId);
     }
 
