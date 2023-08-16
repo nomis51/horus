@@ -107,7 +107,7 @@ public class GpgService : IGpgService
                 results.Add(
                     new MetadataCollection(
                         items[i].Item1,
-                        JsonConvert.DeserializeObject<List<Metadata>>(lines[i].FromBase64())!
+                        JsonConvert.DeserializeObject<List<Metadata>>(lines[i])!
                     )
                 );
             }
