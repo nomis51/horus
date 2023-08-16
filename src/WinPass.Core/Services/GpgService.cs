@@ -26,7 +26,16 @@ public class GpgService : IGpgService
             var lines = GetPowerShellInstance()
                 .AddArgument("--version")
                 .Invoke<string>();
-            return lines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
+            var ok = lines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
+            if (!ok) return false;
+
+            PowerShell.Create()
+                .AddCommand("gpg-connect-agent")
+                .AddArgument("reloadagent")
+                .AddArgument("/bye")
+                .Invoke();
+
+            return ok;
         }
         catch (Exception e)
         {

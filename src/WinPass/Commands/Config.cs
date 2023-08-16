@@ -81,7 +81,8 @@ public class Config : ICommand
             if (choice == Locale.Get("settings.passphrasCacheTimeout"))
             {
                 AnsiConsole.MarkupLine(Locale.Get("settings.passphraseCacheMessage"));
-                var timeout = AnsiConsole.Ask($"{Locale.Get("questions.passphrasCacheTimeout")} ", 20);
+                AnsiConsole.WriteLine();
+                var timeout = AnsiConsole.Ask($"{Locale.Get("questions.passphrasCacheTimeout")} ", 30);
                 AppService.Instance.SetPassphraseCacheTimeout(timeout);
             }
 

@@ -199,6 +199,9 @@ public class AppService : IAppService
         Task.WaitAll(tasks);
 
         if (!gpgOk) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
+
+        _fsService.Verify();
+
         return !gitOk
             ? new ResultStruct<byte, Error?>(new GitNotInstalledError())
             : new ResultStruct<byte, Error?>(0);
@@ -212,6 +215,11 @@ public class AppService : IAppService
     public void ReleaseLock()
     {
         _fsService.ReleaseLock();
+    }
+
+    public bool VerifyLock()
+    {
+        return _fsService.VerifyLock();
     }
 
     public Result<Settings?, Error?> GetSettings()

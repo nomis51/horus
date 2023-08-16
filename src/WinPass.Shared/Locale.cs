@@ -155,7 +155,7 @@ public static class Locale
                 { "mayTakeTime", "May take some time" },
                 {
                     "settings.passphraseCacheMessage",
-                    "This setting will alter the default behavior of GPG of putting the passphrase in cache for 10 minutes. You can disable this behavior completely by entering 0 (zero). [yellow]Be aware, if you disable this feature, GPG will ask for your passphrase [bold]every time[/] it needs to decrypt something.[/] [yellow]Meaning, when performing a search using the command '(search|find) -m [text]', you'll be asked to enter your passphrase for [bold]every entry[/] currently in your store. [/]It is suggested to not disable this feature and set a value [blue]60[/] seconds or less for safe and convenient usage."
+                    "This setting will alter the default behavior of GPG of putting the passphrase in cache for 10 minutes. You can disable this behavior completely by entering 0 (zero). [yellow]Be aware, if you disable this feature, GPG will ask for your passphrase [bold]every time[/] it needs to decrypt something.[/] [yellow]Meaning, when performing a search using the command '(search|find) -m text', you'll be asked to enter your passphrase for [bold]every entry[/] currently in your store. [/]It is suggested to not disable this feature and set a value [blue]60[/] seconds or less for safe and convenient usage."
                 }
             }
         },

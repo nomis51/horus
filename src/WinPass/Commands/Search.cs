@@ -29,22 +29,20 @@ public class Search : ICommand
         var searchMetadatas = args.Contains("-m");
 
         var text = args[0];
-        List<StoreEntry> entries = new();
 
-        AnsiConsole.Status()
-            .Spinner(Spinner.Known.Dots)
-            .SpinnerStyle(Style.Parse("blue"))
-            .Start($"Searching{(searchMetadatas ? "(May take some time)" : string.Empty)}...", _ =>
-            {
-                var (results, error) = AppService.Instance.SearchStoreEntries(text, searchMetadatas);
-                if (error is not null)
-                {
-                    AnsiConsole.MarkupLine($"[{Cli.GetErrorColor(error.Severity)}]{error.Message}[/]");
-                    return;
-                }
+        if (!AppService.Instance.VerifyLock())
+        {
+            AnsiConsole.MarkupLine("[red]Unable to verify lock.[/]");
+            return;
+        }
 
-                entries = results;
-            });
+        AnsiConsole.MarkupLine($"Searching{(searchMetadatas ? " (May take some time)" : string.Empty)}...");
+        var (entries, error) = AppService.Instance.SearchStoreEntries(text, searchMetadatas);
+        if (error is not null)
+        {
+            AnsiConsole.MarkupLine($"[{Cli.GetErrorColor(error.Severity)}]{error.Message}[/]");
+            return;
+        }
 
         if (!entries.Any()) return;
 

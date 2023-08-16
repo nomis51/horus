@@ -27,4 +27,6 @@ public interface IFsService : IService
     EmptyResult InitializeStoreFolder(string gpgId, string gitUrl);
     bool IsStoreInitialized();
     EmptyResult SetPassphraseCacheTimeout(int timeout);
+    void Verify();
+    bool VerifyLock();
 }

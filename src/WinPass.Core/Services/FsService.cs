@@ -20,7 +20,6 @@ public class FsService : IFsService
     private readonly string _migrationStoreFolderName;
     public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
-    private const string MetadataCacheFileName = ".cache";
 
     private readonly string _storeFolderPath;
     private readonly string _migrationStoreFolderPath;
@@ -161,9 +160,6 @@ public class FsService : IFsService
 
         EnumerateFilePaths(storePath, items);
         if (!items.Any()) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
-
-        if (!VerifyLock())
-            return new Result<List<StoreEntry>, Error?>(new GpgDecryptError("Unable to verify lock file"));
 
         List<MetadataCollection> metadatas = new();
 
@@ -548,7 +544,7 @@ public class FsService : IFsService
 
         if (!File.Exists(confFilePath))
         {
-            File.WriteAllText(confFilePath, $"max-cache-ttl {timeout}");
+            File.WriteAllText(confFilePath, $"max-cache-ttl {timeout}\ndefault-cache-ttl {timeout}");
         }
         else
         {
@@ -557,16 +553,51 @@ public class FsService : IFsService
 
             if (index == -1)
             {
-                File.AppendAllText(confFilePath, $"max-cache-ttl {timeout}");
+                lines.Add($"max-cache-ttl {timeout}");
             }
             else
             {
                 lines[index] = $"max-cache-ttl {timeout}";
-                File.WriteAllLines(confFilePath, lines);
+                index = lines.FindIndex(l => l.StartsWith("default-cache-ttl"));
+                if (index == -1)
+                {
+                    lines.Add($"default-cache-ttl {timeout}");
+                }
+                else
+                {
+                    lines[index] = $"default-cache-ttl {timeout}";
+                }
             }
+
+            File.WriteAllLines(confFilePath, lines);
         }
 
         return AppService.Instance.RestartGpgAgent();
+    }
+
+    public bool VerifyLock()
+    {
+        if (_lockFileStream is null) return false;
+
+        var filePath = Path.Join(_storeFolderPath, AppLockFileName);
+        if (!File.Exists(filePath)) return false;
+
+        _lockFileStream.Position = 0;
+        using var ms = new MemoryStream();
+        _lockFileStream.CopyTo(ms);
+        var tmpFile = Path.GetTempFileName();
+        File.WriteAllBytes(tmpFile, ms.ToArray());
+
+        var (content, error) = AppService.Instance.Decrypt(tmpFile);
+        File.Delete(tmpFile);
+
+        return error is null && content == AppLockFileName;
+    }
+    
+    public void Verify()
+    {
+        EnsureAllowPinentryLoopback();
+        EnsurePinentryModeLoopback();
     }
 
     public void Initialize()
@@ -576,6 +607,54 @@ public class FsService : IFsService
     #endregion
 
     #region Private methods
+
+    private void EnsureAllowPinentryLoopback()
+    {
+        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
+            "Roaming", "gnupg", "gpg-agent.conf"));
+
+        if (!File.Exists(confFilePath))
+        {
+            File.WriteAllText(confFilePath, "allow-loopback-pinentry");
+        }
+        else
+        {
+            var lines = File.ReadAllLines(confFilePath).ToList();
+            var index = lines.FindIndex(l => l.StartsWith("allow-loopback-pinentry"));
+
+            if (index == -1)
+            {
+                File.AppendAllText(confFilePath, "allow-loopback-pinentry");
+            }
+        }
+    }
+
+    private void EnsurePinentryModeLoopback()
+    {
+        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
+            "Roaming", "gnupg", "gpg.conf"));
+
+        if (!File.Exists(confFilePath))
+        {
+            File.WriteAllText(confFilePath, "pinentry-mode loopback");
+        }
+        else
+        {
+            var lines = File.ReadAllLines(confFilePath).ToList();
+            var index = lines.FindIndex(l => l.StartsWith("pinentry-mode "));
+
+            if (index == -1)
+            {
+                File.AppendAllText(confFilePath, "pinentry-mode loopback");
+            }
+            else
+            {
+                File.WriteAllLines(confFilePath, lines);
+            }
+        }
+    }
 
     private void EnumerateFilePaths(string current, List<Tuple<string, string>> filePaths)
     {
@@ -684,24 +763,7 @@ public class FsService : IFsService
         return path.Insert(path.LastIndexOf(".gpg", StringComparison.OrdinalIgnoreCase), ".m");
     }
 
-    private bool VerifyLock()
-    {
-        if (_lockFileStream is null) return false;
-
-        var filePath = Path.Join(_storeFolderPath, AppLockFileName);
-        if (!File.Exists(filePath)) return false;
-
-        _lockFileStream.Position = 0;
-        using var ms = new MemoryStream();
-        _lockFileStream.CopyTo(ms);
-        var tmpFile = Path.GetTempFileName();
-        File.WriteAllBytes(tmpFile, ms.ToArray());
-
-        var (content, error) = AppService.Instance.Decrypt(tmpFile);
-        File.Delete(tmpFile);
-
-        return error is null && content == AppLockFileName;
-    }
+  
 
     #endregion
 }
