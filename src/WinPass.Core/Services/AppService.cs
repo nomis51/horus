@@ -52,19 +52,39 @@ public class AppService : IAppService
 
     #region Public methods
 
+    public Result<string, Error?> RestartGpgAgent()
+    {
+        return _gpgService.RestartGpgAgent();
+    }
+
+    public Result<string, Error?> StartGpgAgent()
+    {
+        return _gpgService.StartGpgAgent();
+    }
+
+    public Result<string, Error?> StopGpgAgent()
+    {
+        return _gpgService.StopGpgAgent();
+    }
+
+    public EmptyResult SetPassphraseCacheTimeout(int timeout = 20)
+    {
+        return _fsService.SetPassphraseCacheTimeout(timeout);
+    }
+
     public EmptyResult ExportStore(string savePath)
     {
         return _fsService.ExportStore(savePath);
     }
-    
+
     public EmptyResult MigrateStore(string gpgId)
     {
         return _fsService.MigrateStore(gpgId);
     }
 
-    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
+    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false)
     {
-        return _fsService.SearchStoreEntries(text);
+        return _fsService.SearchStoreEntries(text, searchMetadatas);
     }
 
     public EmptyResult DestroyStore()
@@ -189,6 +209,9 @@ public class AppService : IAppService
         Task.WaitAll(tasks);
 
         if (!gpgOk) return new ResultStruct<byte, Error?>(new GpgNotInstalledError());
+
+        _fsService.Verify();
+
         return !gitOk
             ? new ResultStruct<byte, Error?>(new GitNotInstalledError())
             : new ResultStruct<byte, Error?>(0);
@@ -202,6 +225,11 @@ public class AppService : IAppService
     public void ReleaseLock()
     {
         _fsService.ReleaseLock();
+    }
+
+    public bool VerifyLock()
+    {
+        return _fsService.VerifyLock();
     }
 
     public Result<Settings?, Error?> GetSettings()

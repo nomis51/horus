@@ -38,15 +38,7 @@ public class Cli
 
         var lstArgs = args.ToList();
 
-        if (lstArgs.Count == 0)
-        {
-            lstArgs.Add("ls");
-        }
-
-        if (lstArgs[0] == "get")
-        {
-            lstArgs = new List<string> { "show", "-c", lstArgs[1] };
-        }
+        lstArgs = HandleAliases(lstArgs);
 
         var commandArgs = lstArgs.Skip(1).ToList();
         switch (lstArgs[0])
@@ -126,6 +118,18 @@ public class Cli
                 new Export().Run(commandArgs);
                 break;
 
+            case "gpg-start-agent":
+                new Gpg().Run(new List<string> { "start" });
+                break;
+
+            case "gpg-stop-agent":
+                new Gpg().Run(new List<string> { "stop" });
+                break;
+
+            case "gpg-restart-agent":
+                new Gpg().Run(new List<string> { "restart" });
+                break;
+
             default:
                 AnsiConsole.MarkupLine("[red]Invalid command[/]");
                 break;
@@ -158,6 +162,27 @@ public class Cli
     #endregion
 
     #region Private methods
+
+    private static List<string> HandleAliases(List<string> args)
+    {
+        if (args.Count == 0)
+        {
+            args.Add("ls");
+            return args;
+        }
+
+        if (args[0] == "get")
+        {
+            return new List<string> { "show", "-c", args[1] };
+        }
+
+        if (args[0] == "show" && args.Contains("-a"))
+        {
+            return new List<string> { "show", "-f", "-p", "-m", args.Last() };
+        }
+
+        return args;
+    }
 
     private static void SetAppLanguage()
     {

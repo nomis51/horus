@@ -22,7 +22,7 @@ public class Password : IDisposable
 
     public override string ToString()
     {
-        return ValueAsString.ToBase64();
+        return ValueAsString;
     }
 
     public void Dispose()

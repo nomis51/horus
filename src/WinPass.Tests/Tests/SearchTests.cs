@@ -37,7 +37,7 @@ public class SearchTests
         AppService.Instance.EncryptMetadatas(Path.Join(storePath, "test.m.gpg"), metadatas, TestHelper.TestGpgId);
 
         // Act
-        var (result, error) = AppService.Instance.SearchStoreEntries("wrong");
+        var (result, error) = AppService.Instance.SearchStoreEntries("wrong", true);
 
         // Assert
         TestHelper.Done();
@@ -70,9 +70,57 @@ public class SearchTests
         Assert.Empty(result[0].Entries);
         Assert.Empty(result[0].Metadata);
     }
+    
+    [Fact]
+    public void SearchEntry_ShouldNotFindEntry()
+    {
+        // Arrange
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
+        var storePath = TestHelper.GetStorePath();
+        var metadatas = new MetadataCollection
+        {
+            new("username", "flower123")
+        };
+        AppService.Instance.EncryptMetadatas(Path.Join(storePath, "test.m.gpg"), metadatas, TestHelper.TestGpgId);
+
+        // Act
+        var (result, error) = AppService.Instance.SearchStoreEntries("wrong");
+
+        // Assert
+        TestHelper.Done();
+        Assert.Null(error);
+        Assert.Empty(result);
+    }
 
     [Fact]
     public void SearchEntry_ShouldFindMetadata()
+    {
+        // Arrange
+        TestHelper.EnsureReady();
+        TestHelper.CreateTestFolder();
+        var storePath = TestHelper.GetStorePath();
+        var metadatas = new MetadataCollection
+        {
+            new("username", "flower123")
+        };
+        AppService.Instance.EncryptMetadatas(Path.Join(storePath, "test.m.gpg"), metadatas, TestHelper.TestGpgId);
+
+        // Act
+        var (result, error) = AppService.Instance.SearchStoreEntries("flower", true);
+
+        // Assert
+        TestHelper.Done();
+        Assert.Null(error);
+        Assert.NotEmpty(result);
+        Assert.False(result[0].IsFolder);
+        Assert.Empty(result[0].Entries);
+        Assert.NotEmpty(result[0].Metadata);
+        Assert.Equal("username: flower123", result[0].Metadata[0]);
+    }
+    
+    [Fact]
+    public void SearchEntry_ShouldNotFindMetadata()
     {
         // Arrange
         TestHelper.EnsureReady();
@@ -90,11 +138,7 @@ public class SearchTests
         // Assert
         TestHelper.Done();
         Assert.Null(error);
-        Assert.NotEmpty(result);
-        Assert.False(result[0].IsFolder);
-        Assert.Empty(result[0].Entries);
-        Assert.NotEmpty(result[0].Metadata);
-        Assert.Equal("username: flower123", result[0].Metadata[0]);
+        Assert.Empty(result);
     }
 
     #endregion

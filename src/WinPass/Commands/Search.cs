@@ -13,6 +13,7 @@ public class Search : ICommand
 
     public void Run(List<string> args)
     {
+        if (!Cli.AcquireLock()) return;
         if (!AppService.Instance.IsStoreInitialized())
         {
             AnsiConsole.MarkupLine($"[red]{new FsStoreNotInitializedError().Message}[/]");
@@ -25,15 +26,23 @@ public class Search : ICommand
             return;
         }
 
-        var text = args[0];
+        var searchMetadatas = args.Contains("-m");
+        var text = args.Last();
+
+        if (searchMetadatas && !AppService.Instance.VerifyLock())
+        {
+            AnsiConsole.MarkupLine($"[red]{Locale.Get("error.getLockFailed")}[/]");
+            return;
+        }
+
         List<StoreEntry> entries = new();
 
         AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
             .SpinnerStyle(Style.Parse("blue"))
-            .Start("Searching...", _ =>
+            .Start(Locale.Get("searching"), _ =>
             {
-                var (results, error) = AppService.Instance.SearchStoreEntries(text);
+                var (results, error) = AppService.Instance.SearchStoreEntries(text, searchMetadatas);
                 if (error is not null)
                 {
                     AnsiConsole.MarkupLine($"[{Cli.GetErrorColor(error.Severity)}]{error.Message}[/]");
@@ -43,7 +52,11 @@ public class Search : ICommand
                 entries = results;
             });
 
-        if (!entries.Any()) return;
+        if (!entries.Any())
+        {
+            AnsiConsole.MarkupLine(Locale.Get("notEntryFound"));
+            return;
+        }
 
         var tree = new Tree(string.Empty);
         List.RenderEntries(entries, tree);

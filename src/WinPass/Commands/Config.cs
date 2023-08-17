@@ -38,6 +38,7 @@ public class Config : ICommand
                         Locale.Get("settings.defaultCustomAlphabet"),
                         Locale.Get("settings.defaultClearTimeout"),
                         Locale.Get("settings.language"),
+                        Locale.Get("settings.passphrasCacheTimeout"),
                         Locale.Get("save"),
                         Locale.Get("cancel")
                     )
@@ -75,6 +76,14 @@ public class Config : ICommand
             {
                 settings.ClearTimeout =
                     AnsiConsole.Ask($"{Locale.Get("questions.clearTimeout")}: ", settings.ClearTimeout);
+            }
+
+            if (choice == Locale.Get("settings.passphrasCacheTimeout"))
+            {
+                AnsiConsole.MarkupLine(Locale.Get("settings.passphraseCacheMessage"));
+                AnsiConsole.WriteLine();
+                var timeout = AnsiConsole.Ask($"{Locale.Get("questions.passphrasCacheTimeout")} ", 30);
+                AppService.Instance.SetPassphraseCacheTimeout(timeout);
             }
 
             if (choice == Locale.Get("settings.language"))

@@ -26,7 +26,21 @@ public class GpgService : IGpgService
             var lines = GetPowerShellInstance()
                 .AddArgument("--version")
                 .Invoke<string>();
-            return lines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
+            var ok = lines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
+            if (!ok) return false;
+
+            PowerShell.Create()
+                .AddCommand("gpg-connect-agent")
+                .AddArgument("reloadagent")
+                .AddArgument("/bye")
+                .Invoke();
+
+            if (ok)
+            {
+                StartGpgAgent();
+            }
+
+            return ok;
         }
         catch (Exception e)
         {
@@ -62,7 +76,7 @@ public class GpgService : IGpgService
 
         try
         {
-            var lstMetadata = JsonConvert.DeserializeObject<List<Metadata>>(data.FromBase64());
+            var lstMetadata = JsonConvert.DeserializeObject<List<Metadata>>(data);
             return lstMetadata is null
                 ? new Result<MetadataCollection?, Error?>(new GpgDecryptError("Resulting data was null"))
                 : new Result<MetadataCollection?, Error?>(new MetadataCollection(path, lstMetadata));
@@ -77,8 +91,13 @@ public class GpgService : IGpgService
     public Result<List<MetadataCollection?>, Error?> DecryptManyMetadatas(List<Tuple<string, string>> items)
     {
         var filePaths = items.Select(i => i.Item2);
-        var (lines, error) = DecryptMany(filePaths);
-        if (error is not null) return new Result<List<MetadataCollection?>, Error?>(error);
+
+        List<string> lines = new();
+        foreach (var filePath in filePaths)
+        {
+            var (line, error) = DecryptOne(filePath);
+            lines.Add(error is not null ? string.Empty : line);
+        }
 
         List<MetadataCollection?> results = new();
         for (var i = 0; i < lines.Count; ++i)
@@ -88,7 +107,7 @@ public class GpgService : IGpgService
                 results.Add(
                     new MetadataCollection(
                         items[i].Item1,
-                        JsonConvert.DeserializeObject<List<Metadata>>(lines[i].FromBase64())!
+                        JsonConvert.DeserializeObject<List<Metadata>>(lines[i])!
                     )
                 );
             }
@@ -107,7 +126,7 @@ public class GpgService : IGpgService
         var (data, error) = DecryptOne(path);
         return error is not null
             ? new Result<Password?, Error?>(error)
-            : new Result<Password?, Error?>(new Password(data.FromBase64()));
+            : new Result<Password?, Error?>(new Password(data));
     }
 
     public ResultStruct<bool, Error?> IsIdValid(string id = "")
@@ -159,6 +178,53 @@ public class GpgService : IGpgService
         }
     }
 
+    public Result<string, Error?> RestartGpgAgent()
+    {
+        var (result, error) = StopGpgAgent();
+        if (error is not null) return new Result<string, Error?>(error);
+
+        var (result2, error2) = StartGpgAgent();
+        if (error2 is not null) return new Result<string, Error?>(error2);
+
+        return new Result<string, Error?>(string.Join("\n", result, result2));
+    }
+
+    public Result<string, Error?> StartGpgAgent()
+    {
+        try
+        {
+            var lines = PowerShell.Create()
+                .AddCommand("gpg-connect-agent")
+                .AddArgument("reloadagent")
+                .AddArgument("/bye")
+                .Invoke<string>();
+            return lines.FirstOrDefault(l => l.StartsWith("OK")) is not null
+                ? new Result<string, Error?>(string.Join(", ", lines))
+                : new Result<string, Error?>(new GpgDecryptError("Unable to start GPG agent"));
+        }
+        catch (Exception e)
+        {
+            return new Result<string, Error?>(new GpgDecryptError(e.Message));
+        }
+    }
+
+    public Result<string, Error?> StopGpgAgent()
+    {
+        try
+        {
+            PowerShell.Create()
+                .AddCommand("gpgconf")
+                .AddArgument("--kill")
+                .AddArgument("gpg-agent")
+                .Invoke();
+            return new Result<string, Error?>("");
+        }
+        catch (Exception e)
+        {
+            return new Result<string, Error?>(new GpgDecryptError(e.Message));
+        }
+    }
+
     public void Initialize()
     {
     }
@@ -172,8 +238,8 @@ public class GpgService : IGpgService
         try
         {
             var scriptBlock = ScriptBlock.Create(
-                "foreach($filePath in @(" + string.Join(",", filePaths.Select(f => $"\"{f}\"")) +
-                ")){ gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $filePath; echo \"\"}"
+                "@(" + string.Join(",", filePaths.Select(f => $"\"{f}\"")) +
+                ") | ForEach-Object -Parallel { gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $_; echo \"\"}"
             );
             var pwsh = GetPowerShellInstance(noSetup: true);
             pwsh.AddCommand("Invoke-Command")
@@ -215,7 +281,7 @@ public class GpgService : IGpgService
                 string.Join(
                     string.Empty,
                     lines
-                )
+                ).FromBase64()
             );
         }
         catch (Exception e)
@@ -246,7 +312,7 @@ public class GpgService : IGpgService
             var pwsh = GetPowerShellInstance(true)
                 .AddArgument("-Command")
                 .AddArgument("Write-Output")
-                .AddArgument(value)
+                .AddArgument(value.ToBase64())
                 .AddArgument("|")
                 .AddArgument(GpgProcessName)
                 .AddArgument("--quiet")

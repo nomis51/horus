@@ -1,8 +1,8 @@
 ﻿using System.IO.Compression;
+using System.Runtime.InteropServices;
 using Serilog;
 using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
-using WinPass.Shared.Extensions;
 using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
@@ -151,7 +151,7 @@ public class FsService : IFsService
         return result;
     }
 
-    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text)
+    public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false)
     {
         if (string.IsNullOrWhiteSpace(text))
             return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
@@ -160,10 +160,19 @@ public class FsService : IFsService
         var storePath = GetStoreLocation();
 
         EnumerateFilePaths(storePath, items);
+        if (!items.Any()) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
 
-        var (lstMetadatas, error) =
-            AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
-        if (error is not null) return new Result<List<StoreEntry>, Error?>(error);
+        List<MetadataCollection> metadatas = new();
+
+        if (searchMetadatas)
+        {
+            var (lstMetadatas, error) =
+                AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
+            if (error is not null)
+                return new Result<List<StoreEntry>, Error?>(error);
+
+            metadatas = lstMetadatas;
+        }
 
         var loweredText = text.Trim().ToLower();
         List<StoreEntry> entries = new();
@@ -179,18 +188,22 @@ public class FsService : IFsService
                 if (!filePath.EndsWith(".m.gpg")) continue;
 
                 var path = Path.GetFileName(filePath);
-                var currentEntryPath = string.IsNullOrEmpty(currenPath) ? path : $"{currenPath}/{path}";
-                var metadatas = lstMetadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
 
                 List<string> metadataFound = new();
-                if (metadatas is not null)
+                if (searchMetadatas)
                 {
-                    foreach (var metadata in metadatas)
-                    {
-                        if (!metadata.Key.ToLower().Contains(loweredText) &&
-                            !metadata.Value.ToLower().Contains(loweredText)) continue;
+                    var currentEntryPath = string.IsNullOrEmpty(currenPath) ? path : $"{currenPath}/{path}";
+                    var entryMetadatas = metadatas.FirstOrDefault(m => m?.Name == currentEntryPath);
 
-                        metadataFound.Add(metadata.ToString());
+                    if (entryMetadatas is not null)
+                    {
+                        foreach (var metadata in entryMetadatas)
+                        {
+                            if (!metadata.Key.ToLower().Contains(loweredText) &&
+                                !metadata.Value.ToLower().Contains(loweredText)) continue;
+
+                            metadataFound.Add(metadata.ToString());
+                        }
                     }
                 }
 
@@ -380,7 +393,7 @@ public class FsService : IFsService
         var resultEncryptPassword = AppService.Instance.EncryptPassword(filePath, password);
         if (!resultEncryptPassword.HasError)
         {
-            var resultGitCommit = AppService.Instance.GitCommit($"Insert password '{name}')");
+            var resultGitCommit = AppService.Instance.GitCommit($"Insert password '{name}'");
             return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
         }
 
@@ -524,6 +537,92 @@ public class FsService : IFsService
         return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
     }
 
+    public EmptyResult SetPassphraseCacheTimeout(int timeout)
+    {
+        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "AppData/Roaming/gnupg/gpg-agent.conf"
+                : ".gnupg/gpg-agent.conf"));
+
+        if (!File.Exists(confFilePath))
+        {
+            File.WriteAllText(confFilePath, $"max-cache-ttl {timeout}\ndefault-cache-ttl {timeout}");
+        }
+        else
+        {
+            var lines = File.ReadAllLines(confFilePath).ToList();
+            var index = lines.FindIndex(l => l.StartsWith("max-cache-ttl"));
+
+            if (index == -1)
+            {
+                lines.Add($"max-cache-ttl {timeout}");
+            }
+            else
+            {
+                lines[index] = $"max-cache-ttl {timeout}";
+                index = lines.FindIndex(l => l.StartsWith("default-cache-ttl"));
+                if (index == -1)
+                {
+                    lines.Add($"default-cache-ttl {timeout}");
+                }
+                else
+                {
+                    lines[index] = $"default-cache-ttl {timeout}";
+                }
+            }
+
+            File.WriteAllLines(confFilePath, lines);
+        }
+
+        var (_, error) = AppService.Instance.RestartGpgAgent();
+        return error is not null ? new EmptyResult(error) : new EmptyResult();
+    }
+
+    public bool VerifyLock()
+    {
+        if (_lockFileStream is null) return false;
+
+        var filePath = Path.Join(_storeFolderPath, AppLockFileName);
+        if (!File.Exists(filePath)) return false;
+
+        _lockFileStream.Position = 0;
+        using var ms = new MemoryStream();
+        _lockFileStream.CopyTo(ms);
+        var tmpFile = Path.GetTempFileName();
+        File.WriteAllBytes(tmpFile, ms.ToArray());
+
+        var (content, error) = AppService.Instance.Decrypt(tmpFile);
+        File.Delete(tmpFile);
+
+        return error is null && content == AppLockFileName;
+    }
+
+    public void Verify()
+    {
+        var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "AppData/Roaming/gnupg/gpg-agent.conf"
+                : ".gnupg/gpg-agent.conf"));
+
+        if (!File.Exists(confFilePath))
+        {
+            File.WriteAllText(confFilePath, "no-allow-external-cache");
+        }
+        else
+        {
+            var lines = File.ReadAllLines(confFilePath).ToList();
+            var index = lines.FindIndex(l => l.StartsWith("no-allow-external-cache"));
+
+            if (index != -1) return;
+
+            lines.Add("no-allow-external-cache");
+            File.WriteAllLines(confFilePath, lines);
+            AppService.Instance.RestartGpgAgent();
+        }
+    }
+
     public void Initialize()
     {
     }
@@ -593,7 +692,7 @@ public class FsService : IFsService
         }
 
         Directory.CreateDirectory(_storeFolderPath);
-        return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName);
+        return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName, gpgId);
     }
 
     private string GetEntryPath(string name)
@@ -637,25 +736,6 @@ public class FsService : IFsService
     {
         var path = GetEntryPath(name);
         return path.Insert(path.LastIndexOf(".gpg", StringComparison.OrdinalIgnoreCase), ".m");
-    }
-
-    private bool VerifyLock()
-    {
-        if (_lockFileStream is null) return false;
-
-        var filePath = Path.Join(_storeFolderPath, AppLockFileName);
-        if (!File.Exists(filePath)) return false;
-
-        _lockFileStream.Position = 0;
-        using var ms = new MemoryStream();
-        _lockFileStream.CopyTo(ms);
-        var tmpFile = Path.GetTempFileName();
-        File.WriteAllBytes(tmpFile, ms.ToArray());
-
-        var (content, error) = AppService.Instance.Decrypt(tmpFile);
-        File.Delete(tmpFile);
-
-        return error is null && content.FromBase64() == AppLockFileName;
     }
 
     #endregion

@@ -16,9 +16,11 @@ if (Test-Path -Path ../build) {
 
 New-Item -Name ../build -ItemType directory
 
-Copy-Item -Path ../src/WinPass/bin/Release/net7.0/* -Destination ../build -Include *.dll, *.exe, *.json
+Copy-Item -Path ../src/WinPass/bin/Release/net7.0/* -Destination ../build -Include *.dll, *.json
+mkdir ../build/runtimes
 mkdir ../build/runtimes/linux-x64
-Copy-Item -Path ../src/WinPass/bin/Release/net7.0/runtimes/linux-x64/* -Force -Recurse -Destination ../build/runtimes/linux-x64
+mkdir ../build/runtimes/linux-x64/native
+Copy-Item -Path ../src/WinPass/bin/Release/net7.0/runtimes/linux-x64/native/* -Force -Recurse -Destination ../build/runtimes/linux-x64/native
 mkdir ../build/runtimes/linux
 Copy-Item -Path ../src/WinPass/bin/Release/net7.0/runtimes/linux/* -Force -Recurse -Destination ../build/runtimes/linux
 mkdir ../build/ref
@@ -28,6 +30,15 @@ Copy-Item -Path ../src/WinPass/bin/Release/net7.0/fr -Force -Recurse -Destinatio
 mkdir ../build/de
 Copy-Item -Path ../src/WinPass/bin/Release/net7.0/de -Force -Recurse -Destination ../build/de
 Copy-Item -Path ../README.md -Destination ../build/README.md
+Copy-Item -Path ../src/WinPass/bin/Release/net7.0/WinPass -Destination ../build/WinPass
+mkdir ../build/runtimes/unix
+mkdir ../build/runtimes/unix/lib
+mkdir ../build/runtimes/unix/lib/net7.0
+mkdir ../build/runtimes/unix/lib/netcoreapp2.1
+mkdir ../build/runtimes/unix/lib/netstandard1.6
+Copy-Item -Path ../src/WinPass/bin/Release/net7.0/runtimes/unix/lib/net7.0/* -Destination ../build/runtimes/unix/lib/net7.0
+Copy-Item -Path ../src/WinPass/bin/Release/net7.0/runtimes/unix/lib/netcoreapp2.1/* -Destination ../build/runtimes/unix/lib/netcoreapp2.1
+Copy-Item -Path ../src/WinPass/bin/Release/net7.0/runtimes/unix/lib/netstandard1.6/* -Destination ../build/runtimes/unix/lib/netstandard1.6
 
 if (Test-Path -Path ../build/WinPass.exe) {
 	Rename-Item -Path ../build/WinPass.exe -NewName winpass.exe 
