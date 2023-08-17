@@ -32,13 +32,13 @@ public class GenerateTests
 
         // Act
         Assert.True(AppService.Instance.AcquireLock());
-        var result = AppService.Instance.GenerateNewPassword("test");
+        var result = AppService.Instance.GenerateNewPassword(copy: false);
         AppService.Instance.ReleaseLock();
         var (resultPassword, error) = AppService.Instance.DecryptPassword(Path.Join(storePath, "test.gpg"));
 
         // Assert
         TestHelper.Done();
-        Assert.False(result.HasError);
+        Assert.False(result.Item2 is not null);
         Assert.Null(error);
         Assert.NotNull(resultPassword);
     }

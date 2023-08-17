@@ -53,6 +53,8 @@ public static class Program
         finally
         {
             if (!string.IsNullOrEmpty(_exitMessage)) AnsiConsole.MarkupLine(_exitMessage);
+
+            ClipboardHelper.EnsureCleared();
             AppService.Instance.ReleaseLock();
         }
     }
@@ -60,8 +62,6 @@ public static class Program
     #endregion
 
     #region Private methods
-
- 
 
     private static string InitializeLogger()
     {

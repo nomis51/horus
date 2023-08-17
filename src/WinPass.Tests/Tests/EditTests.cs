@@ -136,14 +136,14 @@ public class EditTests
 
         // Act
         Assert.True(AppService.Instance.AcquireLock());
-        var result = AppService.Instance.GenerateNewPassword("test");
+        var (_, error) = AppService.Instance.GenerateNewPassword(copy: false);
         AppService.Instance.ReleaseLock();
-        var (resultPassword, error) = AppService.Instance.DecryptPassword(Path.Join(storePath, "test.gpg"));
+        var (resultPassword, error2) = AppService.Instance.DecryptPassword(Path.Join(storePath, "test.gpg"));
 
         // Assert
         TestHelper.Done();
-        Assert.False(result.HasError);
-        Assert.Null(error);
+        Assert.False(error is not null);
+        Assert.Null(error2);
         Assert.NotEqual(password.ValueAsString, resultPassword!.ValueAsString);
     }
 

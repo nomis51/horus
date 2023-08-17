@@ -4,6 +4,7 @@ using WinPass.Commands.Abstractions;
 using WinPass.Core.Services;
 using WinPass.Shared;
 using WinPass.Shared.Enums;
+using WinPass.Shared.Helpers;
 using WinPass.Shared.Models.Data;
 using WinPass.Shared.Models.Errors.Fs;
 
@@ -35,11 +36,11 @@ public class Edit : ICommand
         }
 
         var name = args[^1];
-        
+
         if (!AppService.Instance.DoStoreEntryExists(name))
         {
             AnsiConsole.MarkupLine($"[red]{Locale.Get("error.passwordDoesntExists")}[/]");
-            return; 
+            return;
         }
 
         var (metadatas, error) = AppService.Instance.GetMetadatas(name);
@@ -50,6 +51,7 @@ public class Edit : ICommand
         }
 
         var lastErrorMessage = string.Empty;
+        Password? newPasswordToSave = null;
         while (true)
         {
             Console.Clear();
@@ -65,11 +67,32 @@ public class Edit : ICommand
                     .AddChoices(
                         Locale.Get("thePassword"),
                         Locale.Get("theMetadata"),
+                        Locale.Get("save"),
                         Locale.Get("quit")
                     )
             );
 
             if (choice == Locale.Get("quit")) break;
+
+            if (choice == Locale.Get("save"))
+            {
+                ClipboardHelper.EnsureCleared();
+                
+                if (newPasswordToSave is not null)
+                {
+                    var resultEditPassword = AppService.Instance.EditPassword(name, newPasswordToSave);
+                    if (resultEditPassword.HasError)
+                    {
+                        AnsiConsole.MarkupLine(
+                            $"[{Cli.GetErrorColor(resultEditPassword.Error!.Severity)}]{resultEditPassword.Error!.Message}[/]");
+                        return;
+                    }
+
+                    AnsiConsole.MarkupLine($"[green]{Locale.Get("settings.saved")}[/]");
+                }
+
+                break;
+            }
 
             if (choice == Locale.Get("thePassword"))
             {
@@ -86,15 +109,16 @@ public class Edit : ICommand
                 if (choicePassword == Locale.Get("cancel")) continue;
                 if (choicePassword == Locale.Get("questions.generateNewPassword"))
                 {
-                    var resultGenerateNewPassword = AppService.Instance.GenerateNewPassword(name);
-                    if (resultGenerateNewPassword.HasError)
+                    var (newPassword, errorNewPassword) = AppService.Instance.GenerateNewPassword(copy: true);
+                    if (errorNewPassword is not null)
                     {
                         AnsiConsole.MarkupLine(
-                            $"[{Cli.GetErrorColor(resultGenerateNewPassword.Error!.Severity)}]{resultGenerateNewPassword.Error!.Message}[/]");
+                            $"[{Cli.GetErrorColor(errorNewPassword.Severity)}]{errorNewPassword.Message}[/]");
                         return;
                     }
 
-                    // TODO: copy new password to clipboard
+                    AnsiConsole.MarkupLine(Locale.Get("passwordCopied"));
+                    newPasswordToSave = newPassword;
                     continue;
                 }
 
@@ -126,19 +150,9 @@ public class Edit : ICommand
                     newPasswordConfirm = null;
                     GC.Collect();
 
-                    var pwd = new Password(newPassword);
+                    newPasswordToSave = new Password(newPassword);
                     newPassword = null;
                     GC.Collect();
-
-                    var resultEditPassword = AppService.Instance.EditPassword(name, pwd);
-                    pwd.Dispose();
-
-                    if (resultEditPassword.HasError)
-                    {
-                        AnsiConsole.MarkupLine(
-                            $"[{Cli.GetErrorColor(resultEditPassword.Error!.Severity)}]{resultEditPassword.Error!.Message}[/]");
-                        return;
-                    }
 
                     continue;
                 }

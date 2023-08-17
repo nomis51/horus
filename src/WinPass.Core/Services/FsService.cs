@@ -123,18 +123,14 @@ public class FsService : IFsService
         if (Directory.Exists(_migrationStoreFolderPath)) Directory.Delete(_migrationStoreFolderPath, true);
 
         var resultGitCommit = AppService.Instance.GitCommit($"Migrate store to new GPG keypair '{gpgId}'");
-        if (resultGitCommit.HasError)
-        {
-            return new EmptyResult(resultGitCommit.Error!);
-        }
-
-        return new EmptyResult();
+        return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
     }
 
-    public EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "")
+    public Result<Password?, Error?> GenerateNewPassword(int length = 0, string customAlphabet = "", bool copy = false,
+        bool dontReturn = false)
     {
         var (settings, error) = AppService.Instance.GetSettings();
-        if (error is not null) return new EmptyResult(error);
+        if (error is not null) return new Result<Password?, Error?>(error);
 
         var newPassword = new Password(
             PasswordHelper.Generate(
@@ -143,12 +139,15 @@ public class FsService : IFsService
             )
         );
 
-        var result = DoStoreEntryExists(name)
-            ? EditStoreEntryPassword(name, newPassword)
-            : AddStoreEntry(name, newPassword);
-        newPassword.Dispose();
+        if (copy)
+        {
+            ClipboardHelper.Copy(newPassword.ValueAsString);
+        }
 
-        return result;
+        if (!dontReturn) return new Result<Password?, Error?>(newPassword);
+
+        newPassword.Dispose();
+        return new Result<Password?, Error?>(default(Password));
     }
 
     public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false)

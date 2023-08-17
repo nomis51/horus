@@ -122,9 +122,10 @@ public class AppService : IAppService
         return _fsService.RemoveStoreEntry(name);
     }
 
-    public EmptyResult GenerateNewPassword(string name, int length = 0, string customAlphabet = "")
+    public Result<Password?, Error?> GenerateNewPassword(int length = 0, string customAlphabet = "",
+       bool copy = false, bool dontReturn = false)
     {
-        return _fsService.GenerateNewPassword(name, length, customAlphabet);
+        return _fsService.GenerateNewPassword(length, customAlphabet, copy: copy, dontReturn: dontReturn);
     }
 
     public EmptyResult EditPassword(string name, Password password)
