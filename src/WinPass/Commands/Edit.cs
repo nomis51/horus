@@ -149,6 +149,8 @@ public class Edit : ICommand
 
                     newPasswordConfirm = null;
                     GC.Collect();
+                    
+                    // TODO: calculate entropy and tell if the password is good or not
 
                     newPasswordToSave = new Password(newPassword);
                     newPassword = null;

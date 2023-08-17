@@ -63,6 +63,8 @@ public class Insert : ICommand
         passwordConfirm = null;
         GC.Collect();
 
+        // TODO: calculate entropy and tell if the password is good or not
+        
         var pwd = new Password(password);
         password = null;
         GC.Collect();
