@@ -28,7 +28,9 @@ List all the entries in the password store in a tree view.
 
 ### Examples
 `winpass ls`
+
 `winpass list`
+
 `winpass`
 
 ## show
@@ -46,11 +48,17 @@ There are several arguments you can provide to the command :
 
 ### Examples
 `winpass show facebook` : will show the metadatas of the "facebook" entry.
+
 `winpass show -m facebook` : will show the metadatas of the "facebook" entry.
+
 `winpass show -p facebook` : will show the password of the "facebook" entry and clear the terminal after a while
+
 `winpass show -p -m facebook` : will show the metadatas AND password of the "facebook" entry and clear the terminal after a while
+
 `winpass show -p -m -f facebook` : will show the metadatas AND password of the "facebook" entry and NOT clear the terminal after a while
+
 `winpass show -c facebook` : will copy the password of the "facebook" entry into your clipboard
+
 `winpass get facebook` : shortcut equivalent to `winpass show -c facebook`
 
 ## insert
@@ -60,6 +68,7 @@ Add a new entry named `[name]` in the password store. The command will then ask 
 
 ### Examples
 `winpass insert facebook` : will insert a new entry named "facebook"
+
 `winpass add facebook` : will insert a new entry named "facebook"
 
 ## generate
@@ -76,8 +85,11 @@ You can provide some arguments to the command :
 
 ### Examples
 `winpass generate facebook` : will generate a password named "facebook"
+
 `winpass generate -s=30 facebook` : will generate a password named "facebook" of 30 characters long
+
 `winpass generate -a=abc def` : will generate a password named "facebook" containing only the characters "abc"
+
 `winpass generate -a=abc -s=30 facebook` : will generate a password named "facebook" of 30 characters long containing only the characters "abc"
 
 ## edit
@@ -112,8 +124,11 @@ There is an argument available for this command :
 
 ### Examples
 `winpass find facebook` : will search for an entry containing "facebook" in its name.
+
 `winpass find -m facebook` : will search for an entry containing "facebook" in its name OR in its metadata.
+
 `winpass search facebook` : Same as `winpass find facebook`
+
 `winpass grep facebook` : Same as `winpass find facebook`
 
 ## remove
@@ -138,7 +153,9 @@ There is an argument that you can provide to the command :
 
 ### Examples
 `winpass rename facebook` : will rename the entry named "facebook" to a new name
+
 `winpass rename -d "facebook"` : will duplicate the entry named "facebook" with a new name
+
 `winpass move facebook` : Same as `winpass rename facebook`
 
 ## git
