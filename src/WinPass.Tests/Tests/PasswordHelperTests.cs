@@ -1,16 +1,11 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using WinPass.Shared.Helpers;
 
-namespace WinPass.Shared.Helpers;
+namespace WinPass.Tests.Tests;
 
-public static class PasswordHelper
+public class PasswordHelperTests
 {
     #region Constants
-
-    private const int DefaultLength = 20;
-    private static readonly char[] DefaultCharacters =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-=_+[{]}\\".ToCharArray();
 
     private static readonly Regex RegAlphaLow = new("[a-z]", RegexOptions.Compiled);
     private static readonly Regex RegAlphaUp = new("[A-Z]", RegexOptions.Compiled);
@@ -19,41 +14,22 @@ public static class PasswordHelper
 
     #endregion
 
-    #region Public methods
+    #region Tests
 
-    public static byte[] Generate(int length = DefaultLength, string customAlphabet = "")
+    [Fact]
+    public void CalculateEntropy_ShouldReturn131ish()
     {
-        if (length <= 0)
-        {
-            length = DefaultLength;
-        }
-
-        var chars = string.IsNullOrWhiteSpace(customAlphabet) ? DefaultCharacters : customAlphabet.ToCharArray();
-
-        var data = new byte[4 * length];
-        using (var crypto = RandomNumberGenerator.Create())
-        {
-            crypto.GetBytes(data);
-        }
-
-        var bestEntropy = Math.Floor(CalculateEntropy(chars, true, length));
-        
-        while (true)
-        {
-            var result = new char[length];
-            for (var i = 0; i < length; ++i)
-            {
-                var random = BitConverter.ToUInt32(data, i * 4);
-                var index = random % chars.Length;
-
-                result[i] = chars[index];
-            }
-
-            var entropy = CalculateEntropy(result);
-            if (entropy < bestEntropy) continue;
-
-            return result.Select(c => (byte)c).ToArray();
-        }
+        var password = PasswordHelper.Generate(20,
+            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-=_+[{]}\\");
+        Assert.True(131 - CalculateEntropy(password.Select(c => (char)c).ToArray()) < 1);
+    }
+    
+    [Fact]
+    public void CalculateEntropy_ShouldReturn66ish()
+    {
+        var password = PasswordHelper.Generate(20,
+            "1234567890");
+        Assert.True(66 - CalculateEntropy(password.Select(c => (char)c).ToArray()) < 1);
     }
 
     #endregion
