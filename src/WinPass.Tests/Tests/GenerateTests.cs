@@ -33,6 +33,7 @@ public class GenerateTests
         // Act
         Assert.True(AppService.Instance.AcquireLock());
         var result = AppService.Instance.GenerateNewPassword(copy: false);
+        AppService.Instance.InsertPassword("test", result.Item1!);
         AppService.Instance.ReleaseLock();
         var (resultPassword, error) = AppService.Instance.DecryptPassword(Path.Join(storePath, "test.gpg"));
 

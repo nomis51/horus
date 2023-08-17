@@ -136,7 +136,8 @@ public class EditTests
 
         // Act
         Assert.True(AppService.Instance.AcquireLock());
-        var (_, error) = AppService.Instance.GenerateNewPassword(copy: false);
+        var (newPassword, error) = AppService.Instance.GenerateNewPassword(copy: false);
+        AppService.Instance.EditPassword("test", newPassword!);
         AppService.Instance.ReleaseLock();
         var (resultPassword, error2) = AppService.Instance.DecryptPassword(Path.Join(storePath, "test.gpg"));
 
