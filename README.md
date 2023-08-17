@@ -30,7 +30,7 @@ Upon the first execution, `winpass` will add itself to the `PATH` variable to ma
 To proceed, simply download the new version on [GitHub](https://github.com/nomis51/winpass/releases/latest) and replace the content of your *old* folder with the new update.
 
 ## Usage
-You can execute the command `winpass help` or navigate to the [commands' page]() to have all the information about how the application works and what commands are available
+You can execute the command `winpass help` or navigate to the [commands' page](https://github.com/nomis51/winpass/blob/master/docs/commands.md) to have all the information about how the application works and what commands are available
 
 ## TODOs
 - Add an `import` command 
