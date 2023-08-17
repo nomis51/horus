@@ -57,7 +57,7 @@ public class Edit : ICommand
             Console.Clear();
             if (!string.IsNullOrEmpty(lastErrorMessage))
             {
-                AnsiConsole.MarkupLine($"[red]{lastErrorMessage.EscapeMarkup()}[/]");
+                AnsiConsole.MarkupLine($"{lastErrorMessage.EscapeMarkup()}");
                 lastErrorMessage = string.Empty;
             }
 
@@ -112,12 +112,12 @@ public class Edit : ICommand
                     var (newPassword, errorNewPassword) = AppService.Instance.GenerateNewPassword(copy: true);
                     if (errorNewPassword is not null)
                     {
-                        AnsiConsole.MarkupLine(
-                            $"[{Cli.GetErrorColor(errorNewPassword.Severity)}]{errorNewPassword.Message}[/]");
+                        lastErrorMessage =
+                            $"[{Cli.GetErrorColor(errorNewPassword.Severity)}]{errorNewPassword.Message}[/]";
                         return;
                     }
 
-                    AnsiConsole.MarkupLine(Locale.Get("passwordCopied"));
+                    lastErrorMessage = Locale.Get("passwordCopied");
                     newPasswordToSave = newPassword;
                     continue;
                 }
@@ -130,7 +130,7 @@ public class Edit : ICommand
                     );
                     if (string.IsNullOrWhiteSpace(newPassword))
                     {
-                        lastErrorMessage = Locale.Get("error.passwordCantEmpty");
+                        lastErrorMessage = $"[red]{Locale.Get("error.passwordCantEmpty")}[/]";
                         continue;
                     }
 
@@ -143,7 +143,7 @@ public class Edit : ICommand
                         newPassword = null;
                         newPasswordConfirm = null;
                         GC.Collect();
-                        lastErrorMessage = Locale.Get("error.passwordDontMatch");
+                        lastErrorMessage = $"[red]{Locale.Get("error.passwordDontMatch")}[/]";
                         continue;
                     }
 
