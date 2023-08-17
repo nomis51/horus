@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using System.Runtime.InteropServices;
 using Serilog;
 using WinPass.Core.Services.Abstractions;
 using WinPass.Shared.Enums;
@@ -539,8 +540,10 @@ public class FsService : IFsService
     public EmptyResult SetPassphraseCacheTimeout(int timeout)
     {
         var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
-            "Roaming", "gnupg", "gpg-agent.conf"));
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "AppData/Roaming/gnupg/gpg-agent.conf"
+                : ".gnupg/gpg-agent.conf"));
 
         if (!File.Exists(confFilePath))
         {
@@ -598,8 +601,10 @@ public class FsService : IFsService
     public void Verify()
     {
         var confFilePath = Environment.ExpandEnvironmentVariables(Path.Join(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
-            "Roaming", "gnupg", "gpg-agent.conf"));
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "AppData/Roaming/gnupg/gpg-agent.conf"
+                : ".gnupg/gpg-agent.conf"));
 
         if (!File.Exists(confFilePath))
         {
