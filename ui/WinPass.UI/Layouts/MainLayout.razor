@@ -5,4 +5,14 @@
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
-@Body
+<MudStack Row="true"
+          Spacing="2"
+          Justify="Justify.SpaceBetween"
+          Style="padding: .5rem">
+    <MudPaper Style="width: var(--app-sidenav-width); height: var(--app-content-height)">
+        <Sidenav/>
+    </MudPaper>
+    <MudPaper Style="width: var(--app-content-width); height: var(--app-content-height)">
+        @Body
+    </MudPaper>
+</MudStack>

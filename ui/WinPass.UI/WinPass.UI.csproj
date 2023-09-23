@@ -13,10 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Page Update="Windows\MainWindow.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>

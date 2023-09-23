@@ -7,8 +7,9 @@
         xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation/blazor"
         mc:Ignorable="d"
         Title="WinPass.UI"
-        Height="450"
-        Width="800">
+        Height="900"
+        Width="1600"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <wpf:BlazorWebView HostPage="wwwroot\index.html"
                            Services="{DynamicResource services}">

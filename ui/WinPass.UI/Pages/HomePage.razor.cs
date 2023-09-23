@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using WinPass.UI.Components.Abstractions;
 
 namespace WinPass.UI.Pages;
 
-public class HomePageBase : ComponentBase
+public class HomePageBase : Page
 {
 }
