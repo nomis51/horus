@@ -1,15 +1,29 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MudBlazor.Services;
+using WinPass.UI.Extensions;
 
 namespace WinPass.UI.Windows;
 
 public partial class MainWindow
 {
+    #region Constructors
+
     public MainWindow()
     {
         InitializeComponent();
-        
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddWpfBlazorWebView();
-        Resources.Add("services", serviceCollection.BuildServiceProvider());
+        InitializeServices();
     }
+
+    #endregion
+
+    #region Private methods
+
+    private void InitializeServices()
+    {
+        var services = new ServiceCollection();
+        services.AddServices();
+        Resources.Add("services", services.BuildServiceProvider());
+    }
+
+    #endregion
 }
