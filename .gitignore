@@ -400,4 +400,4 @@ src/.idea
 build
 new-src/.idea
 release
-common/WinPass/.idea
+.idea

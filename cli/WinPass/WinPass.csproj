@@ -19,7 +19,7 @@
     <PackageVersion>2.0.0</PackageVersion>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WinPass.Core\WinPass.Core.csproj" />
-    <ProjectReference Include="..\WinPass.Shared\WinPass.Shared.csproj" />
+    <ProjectReference Include="..\..\common\WinPass.Core\WinPass.Core.csproj" />
+    <ProjectReference Include="..\..\common\WinPass.Shared\WinPass.Shared.csproj" />
   </ItemGroup>
 </Project>
