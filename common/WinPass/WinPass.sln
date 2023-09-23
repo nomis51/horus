@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPass.Core", "WinPass.Core\WinPass.Core.csproj", "{A6BFF5EF-0F54-46C7-A274-0C638F34039D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPass.Shared", "WinPass.Shared\WinPass.Shared.csproj", "{8E25D16A-EB17-463F-B62A-8ACC679AF1F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPass.Tests", "WinPass.Tests\WinPass.Tests.csproj", "{8CC66609-761E-4DE0-876D-AB62156A1862}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6BFF5EF-0F54-46C7-A274-0C638F34039D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6BFF5EF-0F54-46C7-A274-0C638F34039D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6BFF5EF-0F54-46C7-A274-0C638F34039D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6BFF5EF-0F54-46C7-A274-0C638F34039D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E25D16A-EB17-463F-B62A-8ACC679AF1F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E25D16A-EB17-463F-B62A-8ACC679AF1F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E25D16A-EB17-463F-B62A-8ACC679AF1F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E25D16A-EB17-463F-B62A-8ACC679AF1F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CC66609-761E-4DE0-876D-AB62156A1862}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CC66609-761E-4DE0-876D-AB62156A1862}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CC66609-761E-4DE0-876D-AB62156A1862}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CC66609-761E-4DE0-876D-AB62156A1862}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
