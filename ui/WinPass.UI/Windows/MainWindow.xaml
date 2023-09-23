@@ -9,9 +9,10 @@
         Title="WinPass.UI"
         Height="900"
         Width="1600"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" Loaded="MainWindow_OnLoaded">
     <Grid>
-        <wpf:BlazorWebView HostPage="wwwroot\index.html"
+        <wpf:BlazorWebView x:Name="WebView"
+                           HostPage="wwwroot\index.html"
                            Services="{DynamicResource services}">
             <wpf:BlazorWebView.RootComponents>
                 <wpf:RootComponent Selector="#app"

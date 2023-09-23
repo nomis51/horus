@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPass.UI", "WinPass.UI\WinPass.UI.csproj", "{3A2B45A1-6302-4337-9F28-2AD6BF11FE77}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{8AF100CF-749B-44D8-A78E-DB3233342739}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPass.Core", "..\common\WinPass.Core\WinPass.Core.csproj", "{67409E9C-B5C1-4BDE-ABA3-62642B309397}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPass.Shared", "..\common\WinPass.Shared\WinPass.Shared.csproj", "{47BED212-0BC7-439F-B258-4AC71EFEB881}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +18,17 @@ Global
 		{3A2B45A1-6302-4337-9F28-2AD6BF11FE77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A2B45A1-6302-4337-9F28-2AD6BF11FE77}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A2B45A1-6302-4337-9F28-2AD6BF11FE77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67409E9C-B5C1-4BDE-ABA3-62642B309397}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67409E9C-B5C1-4BDE-ABA3-62642B309397}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67409E9C-B5C1-4BDE-ABA3-62642B309397}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67409E9C-B5C1-4BDE-ABA3-62642B309397}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47BED212-0BC7-439F-B258-4AC71EFEB881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47BED212-0BC7-439F-B258-4AC71EFEB881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47BED212-0BC7-439F-B258-4AC71EFEB881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47BED212-0BC7-439F-B258-4AC71EFEB881}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{67409E9C-B5C1-4BDE-ABA3-62642B309397} = {8AF100CF-749B-44D8-A78E-DB3233342739}
+		{47BED212-0BC7-439F-B258-4AC71EFEB881} = {8AF100CF-749B-44D8-A78E-DB3233342739}
 	EndGlobalSection
 EndGlobal

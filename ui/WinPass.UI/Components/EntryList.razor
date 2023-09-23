@@ -1,3 +1,41 @@
 ﻿@inherits EntryListBase
 
-entry list
+<MudStack Row="true"
+          Spacing="1">
+    <MudTextField T="string"
+                  Placeholder="Search"
+                  Label="Search"
+                  FullWidth="true"
+                  Immediate="true"
+                  Value="@SearchText"
+                  DebounceInterval="500"
+                  OnDebounceIntervalElapsed="@Search"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  Adornment="Adornment.Start"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"/>
+    <MudTooltip Text="Search in metadata aswell"
+                Arrow="true"
+                Placement="Placement.Bottom">
+        <MudCheckBox T="bool"
+                     Color="Color.Primary"
+                     bind-Checked="@SearchInMetadata"/>
+    </MudTooltip>
+</MudStack>
+@if (!Entries.Any())
+{
+    <MudText Typo="Typo.subtitle1">No entry found</MudText>
+}
+else
+{
+    <MudTreeView T="string"
+                 Hover="true"
+                 ExpandOnClick="true"
+                 SelectedValueChanged="@SelectEntry">
+        <TreeView T="StoreEntry"
+                  Items="@Entries"
+                  IsBranch="@(e => e.IsFolder)"
+                  GetChildItems="@(e => e.Entries)"
+                  GetText="@(e => e.Name)"/>
+    </MudTreeView>
+}

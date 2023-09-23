@@ -19,4 +19,9 @@
         <SubType>Designer</SubType>
       </Page>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\common\WinPass.Core\WinPass.Core.csproj" />
+      <ProjectReference Include="..\..\common\WinPass.Shared\WinPass.Shared.csproj" />
+    </ItemGroup>
 </Project>
