@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using WinPass.Shared.Enums;
 using WinPass.UI.Components.Abstractions;
 
 namespace WinPass.UI.Components;
@@ -16,7 +17,16 @@ public class MetadataFieldBase : Component
     public string Value { get; set; } = string.Empty;
 
     [Parameter]
+    public MetadataType Type { get; set; } = MetadataType.Normal;
+
+    [Parameter]
     public EventCallback<Tuple<string, string>> OnValueChanged { get; set; }
+
+    #endregion
+
+    #region Props
+
+    protected bool IsInternal => Type == MetadataType.Internal;
 
     #endregion
 

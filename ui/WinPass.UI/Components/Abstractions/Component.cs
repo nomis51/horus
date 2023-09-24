@@ -14,5 +14,8 @@ public class Component : ComponentBase
     [Inject]
     protected IJSRuntime JsRuntime { get; set; } = null!;
 
+    [Inject]
+    protected IDialogService DialogService { get; set; } = null!;
+
     #endregion
 }

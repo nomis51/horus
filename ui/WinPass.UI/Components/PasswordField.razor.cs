@@ -36,6 +36,9 @@ public class PasswordFieldBase : Component
     protected string NewPassword { get; set; } = string.Empty;
     protected string NewPasswordConfirm { get; set; } = string.Empty;
     protected bool IsPasswordVisible { get; private set; }
+    protected bool ArePasswordGenerationSettingsVisible { get; set;  }
+    protected int PasswordLength { get; set; } = 18;
+    protected string PasswordAlphabet { get; set; } = string.Empty;
 
     #endregion
 
@@ -45,6 +48,21 @@ public class PasswordFieldBase : Component
     {
         NewPasswordConfirm = string.Empty;
         return AppService.Instance.EditPassword(SelectedEntry, new Password(NewPassword));
+    }
+
+    public void GeneratePassword()
+    {
+        var (password, error) = AppService.Instance.GenerateNewPassword(PasswordLength, PasswordAlphabet);
+        if (error is not null)
+        {
+            Snackbar.Add($"Unable to generate a new password: {error.Message}", Severity.Warning);
+            return;
+        }
+
+        ArePasswordGenerationSettingsVisible = true;
+        IsPasswordVisible = true;
+        NewPassword = password!.ValueAsString;
+        NewPasswordConfirm = password!.ValueAsString;
     }
 
     #endregion

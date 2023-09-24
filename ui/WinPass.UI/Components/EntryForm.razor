@@ -27,6 +27,18 @@
             }
             else
             {
+                <MudTooltip Placement="Placement.Top"
+                            Arrow="true"
+                            Text="Generate a new password">
+                    <MudButton StartIcon="@Icons.Material.Filled.Cached"
+                               OnClick="@GenerateNewPassword"
+                               Variant="Variant.Filled"
+                               Size="Size.Small"
+                               Disabled="@IsSaving"
+                               Color="Color.Primary">
+                        Generate
+                    </MudButton>
+                </MudTooltip>
                 <MudButton StartIcon="@Icons.Material.Filled.Cancel"
                            Variant="Variant.Filled"
                            Size="Size.Small"

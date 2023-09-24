@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WinPass.Core.Services;
+using WinPass.Shared.Models.Data;
 using WinPass.Shared.Models.Display;
 using WinPass.UI.Components.Abstractions;
 
@@ -25,6 +26,7 @@ public class EntryListBase : Component
     private string SelectedEntry { get; set; } = string.Empty;
     protected string SearchText { get; private set; } = string.Empty;
     protected bool SearchInMetadata { get; set; }
+    private IDialogReference? _addNewEntryDialogReference;
 
     #endregion
 
@@ -38,6 +40,32 @@ public class EntryListBase : Component
     #endregion
 
     #region Protected methods
+
+    protected void ShowAddEntryForm()
+    {
+        _addNewEntryDialogReference = DialogService.Show<NewEntryForm>("Add new store entry", new DialogParameters
+        {
+            {
+                "OnClose", EventCallback.Factory.Create(this, (bool reload) =>
+                {
+                    if (!reload)
+                    {
+                        _addNewEntryDialogReference?.Close();
+                        return;
+                    }
+
+                    _addNewEntryDialogReference?.Close();
+                    RetrieveEntries();
+                })
+            }
+        }, new DialogOptions
+        {
+            CloseButton = true,
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true
+        });
+    }
 
     protected void Search(string value)
     {

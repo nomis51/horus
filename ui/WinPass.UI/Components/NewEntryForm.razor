@@ -1,0 +1,30 @@
+﻿@inherits NewEntryFormBase
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string"
+                      Placeholder="Name"
+                      Label="Name"
+                      FullWidth="true"
+                      Immediate="true"
+                      @bind-Value="@Name"
+                      Variant="Variant.Outlined"
+                      AdornmentIcon="@Icons.Material.Filled.Title"
+                      Adornment="Adornment.Start"/>
+    </DialogContent>
+    <DialogActions>
+        @if (IsSaving)
+        {
+            <MudProgressCircular Color="Color.Primary"
+                                 Indeterminate="true"
+                                 Size="Size.Small"/>
+        }
+        <MudButton OnClick="@Close"Disabled="@IsSaving"> Cancel</MudButton>
+        <MudButton Color="Color.Primary"
+                   Disabled="@(string.IsNullOrEmpty(Name) || IsSaving)"
+                   Variant="Variant.Filled"
+                   OnClick="@Save">
+            Save
+        </MudButton>
+    </DialogActions>
+</MudDialog>

@@ -6,6 +6,7 @@
     {
         <MetadataField Key="@metadata.Key"
                        Value="@metadata.Value"
+                       Type="@metadata.Type"
                        OnValueChanged="@(e => UpdateMetadata(e.Item1, e.Item2, metadata))"/>
     }
 </MudStack>

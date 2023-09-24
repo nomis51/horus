@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using WinPass.Core.Services;
 using WinPass.UI.Components.Abstractions;
 
 namespace WinPass.UI.Components;
@@ -23,12 +25,17 @@ public class EntryFormBase : Component
     protected bool AreMetadatasReadOnly { get; private set; } = true;
     protected bool AreMetadatasValid { get; set; }
     protected bool IsSaving { get; private set; }
-    protected bool IsLoadingMetadatas { get; set; }
+    protected bool IsLoadingMetadatas { get; private set; }
 
     #endregion
 
 
     #region Protected methods
+
+    protected void GenerateNewPassword()
+    {
+        PasswordFieldRef?.GeneratePassword();
+    }
 
     protected void EditPassword()
     {

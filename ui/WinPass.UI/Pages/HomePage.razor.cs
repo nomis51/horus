@@ -1,6 +1,8 @@
 ﻿using System.Management.Automation.Language;
 using System.Threading.Tasks;
-using WinPass.UI.Components.Abstractions;
+using MudBlazor;
+using WinPass.UI.Components;
+using Page = WinPass.UI.Components.Abstractions.Page;
 
 namespace WinPass.UI.Pages;
 
@@ -19,6 +21,8 @@ public class HomePageBase : Page
         SelectedEntry = entry;
         await InvokeAsync(StateHasChanged);
     }
+
+  
 
     #endregion
 }
