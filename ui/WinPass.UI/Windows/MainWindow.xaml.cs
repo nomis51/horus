@@ -1,4 +1,8 @@
-﻿using System.Windows;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using WinPass.Core;
 using WinPass.Core.Services;
@@ -8,12 +12,19 @@ namespace WinPass.UI.Windows;
 
 public partial class MainWindow
 {
+    #region Constants
+
+    private static readonly string GithubPage = "https://github.com/nomis51/winpass";
+
+    #endregion
+
     #region Constructors
 
     public MainWindow()
     {
         InitializeComponent();
         InitializeServices();
+
         AppService.Instance.Initialize(new AppServiceDependenciesProvider(
             new FsService(".winpass-tests"),
             new GitService(),
@@ -44,6 +55,11 @@ public partial class MainWindow
 #else
         WebView.WebView.CoreWebView2.Settings.AreDevToolsEnabled = false;
 #endif
+    }
+
+    private void ButtonGitHub_OnClick(object sender, RoutedEventArgs e)
+    {
+        Process.Start("explorer.exe", GithubPage);
     }
 
     #endregion

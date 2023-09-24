@@ -8,7 +8,7 @@
                  xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
                  mc:Ignorable="d"
-                 Title="WinPass.UI"
+                 Title="WinPass"
                  Height="900"
                  Width="1600"
                  WindowStartupLocation="CenterScreen"
@@ -18,13 +18,16 @@
                  WindowTitleBrush="#0e0e0e">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
-
+            <Image Source="/Assets/winpass-logo.ico"
+                   MaxHeight="25"
+                   Margin="4 2 2 2"  />
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
 
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
-            <Button ToolTip="Open up the GitHub page">
+            <Button ToolTip="Open up the GitHub page"
+                    Click="ButtonGitHub_OnClick">
                 <iconPacks:Octicons Width="22"
                                     Height="22"
                                     Kind="MarkGithub" />

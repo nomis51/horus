@@ -22,7 +22,7 @@ public class EntryListBase : Component
     #region Members
 
     protected List<StoreEntry> Entries { get; private set; } = new();
-    protected string SelectedEntry { get; set; } = string.Empty;
+    private string SelectedEntry { get; set; } = string.Empty;
     protected string SearchText { get; private set; } = string.Empty;
     protected bool SearchInMetadata { get; set; }
 

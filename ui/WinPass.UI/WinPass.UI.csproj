@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <RootNamespace>WinPass.UI</RootNamespace>
+        <ApplicationIcon>wwwroot\images\winpass-logo.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,5 +26,19 @@
     <ItemGroup>
       <ProjectReference Include="..\..\common\WinPass.Core\WinPass.Core.csproj" />
       <ProjectReference Include="..\..\common\WinPass.Shared\WinPass.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="wwwroot\images\winpass-logo.ico">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Assets\winpass-logo.ico" />
+      <Resource Include="Assets\winpass-logo.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\" />
     </ItemGroup>
 </Project>
