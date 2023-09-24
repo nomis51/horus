@@ -15,6 +15,9 @@ public class MainLayoutBase : LayoutComponentBase
 
     [Inject]
     protected IJSRuntime JsRuntime { get; set; }
+    
+    [Inject]
+    protected ISnackbar Snackbar { get; set; }
 
     #endregion
 
@@ -28,6 +31,8 @@ public class MainLayoutBase : LayoutComponentBase
 
     protected override void OnInitialized()
     {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+        
         ThemeService.OnThemeModeChange += OnThemeModeChange;
         ThemeService.SetTheme(new MudTheme
         {

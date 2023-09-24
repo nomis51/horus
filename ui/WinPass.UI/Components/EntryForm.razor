@@ -1,108 +1,145 @@
 ﻿@inherits EntryFormBase
 
-<MudStack Spacing="1"
-          Row="true"
-          Justify="Justify.SpaceBetween">
-    <MudText Typo="Typo.h4">@SelectedEntry</MudText>
+<MudText Typo="Typo.h4"
+         Color="Color.Primary">
+    @SelectedEntry
+</MudText>
 
-    <MudStack Spacing="1"
-              Row="true">
-        @if (IsPasswordReadOnly)
-        {
-            <MudButton StartIcon="@Icons.Material.Filled.Edit"
-                       Variant="Variant.Filled"
-                       Size="Size.Small"
-                       OnClick="@EditPassword"
-                       Color="Color.Primary">
-                Edit
-            </MudButton>
-        }
-        else
-        {
-            <MudButton StartIcon="@Icons.Material.Filled.Cancel"
-                       Variant="Variant.Filled"
-                       Size="Size.Small"
-                       OnClick="@CancelPassword"
-                       Color="Color.Error">
-                Cancel
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Save"
-                       Variant="Variant.Filled"
-                       Size="Size.Small"
-                       OnClick="@SavePassword"
-                       Disabled="@(!IsPasswordValid)"
-                       Color="Color.Success">
-                Save
-            </MudButton>
-        }
-    </MudStack>
-</MudStack>
-
-<PasswordField IsValid="@(e => IsPasswordValid = e)"
-               IsReadOnly="@IsPasswordReadOnly"/>
-
-<MudStack Spacing="1"
-          Row="true"
-          Style="margin-top: 1rem"
-          Justify="Justify.SpaceBetween">
-    <MudText Typo="Typo.h6">@(AreMetadatasReadOnly ? string.Empty : "Metadata")</MudText>
-
-    <MudStack Spacing="1"
-              Row="true">
-        @if (AreMetadatasReadOnly)
-        {
-            <MudButton StartIcon="@Icons.Material.Filled.Visibility"
-                       Variant="Variant.Filled"
-                       Size="Size.Small"
-                       OnClick="@EditMetadatas"
-                       Color="Color.Primary">
-                Reveal metadata
-            </MudButton>
-        }
-        else
-        {
-            <MudButton StartIcon="@Icons.Material.Filled.Cancel"
-                       Variant="Variant.Filled"
-                       Size="Size.Small"
-                       OnClick="@CancelMetadatas"
-                       Color="Color.Error">
-                Cancel
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Save"
-                       Variant="Variant.Filled"
-                       Size="Size.Small"
-                       OnClick="@SaveMetadatas"
-                       Disabled="@(!IsPasswordValid)"
-                       Color="Color.Success">
-                Save
-            </MudButton>
-        }
-    </MudStack>
-</MudStack>
-
-@foreach (var metadata in Metadatas)
+@if (!string.IsNullOrEmpty(SelectedEntry))
 {
-    <MudStack Spacing="2"
-              Row="true">
-        <MudTextField T="string"
-                      Placeholder="Key"
-                      Label="Key"
-                      Style="width: 30vw"
-                      Adornment="Adornment.Start"
-                      Variant="Variant.Outlined"
-                      Value="@metadata.Key"
-                      Immediate="true"
-                      Required="true"
-                      AdornmentIcon="@Icons.Material.Filled.Category"/>
-        <MudTextField T="string"
-                      Placeholder="Value"
-                      Label="Value"
-                      FullWidth="true"
-                      Adornment="Adornment.Start"
-                      Variant="Variant.Outlined"
-                      Value="@metadata.Value"
-                      Immediate="true"
-                      Required="true"
-                      AdornmentIcon="@Icons.Material.Filled.Category"/>
+    <MudStack Spacing="1"
+              Row="true"
+              Style="margin-bottom: .5rem"
+              Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h6">Password</MudText>
+
+        <MudStack Spacing="1"
+                  Row="true">
+            @if (IsPasswordReadOnly)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Edit"
+                           Variant="Variant.Filled"
+                           Size="Size.Small"
+                           OnClick="@EditPassword"
+                           Color="Color.Primary">
+                    Edit
+                </MudButton>
+            }
+            else
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Cancel"
+                           Variant="Variant.Filled"
+                           Size="Size.Small"
+                           Disabled="@IsSaving"
+                           OnClick="@CancelPassword"
+                           Color="Color.Error">
+                    Cancel
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Save"
+                           Variant="Variant.Filled"
+                           Size="Size.Small"
+                           OnClick="@SavePassword"
+                           Disabled="@(!IsPasswordValid || IsSaving)"
+                           Color="Color.Success">
+                    Save
+                </MudButton>
+            }
+        </MudStack>
     </MudStack>
+
+    if (IsSaving)
+    {
+        <MudProgressCircular Color="Color.Primary"
+                             Size="Size.Small"
+                             Indeterminate="true"/>
+    }
+    else
+    {
+        <PasswordField @ref="PasswordFieldRef"
+                       SelectedEntry="@SelectedEntry"
+                       IsValid="@(e => IsPasswordValid = e)"
+                       IsReadOnly="@IsPasswordReadOnly"/>
+    }
+
+    <MudStack Spacing="1"
+              Row="true"
+              Style="margin-top: 1rem"
+              Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h6">Metadata</MudText>
+
+        <MudStack Spacing="1"
+                  Row="true">
+            @if (AreMetadatasReadOnly)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Visibility"
+                           Variant="Variant.Filled"
+                           Size="Size.Small"
+                           OnClick="@EditMetadatas"
+                           Color="Color.Primary">
+                    Reveal metadata
+                </MudButton>
+            }
+            else
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Cancel"
+                           Variant="Variant.Filled"
+                           Size="Size.Small"
+                           Disabled="@IsSaving"
+                           OnClick="@CancelMetadatas"
+                           Color="Color.Error">
+                    Cancel
+                </MudButton>
+                <MudButton StartIcon="@Icons.Material.Filled.Save"
+                           Variant="Variant.Filled"
+                           Size="Size.Small"
+                           OnClick="@SaveMetadatas"
+                           Disabled="@(!AreMetadatasValid || IsSaving)"
+                           Color="Color.Success">
+                    Save
+                </MudButton>
+            }
+        </MudStack>
+    </MudStack>
+
+    if (!AreMetadatasReadOnly)
+    {
+        if (IsSaving || IsLoadingMetadatas)
+        {
+            <MudProgressCircular Color="Color.Primary"
+                                 Size="Size.Small"
+                                 Indeterminate="true"/>
+        }
+
+        if (!IsSaving)
+        {
+            <MetadataList @ref="MetadataListRef"
+                          SelectedEntry="@SelectedEntry"
+                          OnLoaded="@OnMetadataLoaded"
+                          AreMetadatasValid="@(e => AreMetadatasValid = e)"/>
+        }
+    }
+    else
+    {
+        <MudStack Spacing="2"
+                  Style="margin-top: 1rem">
+            @for (var i = 0; i < 6; ++i)
+            {
+                <MudStack Spacing="2"
+                          Row="true">
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                                 Animation="Animation.False"
+                                 Width="50%"
+                                 Height="50px"/>
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle"
+                                 Animation="Animation.False"
+                                 Width="50%"
+                                 Height="50px"/>
+                </MudStack>
+            }
+        </MudStack>
+    }
+}
+else
+{
+    <MudText Typo="Typo.subtitle1">Select an entry in the left side menu</MudText>
 }

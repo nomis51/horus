@@ -1,9 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using WinPass.Core.Services;
-using WinPass.Shared.Models.Data;
 using WinPass.UI.Components.Abstractions;
 
 namespace WinPass.UI.Components;
@@ -19,12 +16,17 @@ public class EntryFormBase : Component
 
     #region Members
 
+    protected PasswordField? PasswordFieldRef { get; set; }
+    protected MetadataList? MetadataListRef { get; set; }
     protected bool IsPasswordReadOnly { get; private set; } = true;
     protected bool IsPasswordValid { get; set; }
     protected bool AreMetadatasReadOnly { get; private set; } = true;
-    protected MetadataCollection Metadatas { get; private set; } = new();
+    protected bool AreMetadatasValid { get; set; }
+    protected bool IsSaving { get; private set; }
+    protected bool IsLoadingMetadatas { get; set; }
 
     #endregion
+
 
     #region Protected methods
 
@@ -34,44 +36,72 @@ public class EntryFormBase : Component
         IsPasswordReadOnly = false;
     }
 
-    protected void CancelPassword()
+    protected async Task CancelPassword()
     {
-        IsPasswordValid = false;
-        IsPasswordReadOnly = true;
+        await InvokeAsync(() =>
+        {
+            IsSaving = false;
+            IsPasswordValid = false;
+            IsPasswordReadOnly = true;
+            StateHasChanged();
+        });
     }
 
-    protected void SavePassword()
+    protected async Task SavePassword()
     {
-        // TODO: 
-        CancelPassword();
+        await InvokeAsync(() => { IsSaving = true; });
+
+        _ = Task.Run(async () =>
+        {
+            var result = PasswordFieldRef!.Save();
+            if (result.HasError)
+            {
+                Snackbar.Add($"Unable to save password: {result.Error!.Message}", Severity.Error);
+                return;
+            }
+
+            Snackbar.Add("Password saved", Severity.Success);
+            await CancelPassword();
+        });
+    }
+
+    protected async Task OnMetadataLoaded()
+    {
+        await InvokeAsync(() => { IsLoadingMetadatas = false; });
     }
 
     protected void EditMetadatas()
     {
+        IsLoadingMetadatas = true;
         AreMetadatasReadOnly = false;
-        Task.Run(async () =>
-        {
-            var (metadatas, error) = AppService.Instance.GetMetadatas(SelectedEntry);
-            if (error is not null)
-            {
-                Snackbar.Add("Unable to retrieve entry metadata", Severity.Error);
-                return;
-            }
+    }
 
-            Metadatas = metadatas;
-            await InvokeAsync(StateHasChanged);
+    protected async Task CancelMetadatas()
+    {
+        await InvokeAsync(() =>
+        {
+            IsSaving = false;
+            AreMetadatasReadOnly = true;
+            StateHasChanged();
         });
     }
 
-    protected void CancelMetadatas()
+    protected async Task SaveMetadatas()
     {
-        AreMetadatasReadOnly = true;
-    }
+        await InvokeAsync(() => { IsSaving = true; });
 
-    protected void SaveMetadatas()
-    {
-        // TODO: 
-        CancelMetadatas();
+        _ = Task.Run(async () =>
+        {
+            var result = MetadataListRef!.Save();
+            if (result.HasError)
+            {
+                Snackbar.Add($"Unable to save metadata: {result.Error!.Message}", Severity.Error);
+                return;
+            }
+
+            Snackbar.Add("Metadata saved", Severity.Success);
+            await CancelMetadatas();
+        });
     }
 
     #endregion

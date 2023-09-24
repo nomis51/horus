@@ -58,6 +58,8 @@ public class EntryListBase : Component
             }
 
             Entries = entries;
+            if (!string.IsNullOrEmpty(SelectedEntry)) return;
+
             await InvokeAsync(async () =>
             {
                 await SelectEntry(Entries.FirstOrDefault(e => !e.IsFolder)?.Name ?? string.Empty);

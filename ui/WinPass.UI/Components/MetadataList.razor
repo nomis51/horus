@@ -1,0 +1,11 @@
+﻿@inherits MetadataListBase
+
+<MudStack Spacing="2"
+          Style="margin-top: .5rem">
+    @foreach (var metadata in Metadatas)
+    {
+        <MetadataField Key="@metadata.Key"
+                       Value="@metadata.Value"
+                       OnValueChanged="@(e => UpdateMetadata(e.Item1, e.Item2, metadata))"/>
+    }
+</MudStack>

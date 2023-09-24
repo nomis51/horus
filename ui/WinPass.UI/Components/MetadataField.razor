@@ -1,0 +1,27 @@
+﻿@inherits MetadataFieldBase
+
+<MudStack Spacing="2"
+          Row="true">
+    <MudTextField T="string"
+                  Placeholder="Key"
+                  Label="Key"
+                  Style="width: 15vw"
+                  Adornment="Adornment.Start"
+                  Variant="Variant.Outlined"
+                  Value="@Key"
+                  ValueChanged="@(e => Update(e, Value))"
+                  Immediate="true"
+                  Required="true"
+                  AdornmentIcon="@Icons.Material.Filled.Category"/>
+    <MudTextField T="string"
+                  Placeholder="Value"
+                  Label="Value"
+                  FullWidth="true"
+                  Adornment="Adornment.Start"
+                  Variant="Variant.Outlined"
+                  Value="@Value"
+                  ValueChanged="@(e => Update(Key, e))"
+                  Immediate="true"
+                  Required="true"
+                  AdornmentIcon="@Icons.Material.Filled.Category"/>
+</MudStack>
