@@ -8,7 +8,9 @@ public static class PasswordHelper
 {
     #region Constants
 
+    private const int MaxBestPasswordEntropyGenerationTries = 10;
     private const int DefaultLength = 20;
+
     private static readonly char[] DefaultCharacters =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-=_+[{]}\\".ToCharArray();
 
@@ -31,16 +33,16 @@ public static class PasswordHelper
         var chars = string.IsNullOrWhiteSpace(customAlphabet) ? DefaultCharacters : customAlphabet.ToCharArray();
 
         var data = new byte[4 * length];
-        using (var crypto = RandomNumberGenerator.Create())
-        {
-            crypto.GetBytes(data);
-        }
+        using var crypto = RandomNumberGenerator.Create();
 
-        var bestEntropy = Math.Floor(CalculateEntropy(chars, true, length));
-        
-        while (true)
+        var tries = 0;
+        var result = new char[length];
+        while (tries < MaxBestPasswordEntropyGenerationTries)
         {
-            var result = new char[length];
+            ++tries;
+            crypto.GetBytes(data);
+
+            var bestEntropy = Math.Floor(CalculateEntropy(chars, true, length));
             for (var i = 0; i < length; ++i)
             {
                 var random = BitConverter.ToUInt32(data, i * 4);
@@ -52,8 +54,10 @@ public static class PasswordHelper
             var entropy = CalculateEntropy(result);
             if (entropy < bestEntropy) continue;
 
-            return result.Select(c => (byte)c).ToArray();
+            break;
         }
+
+        return result.Select(c => (byte)c).ToArray();
     }
 
     #endregion
