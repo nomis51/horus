@@ -36,7 +36,7 @@ public class PasswordFieldBase : Component
     protected string NewPassword { get; set; } = string.Empty;
     protected string NewPasswordConfirm { get; set; } = string.Empty;
     protected bool IsPasswordVisible { get; private set; }
-    protected bool ArePasswordGenerationSettingsVisible { get; set;  }
+    protected bool ArePasswordGenerationSettingsVisible { get; set; }
     protected int PasswordLength { get; set; } = 18;
     protected string PasswordAlphabet { get; set; } = string.Empty;
 
@@ -68,6 +68,18 @@ public class PasswordFieldBase : Component
     #endregion
 
     #region Protected methods
+
+    protected void UpdatePasswordLength(int value)
+    {
+        PasswordLength = value;
+        GeneratePassword();
+    }
+    
+     protected void UpdatePasswordAlphabet(string value)
+        {
+            PasswordAlphabet = value;
+            GeneratePassword();
+        }
 
     protected void PasswordIconClick()
     {
