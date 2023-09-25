@@ -41,6 +41,21 @@ public class EntryListBase : Component
 
     #region Protected methods
 
+    protected void DeleteEntry(string name)
+    {
+        Task.Run(() =>
+        {
+            var result = AppService.Instance.DeleteStoreEntry(name);
+            if (result.HasError)
+            {
+                Snackbar.Add($"Unable to remove the store entry: {result.Error!.Message}", Severity.Error);
+                return;
+            }
+
+            Snackbar.Add("Store entry removed", Severity.Success);
+        });
+    }
+
     protected void ShowAddEntryForm()
     {
         _addNewEntryDialogReference = DialogService.Show<NewEntryForm>("Add new store entry", new DialogParameters

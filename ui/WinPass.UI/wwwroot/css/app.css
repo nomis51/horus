@@ -4,7 +4,7 @@
     --background2: var(--mud-palette-surface-background);
     
     --app-content-height: 99vh;
-    --app-sidenav-width: 30vw;
+    --app-sidenav-width: 25vw;
     --app-content-width: calc(100vw - var(--app-sidenav-width))
 }
 

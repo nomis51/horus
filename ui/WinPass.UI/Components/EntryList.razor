@@ -32,16 +32,17 @@ else
                  Hover="true"
                  ExpandOnClick="true"
                  SelectedValueChanged="@SelectEntry">
-        <TreeView T="StoreEntry"
-                  Items="@Entries"
-                  IsBranch="@(e => e.IsFolder)"
-                  GetChildItems="@(e => e.Entries)"
-                  GetText="@(e => e.Name)"/>
+        <EntriesTreeView Items="@Entries"
+                         OnDeleteClick="@DeleteEntry"/>
     </MudTreeView>
 }
 
-<MudFab Size="Size.Small"
-        Color="Color.Primary"
-        OnClick="ShowAddEntryForm"
-        Style="position: absolute; right: 10px; bottom: 10px"
-        StartIcon="@Icons.Material.Filled.Add"/>
+<MudTooltip Arrow="true"
+            Placement="Placement.Top"
+            Text="Add a new entry">
+    <MudFab Size="Size.Small"
+            Color="Color.Primary"
+            OnClick="ShowAddEntryForm"
+            Style="position: absolute; right: 10px; bottom: 10px"
+            StartIcon="@Icons.Material.Filled.Add"/>
+</MudTooltip>
