@@ -14,13 +14,14 @@
                  WindowStartupLocation="CenterScreen"
                  Loaded="MainWindow_OnLoaded"
                  Background="#0e0e0e"
+                 BorderBrush="#0e0e0e"
                  NonActiveWindowTitleBrush="#0e0e0e"
                  WindowTitleBrush="#0e0e0e">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
             <Image Source="/Assets/winpass-logo.ico"
                    MaxHeight="25"
-                   Margin="4 2 2 2"  />
+                   Margin="4 2 2 2" />
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
 
@@ -34,6 +35,7 @@
             </Button>
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
+
     <Grid>
         <wpf:BlazorWebView x:Name="WebView"
                            Background="#0e0e0e"
