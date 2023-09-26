@@ -33,7 +33,8 @@ else
                  ExpandOnClick="true"
                  SelectedValueChanged="@SelectEntry">
         <EntriesTreeView Items="@Entries"
-                         OnDeleteClick="@DeleteEntry"/>
+                         OnDeleteClick="@DeleteEntry"
+                         OnDuplicateClick="@DuplicateEntry"/>
     </MudTreeView>
 }
 

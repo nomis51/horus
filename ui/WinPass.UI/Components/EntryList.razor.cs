@@ -27,6 +27,7 @@ public class EntryListBase : Component
     protected string SearchText { get; private set; } = string.Empty;
     protected bool SearchInMetadata { get; set; }
     private IDialogReference? _addNewEntryDialogReference;
+    private IDialogReference? _duplicateEntryDialogReference;
 
     #endregion
 
@@ -43,12 +44,40 @@ public class EntryListBase : Component
 
     public Task RefreshEntries()
     {
-       return RetrieveEntries();
+        return RetrieveEntries();
     }
 
     #endregion
 
     #region Protected methods
+
+    protected void DuplicateEntry(string name)
+    {
+        _duplicateEntryDialogReference = DialogService.Show<DuplicateEntryForm>("Duplicate store entry",
+            new DialogParameters
+            {
+                { "ExistingName", name },
+                {
+                    "OnClose", EventCallback.Factory.Create(this, (bool reload) =>
+                    {
+                        if (!reload)
+                        {
+                            _duplicateEntryDialogReference?.Close();
+                            return;
+                        }
+
+                        _duplicateEntryDialogReference?.Close();
+                        RetrieveEntries();
+                    })
+                }
+            }, new DialogOptions
+            {
+                CloseButton = true,
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true
+            });
+    }
 
     protected void DeleteEntry(string name)
     {

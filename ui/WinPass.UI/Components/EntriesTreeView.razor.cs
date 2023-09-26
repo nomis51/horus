@@ -19,6 +19,9 @@ public class EntriesTreeViewBase : Component
     [Parameter]
     public EventCallback<string> OnDeleteClick { get; set; }
     
+    [Parameter]
+    public EventCallback<string> OnDuplicateClick { get; set; }
+    
     #endregion
 
     #region Protected methods

@@ -10,6 +10,7 @@
                          Style="overflow-y: hidden">
             <EntriesTreeView Items="@item.Entries"
                              OnDeleteClick="@OnDeleteClick"
+                             OnDuplicateClick="@OnDuplicateClick"
                              BasePath="@GetPath(item)"/>
         </MudTreeViewItem>
     }
@@ -26,10 +27,25 @@
                              Align="Align.Start">
                         @item.Name
                     </MudText>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                   OnClick="@(() => OnDeleteClick.InvokeAsync(GetPath(item)))"
-                                   Size="Size.Small"
-                                   Color="Color.Inherit"/>
+                    <MudStack Row="true">
+                        <MudTooltip Placement="Placement.Top"
+                                    Arrow="true"
+                                    Text="Duplicate entry">
+
+                            <MudIconButton Icon="@Icons.Material.Filled.Difference"
+                                           OnClick="@(() => OnDuplicateClick.InvokeAsync(GetPath(item)))"
+                                           Size="Size.Small"
+                                           Color="Color.Inherit"/>
+                        </MudTooltip>
+                        <MudTooltip Placement="Placement.Top"
+                                    Arrow="true"
+                                    Text="Remove entry">
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           OnClick="@(() => OnDeleteClick.InvokeAsync(GetPath(item)))"
+                                           Size="Size.Small"
+                                           Color="Color.Inherit"/>
+                        </MudTooltip>
+                    </MudStack>
                 </MudStack>
             </BodyContent>
         </MudTreeViewItem>
