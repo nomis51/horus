@@ -14,6 +14,9 @@ public class EntryFormBase : Component
     [Parameter]
     public string SelectedEntry { get; set; } = string.Empty;
 
+    [Parameter]
+    public EventCallback OnRefreshEntries { get; set; }
+
     #endregion
 
     #region Members
@@ -26,11 +29,47 @@ public class EntryFormBase : Component
     protected bool AreMetadatasValid { get; set; }
     protected bool IsSaving { get; private set; }
     protected bool IsLoadingMetadatas { get; private set; }
+    protected string NewEntryName { get; set; } = string.Empty;
+    protected bool IsEditingEntryName { get; set; }
 
     #endregion
 
 
     #region Protected methods
+
+    protected void EditEntryName()
+    {
+        NewEntryName = SelectedEntry;
+        IsEditingEntryName = true;
+    }
+
+    protected void CancelEntryName()
+    {
+        IsEditingEntryName = false;
+    }
+
+    protected void SaveEntryName()
+    {
+        Task.Run(async () =>
+        {
+            var result = AppService.Instance.RenameStoreEntry(SelectedEntry, NewEntryName);
+            if (result.HasError)
+            {
+                Snackbar.Add($"Unable to rename entry: {result.Error!.Message}", Severity.Error);
+                return;
+            }
+
+            await InvokeAsync(async () =>
+            {
+                await OnRefreshEntries.InvokeAsync();
+                SelectedEntry = NewEntryName;
+                CancelEntryName();
+                StateHasChanged();
+            });
+
+            Snackbar.Add("Entry renamed", Severity.Success);
+        });
+    }
 
     protected void GenerateNewPassword()
     {

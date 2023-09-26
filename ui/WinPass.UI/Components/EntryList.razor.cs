@@ -39,12 +39,27 @@ public class EntryListBase : Component
 
     #endregion
 
+    #region Public methods
+
+    public Task RefreshEntries()
+    {
+       return RetrieveEntries();
+    }
+
+    #endregion
+
     #region Protected methods
 
     protected void DeleteEntry(string name)
     {
         Task.Run(() =>
         {
+            if (!AppService.Instance.AcquireLock())
+            {
+                Snackbar.Add($"Unable to acquire store lock", Severity.Error);
+                return;
+            }
+
             var result = AppService.Instance.DeleteStoreEntry(name);
             if (result.HasError)
             {
@@ -53,6 +68,7 @@ public class EntryListBase : Component
             }
 
             Snackbar.Add("Store entry removed", Severity.Success);
+            RetrieveEntries();
         });
     }
 
@@ -122,9 +138,9 @@ public class EntryListBase : Component
 
     #region Private methods
 
-    private void RetrieveEntries()
+    private Task RetrieveEntries()
     {
-        Task.Run(async () =>
+        return Task.Run(async () =>
         {
             var (entries, error) = AppService.Instance.GetStoreEntries();
             if (error is not null)

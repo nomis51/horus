@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using WinPass.Core;
 using WinPass.Core.Services;

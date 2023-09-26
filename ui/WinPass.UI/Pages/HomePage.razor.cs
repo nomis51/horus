@@ -11,6 +11,7 @@ public class HomePageBase : Page
     #region Members
 
     protected string SelectedEntry { get; set; } = string.Empty;
+    protected Sidenav? SidenavRef { get; set; }
 
     #endregion
 
@@ -22,7 +23,10 @@ public class HomePageBase : Page
         await InvokeAsync(StateHasChanged);
     }
 
-  
+    protected async Task RefreshEntries()
+    {
+        await SidenavRef!.RefreshEntries();
+    }
 
     #endregion
 }

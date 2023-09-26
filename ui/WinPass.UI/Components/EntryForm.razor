@@ -1,9 +1,44 @@
 ﻿@inherits EntryFormBase
 
-<MudText Typo="Typo.h4"
-         Color="Color.Primary">
-    @SelectedEntry
-</MudText>
+<MudStack Row="true"
+          Spacing="1"
+          AlignItems="AlignItems.Center"
+          Justify="Justify.FlexStart"
+          Style="margin-bottom: 1rem">
+    @if (IsEditingEntryName)
+    {
+        <MudStack Row="true"
+                  AlignItems="AlignItems.Center"
+                  Style="width: 50%">
+            <MudTextField T="string"
+                          Placeholder="Entry name"
+                          Label="Entry name"
+                          FullWidth="true"
+                          Adornment="Adornment.Start"
+                          @bind-Value="@NewEntryName"
+                          Immediate="true"
+                          Required="true"
+                          AdornmentIcon="@Icons.Material.Filled.Title"/>
+            <MudIconButton Icon="@Icons.Material.Filled.CheckCircle"
+                           OnClick="@SaveEntryName"
+                           Color="Color.Success"/>
+            <MudIconButton Icon="@Icons.Material.Filled.Cancel"
+                           OnClick="@CancelEntryName"
+                           Color="Color.Error"/>
+        </MudStack>
+    }
+    else
+    {
+        <MudText Typo="Typo.h4"
+                 Color="Color.Primary">
+            @SelectedEntry
+        </MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                       OnClick="@EditEntryName"
+                       Size="Size.Small"
+                       Color="Color.Primary"/>
+    }
+</MudStack>
 
 @if (!string.IsNullOrEmpty(SelectedEntry))
 {
@@ -22,7 +57,7 @@
                            Size="Size.Small"
                            OnClick="@EditPassword"
                            Color="Color.Primary">
-                    Edit
+                    Edit password
                 </MudButton>
             }
             else
@@ -36,7 +71,7 @@
                                Size="Size.Small"
                                Disabled="@IsSaving"
                                Color="Color.Primary">
-                        Generate
+                        Generate new password
                     </MudButton>
                 </MudTooltip>
                 <MudButton StartIcon="@Icons.Material.Filled.Cancel"

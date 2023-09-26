@@ -32,6 +32,9 @@ public class MainLayoutBase : LayoutComponentBase
     protected override void OnInitialized()
     {
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.BottomLeft;
+        Snackbar.Configuration.HideTransitionDuration = 300;
+        Snackbar.Configuration.ShowTransitionDuration = 300;
+        Snackbar.Configuration.VisibleStateDuration = 3000;
         
         ThemeService.OnThemeModeChange += OnThemeModeChange;
         ThemeService.SetTheme(new MudTheme
