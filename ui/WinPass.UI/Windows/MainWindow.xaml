@@ -27,7 +27,8 @@
 
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
-            <Button ToolTip="Open the settings"
+            <Button x:Name="ButtonSettings" ToolTip="Open the settings"
+                    IsEnabled="false"
                     Click="ButtonSettings_OnClick">
                 <iconPacks:Octicons Width="22"
                                     Height="22"

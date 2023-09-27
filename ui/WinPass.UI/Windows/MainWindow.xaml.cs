@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WinPass.Core;
 using WinPass.Core.Services;
 using WinPass.UI.Extensions;
+using WinPass.UI.Helpers;
 
 namespace WinPass.UI.Windows;
 
@@ -44,6 +45,7 @@ public partial class MainWindow
     private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
         await WebView.WebView.EnsureCoreWebView2Async();
+        ButtonSettings.IsEnabled = true;
         WebView.WebView.CoreWebView2.Settings.IsZoomControlEnabled = false;
 
 #if DEBUG
@@ -61,11 +63,7 @@ public partial class MainWindow
 
     private void ButtonTerminal_OnClick(object sender, RoutedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo
-        {
-            FileName = "wt.exe",
-            ArgumentList = { "-d", AppService.Instance.GetStoreLocation() }
-        });
+        TerminalHelper.SpawnTerminal(AppService.Instance.GetStoreLocation());
     }
 
     #endregion
