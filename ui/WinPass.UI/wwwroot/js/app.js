@@ -18,5 +18,8 @@ window.winpass = {
         copyToClipboard: async function (value) {
             await navigator.clipboard.writeText(value);
         },
+    },
+    openSettings: function () {
+        window.DotNet.invokeMethodAsync('WinPass.UI', 'js-open-settings')
     }
 }

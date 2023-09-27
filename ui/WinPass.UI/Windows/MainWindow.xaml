@@ -27,6 +27,12 @@
 
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
+            <Button ToolTip="Open the settings"
+                    Click="ButtonSettings_OnClick">
+                <iconPacks:Octicons Width="22"
+                                    Height="22"
+                                    Kind="Settings" />
+            </Button>
             <Button ToolTip="Open a terminal"
                     Click="ButtonTerminal_OnClick">
                 <iconPacks:Octicons Width="22"

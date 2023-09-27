@@ -69,4 +69,9 @@ public partial class MainWindow
     }
 
     #endregion
+
+    private void ButtonSettings_OnClick(object sender, RoutedEventArgs e)
+    {
+        WebView.WebView.CoreWebView2.ExecuteScriptAsync("window.winpass.openSettings()");
+    }
 }
