@@ -1,53 +1,70 @@
 ﻿@inherits SettingsFormBase
 
-<MudStack Spacing="1">
-    <MudSelect T="string"
-               Label="Language"
-               Placeholder="Language"
-               Immediate="true"
-               Adornment="Adornment.Start"
-               AdornmentIcon="@Icons.Material.Filled.Language"
-               Variant="Variant.Outlined">
-        @foreach (var language in Languages)
-        {
-            <MudSelectItem T="string"
-                           Value="@language">
-                @language
-            </MudSelectItem>
-        }
-    </MudSelect>
-    <MudTextField T="string"
-                  Placeholder="Default alphabet used to generate new passwords"
-                  Label="Custom alphabet"
-                  Adornment="Adornment.End"
-                  Variant="Variant.Outlined"
-                  Immediate="true"
-                  AdornmentIcon="@Icons.Material.Filled.Abc"/>
-    <MudTextField T="int"
-                  Placeholder="Default length used to generate new passwords"
-                  Label="Custom length"
-                  InputType="InputType.Number"
-                  InputMode="InputMode.numeric"
-                  Adornment="Adornment.End"
-                  Variant="Variant.Outlined"
-                  Immediate="true"
-                  AdornmentIcon="@Icons.Material.Filled.Rule"/>
-    <MudTextField T="int"
-                  Placeholder="Delay before a copied password is removed from the clipboard"
-                  Label="Clear timeout"
-                  InputType="InputType.Number"
-                  InputMode="InputMode.numeric"
-                  Adornment="Adornment.End"
-                  Variant="Variant.Outlined"
-                  Immediate="true"
-                  AdornmentIcon="@Icons.Material.Filled.Timer"/>
-    <MudTextField T="int"
-                  Placeholder="Set GPG cache TTL and prevent Windows Credentials Manager from caching your passphrase"
-                  Label="Passphrase cache timeout"
-                  InputType="InputType.Number"
-                  InputMode="InputMode.numeric"
-                  Adornment="Adornment.End"
-                  Variant="Variant.Outlined"
-                  Immediate="true"
-                  AdornmentIcon="@Icons.Material.Filled.Lock"/>
-</MudStack>
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="1">
+            <MudSelect T="string"
+                       Label="Language"
+                       Placeholder="Language"
+                       Immediate="true"
+                       @bind-Value="@Settings.Language"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.Language"
+                       Variant="Variant.Outlined">
+                @foreach (var (key, language) in Languages)
+                {
+                    <MudSelectItem T="string"
+                                   Value="@key">
+                        @language
+                    </MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField T="string"
+                          Placeholder="Default alphabet used to generate new passwords"
+                          Label="Custom alphabet"
+                          @bind-Value="@Settings.DefaultCustomAlphabet"
+                          Adornment="Adornment.Start"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Abc"/>
+            <MudTextField T="int"
+                          Placeholder="Default length used to generate new passwords"
+                          Label="Custom length"
+                          @bind-Value="@Settings.DefaultLength"
+                          InputType="InputType.Number"
+                          InputMode="InputMode.numeric"
+                          Adornment="Adornment.End"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Rule"/>
+            <MudTextField T="int"
+                          Placeholder="Delay before a copied password is removed from the clipboard"
+                          Label="Clear timeout"
+                          @bind-Value="@Settings.ClearTimeout"
+                          InputType="InputType.Number"
+                          InputMode="InputMode.numeric"
+                          Adornment="Adornment.Start"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Timer"/>
+            <MudTextField T="int"
+                          Placeholder="Set GPG cache TTL and prevent Windows Credentials Manager from caching your passphrase"
+                          Label="Passphrase cache timeout"
+                          @bind-Value="@GpgCacheTtl"
+                          InputType="InputType.Number"
+                          InputMode="InputMode.numeric"
+                          Adornment="Adornment.Start"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Lock"/>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudSpacer/>
+        <MudButton Variant="Variant.Text">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary">
+            Save
+        </MudButton>
+    </DialogActions>
+</MudDialog>
