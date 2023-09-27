@@ -96,7 +96,7 @@ public class PasswordFieldBase : Component
     protected bool ValidatePassword(string value)
     {
         var result = NewPassword == value;
-        IsValid.InvokeAsync(result);
+        IsValid.InvokeAsync(result && !string.IsNullOrEmpty(NewPassword));
         return result;
     }
 

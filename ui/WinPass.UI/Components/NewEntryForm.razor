@@ -5,9 +5,12 @@
         <MudTextField T="string"
                       Placeholder="Name"
                       Label="Name"
+                      AutoFocus="true"
                       FullWidth="true"
                       Immediate="true"
-                      @bind-Value="@Name"
+                      Required="true"
+                      Value="@Name"
+                      ValueChanged="@UpdateName"
                       Variant="Variant.Outlined"
                       AdornmentIcon="@Icons.Material.Filled.Title"
                       Adornment="Adornment.Start"/>

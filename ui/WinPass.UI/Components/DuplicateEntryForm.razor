@@ -5,9 +5,12 @@
         <MudTextField T="string"
                       Placeholder="Name"
                       Label="Name"
+                      AutoFocus="true"
                       FullWidth="true"
                       Immediate="true"
-                      @bind-Value="@Name"
+                      Value="@Name"
+                      ValueChanged="@UpdateName"
+                      Required="true"
                       Variant="Variant.Outlined"
                       AdornmentIcon="@Icons.Material.Filled.Title"
                       Adornment="Adornment.Start"/>
@@ -21,7 +24,7 @@
         }
         <MudButton OnClick="@Close"Disabled="@IsSaving">Cancel</MudButton>
         <MudButton Color="Color.Primary"
-                   Disabled="@(string.IsNullOrEmpty(Name) || IsSaving)"
+                   Disabled="@(string.IsNullOrEmpty(Name) || IsSaving || !IsValid)"
                    Variant="Variant.Filled"
                    OnClick="@Save">
             Save

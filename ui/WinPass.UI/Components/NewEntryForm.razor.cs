@@ -14,7 +14,7 @@ public class NewEntryFormBase : Component
     public const string DefaultEmptyPassword = "__empty__";
 
     #endregion
-    
+
     #region Parameters
 
     [Parameter]
@@ -26,10 +26,18 @@ public class NewEntryFormBase : Component
 
     protected string Name { get; set; } = string.Empty;
     protected bool IsSaving { get; private set; }
+    protected bool IsValid { get; private set; }
 
     #endregion
 
     #region Protected methods
+
+    protected void UpdateName(string value)
+    {
+        Name = value;
+        IsValid = !AppService.Instance.DoStoreEntryExists(Name);
+        StateHasChanged();
+    }
 
     protected void Close()
     {

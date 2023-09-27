@@ -29,11 +29,19 @@ public class DuplicateEntryFormBase : Component
 
     protected string Name { get; set; } = string.Empty;
     protected bool IsSaving { get; private set; }
+    protected bool IsValid { get; private set; }
 
     #endregion
 
     #region Protected methods
 
+    protected void UpdateName(string value)
+    {
+        Name = value;
+        IsValid = !AppService.Instance.DoStoreEntryExists(Name);
+        StateHasChanged();
+    }
+    
     protected void Close()
     {
         OnClose.InvokeAsync();
