@@ -27,6 +27,12 @@
 
     <mah:MetroWindow.RightWindowCommands>
         <mah:WindowCommands>
+            <Button ToolTip="Open a terminal"
+                    Click="ButtonTerminal_OnClick">
+                <iconPacks:Octicons Width="22"
+                                    Height="22"
+                                    Kind="Terminal" />
+            </Button>
             <Button ToolTip="Open up the GitHub page"
                     Click="ButtonGitHub_OnClick">
                 <iconPacks:Octicons Width="22"

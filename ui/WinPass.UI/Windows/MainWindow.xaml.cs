@@ -59,5 +59,14 @@ public partial class MainWindow
         Process.Start("explorer.exe", GithubPage);
     }
 
+    private void ButtonTerminal_OnClick(object sender, RoutedEventArgs e)
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "wt.exe",
+            ArgumentList = { "-d", AppService.Instance.GetStoreLocation() }
+        });
+    }
+
     #endregion
 }
