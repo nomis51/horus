@@ -44,6 +44,28 @@ public class SettingsFormBase : Component
 
     #endregion
 
+    #region Protected methods
+
+    protected void Save()
+    {
+        var result = AppService.Instance.SaveSettings(Settings);
+        if (result.HasError)
+        {
+            Snackbar.Add($"Unable to save settings: {result.Error!.Message}", Severity.Error);
+            return;
+        }
+
+        Snackbar.Add("Settings saved", Severity.Success);
+        Close();
+    }
+
+    protected void Close()
+    {
+        OnClose.InvokeAsync();
+    }
+
+    #endregion
+
     #region Private methods
 
     private void RetrieveSettings()
