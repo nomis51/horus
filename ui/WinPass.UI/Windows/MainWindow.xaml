@@ -7,6 +7,7 @@
                  xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation/blazor"
                  xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                 xmlns:tb="http://www.hardcodet.net/taskbar"
                  mc:Ignorable="d"
                  Title="WinPass"
                  Height="900"
@@ -59,6 +60,31 @@
     </mah:MetroWindow.RightWindowCommands>
 
     <Grid>
+        <tb:TaskbarIcon x:Name="TaskbarIcon"
+                        ToolTip="WinPass" Icon="/Assets/winpass-logo.ico">
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="1.2.3 (Build 123)">
+                        <MenuItem.Icon>
+                            <iconPacks:Octicons Width="22"
+                                                Height="22"
+                                                Kind="History" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem x:Name="MenuItemQuit"
+                              Click="MenuItemQuit_OnClick"
+                              Header="Quit">
+                        <MenuItem.Icon>
+                            <iconPacks:Octicons Width="22"
+                                                Height="22"
+                                                Kind="SignOut" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
+
         <wpf:BlazorWebView x:Name="WebView"
                            Background="#0e0e0e"
                            HostPage="wwwroot\index.html"

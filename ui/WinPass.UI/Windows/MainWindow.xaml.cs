@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using WinPass.Core;
 using WinPass.Core.Services;
@@ -44,6 +47,8 @@ public partial class MainWindow
 
     private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
+        TaskbarIcon.Icon = new BitmapImage(new Uri("pack://application:,,,/WinPass;component/Resources/Assets/winpass-logo.ico", UriKind.Absolute).ToString());
+
         await WebView.WebView.EnsureCoreWebView2Async();
         ButtonSettings.IsEnabled = true;
         WebView.WebView.CoreWebView2.Settings.IsZoomControlEnabled = false;
@@ -66,10 +71,15 @@ public partial class MainWindow
         TerminalHelper.SpawnTerminal(AppService.Instance.GetStoreLocation());
     }
 
-    #endregion
-
     private void ButtonSettings_OnClick(object sender, RoutedEventArgs e)
     {
         WebView.WebView.CoreWebView2.ExecuteScriptAsync("window.winpass.openSettings()");
     }
+
+    private void MenuItemQuit_OnClick(object sender, RoutedEventArgs e)
+    {
+        Environment.Exit(0);
+    }
+
+    #endregion
 }
