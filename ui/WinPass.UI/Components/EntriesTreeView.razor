@@ -27,11 +27,11 @@
                              Align="Align.Start">
                         @item.Name
                     </MudText>
-                    <MudStack Row="true">
+                    <MudStack Row="true"
+                              AlignItems="AlignItems.Center">
                         <MudTooltip Placement="Placement.Top"
                                     Arrow="true"
                                     Text="Duplicate entry">
-
                             <MudIconButton Icon="@Icons.Material.Filled.Difference"
                                            OnClick="@(() => OnDuplicateClick.InvokeAsync(GetPath(item)))"
                                            Size="Size.Small"
