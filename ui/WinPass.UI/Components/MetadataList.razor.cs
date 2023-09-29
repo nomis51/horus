@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WinPass.Core.Services;
+using WinPass.Shared.Enums;
 using WinPass.Shared.Models.Abstractions;
 using WinPass.Shared.Models.Data;
 using WinPass.UI.Components.Abstractions;
@@ -28,6 +29,7 @@ public class MetadataListBase : Component
     #region Members
 
     protected MetadataCollection Metadatas { get; private set; } = new();
+    protected bool IsLoading { get; private set; }
 
     #endregion
 
@@ -58,6 +60,10 @@ public class MetadataListBase : Component
         await UpdateAreMetadatasValid();
     }
 
+    protected void AddNew()
+    {
+        Metadatas.Add(new Metadata("", ""));
+    }
 
     #endregion
 
@@ -66,6 +72,8 @@ public class MetadataListBase : Component
     private void RetrieveMetadatas()
     {
         if (string.IsNullOrEmpty(SelectedEntry)) return;
+
+        IsLoading = true;
 
         Task.Run(async () =>
         {
@@ -79,6 +87,7 @@ public class MetadataListBase : Component
             Metadatas = metadatas;
             await InvokeAsync(async () =>
             {
+                IsLoading = false;
                 await OnLoaded.InvokeAsync();
                 await UpdateAreMetadatasValid();
                 StateHasChanged();
