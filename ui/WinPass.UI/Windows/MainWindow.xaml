@@ -18,16 +18,20 @@
                  NonActiveWindowTitleBrush="#0e0e0e"
                  WindowTitleBrush="#0e0e0e">
     <mah:MetroWindow.LeftWindowCommands>
-        <mah:WindowCommands>
+        <mah:WindowCommands ShowSeparators="False">
             <Image Source="/Assets/winpass-logo.ico"
                    MaxHeight="25"
                    Margin="4 2 2 2" />
+            <Separator Height="15"
+                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                       Background="LightSlateGray" />
         </mah:WindowCommands>
     </mah:MetroWindow.LeftWindowCommands>
 
     <mah:MetroWindow.RightWindowCommands>
-        <mah:WindowCommands>
-            <Button x:Name="ButtonSettings" ToolTip="Open the settings"
+        <mah:WindowCommands ShowSeparators="False">
+            <Button x:Name="ButtonSettings"
+                    ToolTip="Open the settings"
                     IsEnabled="false"
                     Click="ButtonSettings_OnClick">
                 <iconPacks:Octicons Width="22"
@@ -46,6 +50,9 @@
                                     Height="22"
                                     Kind="MarkGithub" />
             </Button>
+            <Separator Height="15"
+                       Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                       Background="LightSlateGray" />
         </mah:WindowCommands>
     </mah:MetroWindow.RightWindowCommands>
 
