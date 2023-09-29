@@ -27,7 +27,7 @@
                            Color="Color.Error"/>
         </MudStack>
     }
-    else
+    else if (!string.IsNullOrEmpty(SelectedEntry))
     {
         <MudText Typo="Typo.h4"
                  Color="Color.Primary">
@@ -188,5 +188,5 @@
 }
 else
 {
-    <MudText Typo="Typo.subtitle1">Select an entry in the left side menu</MudText>
+    <MudText Typo="Typo.subtitle1">Select an entry in the left side menu or create a new one</MudText>
 }
