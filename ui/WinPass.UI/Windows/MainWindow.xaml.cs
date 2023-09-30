@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows;
@@ -87,6 +88,24 @@ public partial class MainWindow
     private void MenuItemQuit_OnClick(object sender, RoutedEventArgs e)
     {
         Environment.Exit(0);
+    }
+
+    private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        e.Cancel = true;
+        Hide();
+    }
+
+    private void TaskbarIcon_OnTrayMouseDoubleClick(object sender, RoutedEventArgs e)
+    {
+        if (!IsVisible)
+        {
+            Show();
+        }
+        else
+        {
+            WindowState = WindowState.Normal;
+        }
     }
 
     #endregion

@@ -19,7 +19,8 @@
                  Background="#0e0e0e"
                  BorderBrush="#0e0e0e"
                  NonActiveWindowTitleBrush="#0e0e0e"
-                 WindowTitleBrush="#0e0e0e">
+                 WindowTitleBrush="#0e0e0e"
+                 Closing="MainWindow_OnClosing">
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands ShowSeparators="False">
             <Image Source="/Assets/winpass-logo.ico"
@@ -61,7 +62,8 @@
 
     <Grid>
         <tb:TaskbarIcon x:Name="TaskbarIcon"
-                        ToolTip="WinPass">
+                        ToolTip="WinPass"
+                        TrayMouseDoubleClick="TaskbarIcon_OnTrayMouseDoubleClick">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="v1.2.3" />
