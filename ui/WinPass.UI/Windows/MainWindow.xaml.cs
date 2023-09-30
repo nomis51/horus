@@ -108,5 +108,23 @@ public partial class MainWindow
         }
     }
 
+    private void MenuItemMinimize_OnClick(object sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Minimized;
+        if (!IsVisible)
+        {
+            Show();
+        }
+    }
+
+    private void MenuItemMaximize_OnClick(object sender, RoutedEventArgs e)
+    {
+        WindowState = WindowState.Maximized;
+        if (!IsVisible)
+        {
+            Show();
+        }
+    }
+
     #endregion
 }

@@ -25,7 +25,22 @@
         <mah:WindowCommands ShowSeparators="False">
             <Image Source="/Assets/winpass-logo.ico"
                    MaxHeight="25"
-                   Margin="4 2 2 2" />
+                   Margin="4 2 2 2">
+                <Image.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Settings"
+                                  Click="ButtonSettings_OnClick" />
+                        <Separator />
+                        <MenuItem Header="Maximize"
+                                  Click="MenuItemMaximize_OnClick" />
+                        <MenuItem Header="Minimize"
+                                  Click="MenuItemMinimize_OnClick" />
+                        <Separator />
+                        <MenuItem Header="Quit"
+                                  Click="MenuItemQuit_OnClick" />
+                    </ContextMenu>
+                </Image.ContextMenu>
+            </Image>
             <Separator Height="15"
                        Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
                        Background="LightSlateGray" />
