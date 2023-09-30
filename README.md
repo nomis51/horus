@@ -32,6 +32,9 @@ To proceed, simply download the new version on [GitHub](https://github.com/nomis
 ## Usage
 You can execute the command `winpass help` or navigate to the [commands' page](https://github.com/nomis51/winpass/blob/master/docs/commands.md) to have all the information about how the application works and what commands are available
 
+### GUI
+There is also a preview version of WinPass UI for Windows in the [Release section](https://github.com/nomis51/winpass/releases/latest).
+
 ## TODOs
 - Add an `import` command 
   - to import backups from the `export` command
