@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using WinPass.Core;
 using WinPass.Core.Services;
@@ -15,7 +14,8 @@ public partial class MainWindow
 {
     #region Constants
 
-    private static readonly string GithubPage = "https://github.com/nomis51/winpass";
+    private const string GithubPage = "https://github.com/nomis51/winpass";
+    private const string IconTrayResource = "pack://application:,,,/WinPass.UI;component/Assets/winpass-logo.ico";
 
     #endregion
 
@@ -47,7 +47,7 @@ public partial class MainWindow
 
     private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
-        TaskbarIcon.Icon = new BitmapImage(new Uri("pack://application:,,,/WinPass;component/Resources/Assets/winpass-logo.ico", UriKind.Absolute).ToString());
+        SetTrayIcon();
 
         await WebView.WebView.EnsureCoreWebView2Async();
         ButtonSettings.IsEnabled = true;
@@ -59,6 +59,14 @@ public partial class MainWindow
 #else
         WebView.WebView.CoreWebView2.Settings.AreDevToolsEnabled = false;
 #endif
+    }
+
+    private void SetTrayIcon()
+    {
+        var iconStream = Application
+            .GetResourceStream(new Uri(IconTrayResource))!
+            .Stream;
+        TaskbarIcon.Icon = new Icon(iconStream);
     }
 
     private void ButtonGitHub_OnClick(object sender, RoutedEventArgs e)

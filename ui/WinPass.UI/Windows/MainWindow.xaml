@@ -14,7 +14,7 @@
                  Width="1600"
                  MinWidth="1200"
                  MinHeight="600"
-                 WindowStartupLocation="CenterOwner"
+                 WindowStartupLocation="CenterScreen"
                  Loaded="MainWindow_OnLoaded"
                  Background="#0e0e0e"
                  BorderBrush="#0e0e0e"
@@ -61,26 +61,12 @@
 
     <Grid>
         <tb:TaskbarIcon x:Name="TaskbarIcon"
-                        ToolTip="WinPass" Icon="/Assets/winpass-logo.ico">
+                        ToolTip="WinPass">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="1.2.3 (Build 123)">
-                        <MenuItem.Icon>
-                            <iconPacks:Octicons Width="22"
-                                                Height="22"
-                                                Kind="History" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <Separator />
-                    <MenuItem x:Name="MenuItemQuit"
-                              Click="MenuItemQuit_OnClick"
-                              Header="Quit">
-                        <MenuItem.Icon>
-                            <iconPacks:Octicons Width="22"
-                                                Height="22"
-                                                Kind="SignOut" />
-                        </MenuItem.Icon>
-                    </MenuItem>
+                    <MenuItem Header="v1.2.3" />
+                    <MenuItem Click="MenuItemQuit_OnClick"
+                              Header="Quit" />
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
