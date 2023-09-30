@@ -90,6 +90,7 @@ public class EntryListBase : Component
             }
 
             var result = AppService.Instance.DeleteStoreEntry(name);
+            AppService.Instance.ReleaseLock();
             if (result.HasError)
             {
                 Snackbar.Add($"Unable to remove the store entry: {result.Error!.Message}", Severity.Error);

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WinPass.Core.Services;
@@ -32,6 +34,14 @@ public class SettingsFormBase : Component
 
     protected Settings Settings { get; private set; }
     protected int GpgCacheTtl { get; set; }
+    private IDialogReference? _destroyStoreConfirmDialog;
+
+    #endregion
+
+    #region Services
+
+    [Inject]
+    protected NavigationManager NavigationManager { get; set; } = null!;
 
     #endregion
 
@@ -57,6 +67,46 @@ public class SettingsFormBase : Component
 
         Snackbar.Add("Settings saved", Severity.Success);
         Close();
+    }
+
+    protected void ConfirmDestroyStore()
+    {
+        _destroyStoreConfirmDialog = DialogService.Show<ConfirmDialog>("Destroy the store", new DialogParameters
+        {
+            ["ContentText"] = "Are you sure you want to delete the password store?",
+            ["OnClose"] = EventCallback.Factory.Create<bool>(this, confirmed =>
+            {
+                if (confirmed)
+                {
+                    if (!AppService.Instance.AcquireLock())
+                    {
+                        Snackbar.Add("Failed to acquire lock", Severity.Error);
+                    }
+                    else
+                    {
+                        var result = AppService.Instance.DestroyStore();
+                        AppService.Instance.ReleaseLock();
+                        if (!result.HasError)
+                        {
+                            Snackbar.Add("Store destroyed successfully", Severity.Success);
+                            NavigationManager.NavigateTo("/");
+                        }
+                        else
+                        {
+                            Snackbar.Add($"Failed to destroy the store: {result.Error!.Message}", Severity.Error);
+                        }
+                    }
+                }
+
+                _destroyStoreConfirmDialog?.Close();
+            }),
+        }, new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            CloseButton = true,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Small
+        });
     }
 
     protected void Close()

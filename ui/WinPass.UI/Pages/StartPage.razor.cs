@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using WinPass.Core.Services;
 using WinPass.UI.Components;
@@ -6,7 +9,7 @@ using WinPass.UI.Components.Abstractions;
 
 namespace WinPass.UI.Pages;
 
-public class StartPageBase : Component
+public class StartPageBase : Component, IDisposable
 {
     #region Services
 
@@ -21,11 +24,23 @@ public class StartPageBase : Component
 
     #endregion
 
+    #region Members
+
+    private Task? _checkTask;
+    private bool _doCheckStore = true;
+
+    #endregion
+
     #region Lifecycle
 
     protected override void OnInitialized()
     {
-        EnsureStoreInitialized();
+        AutoCheckStore();
+    }
+
+    public void Dispose()
+    {
+        _doCheckStore = false;
     }
 
     #endregion
@@ -34,32 +49,49 @@ public class StartPageBase : Component
 
     private void EnsureStoreInitialized()
     {
+        if (_initStoreFormDialogReference is not null) return;
+        
         if (!AppService.Instance.IsStoreInitialized())
         {
-            _initStoreFormDialogReference = DialogService.Show<InitStoreForm>("Initialize store",
-                new DialogParameters
-                {
+            InvokeAsync(() =>
+            {
+                _initStoreFormDialogReference = DialogService.Show<InitStoreForm>("Initialize store",
+                    new DialogParameters
                     {
-                        "OnClose",
-                        EventCallback.Factory.Create(this, () =>
                         {
-                            _initStoreFormDialogReference?.Close();
-                            NavigationManager.NavigateTo("/home");
-                        })
-                    }
-                }, new DialogOptions
-                {
-                    CloseButton = false,
-                    CloseOnEscapeKey = false,
-                    DisableBackdropClick = true,
-                    MaxWidth = MaxWidth.Large,
-                    FullWidth = true
-                });
+                            "OnClose",
+                            EventCallback.Factory.Create(this, () =>
+                            {
+                                _initStoreFormDialogReference?.Close();
+                                NavigationManager.NavigateTo("/home");
+                            })
+                        }
+                    }, new DialogOptions
+                    {
+                        CloseButton = false,
+                        CloseOnEscapeKey = false,
+                        DisableBackdropClick = true,
+                        MaxWidth = MaxWidth.Large,
+                        FullWidth = true
+                    });
+            });
         }
         else
         {
             NavigationManager.NavigateTo("/home");
         }
+    }
+
+    private void AutoCheckStore()
+    {
+        _checkTask = Task.Run(() =>
+        {
+            while (_doCheckStore)
+            {
+                EnsureStoreInitialized();
+                Thread.Sleep(1000);
+            }
+        });
     }
 
     #endregion

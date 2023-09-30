@@ -57,6 +57,15 @@
                           Variant="Variant.Outlined"
                           Immediate="true"
                           AdornmentIcon="@Icons.Material.Filled.Lock"/>
+            <MudButton Color="Color.Error"
+                       Variant="Variant.Filled"
+                       Style="max-width: 20%"
+                       Size="Size.Small"
+                       OnClick="@ConfirmDestroyStore">
+                <MudIcon Icon="@Icons.Material.Filled.GppBad"
+                         Style="margin-right: 2px"/>
+                <MudText Typo="Typo.inherit">Destroy the store</MudText>
+            </MudButton>
         </MudStack>
     </DialogContent>
     <DialogActions>
