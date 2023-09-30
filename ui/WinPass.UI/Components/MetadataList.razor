@@ -1,0 +1,25 @@
+﻿@inherits MetadataListBase
+
+<MudStack Spacing="2"
+          Style="margin-top: .5rem">
+    @foreach (var metadata in Metadatas)
+    {
+        <MetadataField Key="@metadata.Key"
+                       Value="@metadata.Value"
+                       Type="@metadata.Type"
+                       OnValueChanged="@(e => UpdateMetadata(e.Item1, e.Item2, metadata))"/>
+    }
+    @if (!IsLoading)
+    {
+        <MudStack Row="true"
+                  Justify="Justify.FlexEnd">
+            <MudButton Color="Color.Primary"
+                       Size="Size.Small"
+                       Variant="Variant.Filled"
+                       OnClick="@AddNew">
+                <MudIcon Icon="@Icons.Material.Filled.Add"/>
+                Create
+            </MudButton>
+        </MudStack>
+    }
+</MudStack>

@@ -1,0 +1,16 @@
+﻿@inherits HomePageBase
+@page "/home"
+
+<MudStack Row="true"
+          Spacing="2"
+          Justify="Justify.SpaceBetween"
+          Style="padding: 0 .5rem .5rem .5rem">
+    <MudPaper Style="width: var(--app-sidenav-width); height: var(--app-content-height); padding: 1rem; position: relative">
+        <Sidenav @ref="SidenavRef"
+                 OnEntrySelected="@SelectEntry"/>
+    </MudPaper>
+    <MudPaper Style="width: var(--app-content-width); height: var(--app-content-height); padding: 1rem; position: relative">
+        <EntryForm SelectedEntry="@SelectedEntry"
+                   OnRefreshEntries="@RefreshEntries"/>
+    </MudPaper>
+</MudStack>

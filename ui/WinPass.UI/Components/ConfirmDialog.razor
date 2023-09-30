@@ -1,0 +1,19 @@
+﻿@inherits ConfirmDialogBase
+
+<MudDialog>
+    <DialogContent>
+        <MudText>@ContentText</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudSpacer/>
+        <MudButton Variant="Variant.Text"
+                   OnClick="@(() => OnClose.InvokeAsync(false))">
+            No
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Error"
+                   OnClick="@(() => OnClose.InvokeAsync(true))">
+            Yes
+        </MudButton>
+    </DialogActions>
+</MudDialog>

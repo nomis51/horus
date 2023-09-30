@@ -1,0 +1,34 @@
+﻿@using WinPass.Shared.Enums
+@using WinPass.UI.Extensions
+@inherits MetadataFieldBase
+
+<MudStack Spacing="2"
+          Row="true">
+    @if (!IsInternal)
+    {
+        <MudTextField T="string"
+                      Placeholder="Key"
+                      Label="Key"
+                      Style="width: 15vw"
+                      ReadOnly="@(Type == MetadataType.Internal)"
+                      Adornment="Adornment.Start"
+                      Variant="Variant.Outlined"
+                      Value="@Key"
+                      ValueChanged="@(e => Update(e, Value))"
+                      Immediate="true"
+                      Required="true"
+                      AdornmentIcon="@Icons.Material.Filled.Category"/>
+    }
+    <MudTextField T="string"
+                  Placeholder="@(IsInternal ? Key.Capitalize() : "Value")"
+                  Label="@(IsInternal ? Key.Capitalize() : "Value")"
+                  FullWidth="true"
+                  ReadOnly="@IsInternal"
+                  Adornment="Adornment.Start"
+                  Variant="Variant.Outlined"
+                  Value="@Value"
+                  ValueChanged="@(e => Update(Key, e))"
+                  Immediate="true"
+                  Required="@(!IsInternal)"
+                  AdornmentIcon="@(IsInternal ? Icons.Material.Filled.Category : Icons.Material.Filled.Draw)"/>
+</MudStack>
