@@ -6,6 +6,19 @@
         <UseWPF>true</UseWPF>
         <RootNamespace>WinPass.UI</RootNamespace>
         <ApplicationIcon>wwwroot\images\winpass-logo.ico</ApplicationIcon>
+        <Version>1.0.0</Version>
+        <Title>WinPass</Title>
+        <Authors>nomis51</Authors>
+        <Description>GUI implementation of WinPass for Windows</Description>
+        <PackageProjectUrl>https://github.com/nomis51/winpass</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/nomis51/winpass/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/nomis51/winpass</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>pass,password,manager,vault,windows</PackageTags>
+        <Company>nomis51</Company>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <PackageVersion>1.0.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

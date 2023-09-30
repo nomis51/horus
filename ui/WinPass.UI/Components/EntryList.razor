@@ -28,14 +28,16 @@
 }
 else
 {
-    <MudTreeView T="string"
-                 Hover="true"
-                 ExpandOnClick="true"
-                 SelectedValueChanged="@SelectEntry">
-        <EntriesTreeView Items="@Entries"
-                         OnDeleteClick="@DeleteEntry"
-                         OnDuplicateClick="@DuplicateEntry"/>
-    </MudTreeView>
+    <div style="max-height: calc(var(--app-content-height) - 10vh); overflow-y: scroll">
+        <MudTreeView T="string"
+                     Hover="true"
+                     ExpandOnClick="true"
+                     SelectedValueChanged="@SelectEntry">
+            <EntriesTreeView Items="@Entries"
+                             OnDeleteClick="@DeleteEntry"
+                             OnDuplicateClick="@DuplicateEntry"/>
+        </MudTreeView>
+    </div>
 }
 
 <MudTooltip Arrow="true"

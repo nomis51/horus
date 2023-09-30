@@ -28,7 +28,11 @@ public partial class MainWindow
         InitializeServices();
 
         AppService.Instance.Initialize(new AppServiceDependenciesProvider(
+#if DEBUG
             new FsService(".winpass-tests"),
+#else
+            new FsService(".winpass"),
+#endif
             new GitService(),
             new GpgService(),
             new SettingsService()
