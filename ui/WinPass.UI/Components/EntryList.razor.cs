@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using WinPass.Core.Services;
-using WinPass.Shared.Models.Data;
 using WinPass.Shared.Models.Display;
 using WinPass.UI.Components.Abstractions;
 
@@ -24,10 +24,10 @@ public class EntryListBase : Component
 
     protected List<StoreEntry> Entries { get; private set; } = new();
     private string SelectedEntry { get; set; } = string.Empty;
-    protected string SearchText { get; private set; } = string.Empty;
-    protected bool SearchInMetadata { get; set; }
+    protected string SearchText { get; set; } = string.Empty;
     private IDialogReference? _addNewEntryDialogReference;
     private IDialogReference? _duplicateEntryDialogReference;
+    protected bool Searching { get; private set; }
 
     #endregion
 
@@ -128,33 +128,10 @@ public class EntryListBase : Component
         });
     }
 
-    protected void Search(string value)
+    protected void OnSearchTextFieldKeyUp(KeyboardEventArgs e)
     {
-        SearchText = value;
-        if (string.IsNullOrEmpty(SearchText))
-        {
-            RetrieveEntries();
-            return;
-        }
-
-        Task.Run(async () =>
-        {
-            var (entries, error) = AppService.Instance.SearchStoreEntries(SearchText);
-            if (error is not null)
-            {
-                Snackbar.Add("Unable to search store entries", Severity.Error);
-                return;
-            }
-
-            Entries = entries;
-            if (!string.IsNullOrEmpty(SelectedEntry)) return;
-
-            await InvokeAsync(async () =>
-            {
-                await SelectEntry(Entries.FirstOrDefault(e => !e.IsFolder)?.Name ?? string.Empty);
-                StateHasChanged();
-            });
-        });
+        if (e.Key != "Enter") return;
+        Search(e.CtrlKey);
     }
 
     protected async Task SelectEntry(string entry)
@@ -165,8 +142,41 @@ public class EntryListBase : Component
 
     #endregion
 
-
     #region Private methods
+
+    private void Search(bool searchMetadata = false)
+    {
+        Searching = true;
+        if (string.IsNullOrEmpty(SearchText))
+        {
+            RetrieveEntries();
+            Searching = false;
+            return;
+        }
+
+        Task.Run(async () =>
+        {
+            var (entries, error) = AppService.Instance.SearchStoreEntries(SearchText, searchMetadata);
+            if (error is not null)
+            {
+                Searching = false;
+                await InvokeAsync(StateHasChanged);
+                Snackbar.Add("Unable to search store entries", Severity.Error);
+                return;
+            }
+
+            Searching = false;
+            Entries = entries;
+            await InvokeAsync(StateHasChanged);
+
+            if (!string.IsNullOrEmpty(SelectedEntry)) return;
+            await InvokeAsync(async () =>
+            {
+                await SelectEntry(Entries.FirstOrDefault(e => !e.IsFolder)?.Name ?? string.Empty);
+                StateHasChanged();
+            });
+        });
+    }
 
     private Task RetrieveEntries()
     {

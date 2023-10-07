@@ -1,26 +1,27 @@
 ﻿@inherits EntryListBase
 
 <MudStack Row="true"
+          AlignItems="AlignItems.Center"
           Spacing="1">
     <MudTextField T="string"
                   Placeholder="Search"
                   Label="Search"
                   FullWidth="true"
+                  Disabled="@Searching"
                   Immediate="true"
                   Value="@SearchText"
-                  DebounceInterval="500"
-                  OnDebounceIntervalElapsed="@Search"
+                  ValueChanged="@(e => SearchText = e)"
+                  OnKeyUp="@OnSearchTextFieldKeyUp"
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Adornment="Adornment.Start"
                   Variant="Variant.Outlined"
                   Margin="Margin.Dense"/>
-    <MudTooltip Text="Search in metadata aswell"
-                Arrow="true"
-                Placement="Placement.Bottom">
-        <MudCheckBox T="bool"
-                     Color="Color.Primary"
-                     bind-Checked="@SearchInMetadata"/>
-    </MudTooltip>
+    @if (Searching)
+    {
+        <MudProgressCircular Color="Color.Primary"
+                             Indeterminate="true"
+                             Size="Size.Small"/>
+    }
 </MudStack>
 @if (!Entries.Any())
 {
