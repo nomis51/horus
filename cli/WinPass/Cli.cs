@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using System.Text;
+using Spectre.Console;
 using WinPass.Commands;
 using WinPass.Core;
 using WinPass.Core.Services;
@@ -43,6 +44,11 @@ public class Cli
         var commandArgs = lstArgs.Skip(1).ToList();
         switch (lstArgs[0])
         {
+            case "interactive":
+            case "interact":
+                InteractiveMode();
+                break;
+
             case "init":
                 new Init().Run(commandArgs);
                 break;
@@ -163,11 +169,28 @@ public class Cli
 
     #region Private methods
 
+    private void InteractiveMode()
+    {
+        Console.Clear();
+
+        while (true)
+        {
+            var input = AnsiConsole.Ask<string>("[blue]winpass:[/]");
+            var args = input.Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            if (args.FirstOrDefault() is "quit" or "exit" or "q") break;
+
+            Run(args);
+            AnsiConsole.Write(new Rule());
+        }
+
+        AnsiConsole.MarkupLine("[green]bye[/]");
+    }
+
     private static List<string> HandleAliases(List<string> args)
     {
         if (args.Count == 0)
         {
-            args.Add("ls");
+            args.Add("interactive");
             return args;
         }
 
