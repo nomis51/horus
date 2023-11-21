@@ -77,7 +77,7 @@ public class Edit : ICommand
             if (choice == Locale.Get("save"))
             {
                 ClipboardHelper.EnsureCleared();
-                
+
                 if (newPasswordToSave is not null)
                 {
                     var resultEditPassword = AppService.Instance.EditPassword(name, newPasswordToSave);
@@ -109,16 +109,103 @@ public class Edit : ICommand
                 if (choicePassword == Locale.Get("cancel")) continue;
                 if (choicePassword == Locale.Get("questions.generateNewPassword"))
                 {
-                    var (newPassword, errorNewPassword) = AppService.Instance.GenerateNewPassword(copy: true);
-                    if (errorNewPassword is not null)
+                    var (generatedPassword, errorGeneratedPassword) = AppService.Instance.GenerateNewPassword();
+                    if (errorGeneratedPassword is not null)
                     {
-                        lastErrorMessage =
-                            $"[{Cli.GetErrorColor(errorNewPassword.Severity)}]{errorNewPassword.Message}[/]";
-                        return;
+                        AnsiConsole.MarkupLine(
+                            $"[{Cli.GetErrorColor(errorGeneratedPassword.Severity)}]{errorGeneratedPassword.Message}[/]");
+                        continue;
                     }
 
-                    lastErrorMessage = Locale.Get("passwordCopied");
-                    newPasswordToSave = newPassword;
+                    var length = 0;
+                    var alphabet = string.Empty;
+                    var showPassword = false;
+
+                    while (true)
+                    {
+                        Console.Clear();
+                        var generatedPasswordPanel = new Panel(!showPassword ? "****************************" : generatedPassword!.ValueAsString.EscapeMarkup())
+                            .Header("Generated password")
+                            .RoundedBorder()
+                            .BorderColor(Color.Blue);
+                        AnsiConsole.Write(generatedPasswordPanel);
+
+                        var choicePasswordGeneration = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .AddChoices(
+                                    "Generate a new one",
+                                    "Show/hide the generated password",
+                                    "Copy old password",
+                                    "Copy new password",
+                                    "Edit length",
+                                    "Edit alphabet",
+                                    "Back"
+                                )
+                        );
+
+                        if (choicePasswordGeneration == Locale.Get("cancel")) break;
+                        if (choicePasswordGeneration == "Confirm")
+                        {
+                            newPasswordToSave = generatedPassword;
+                            generatedPassword.Dispose();
+                            generatedPassword = null;
+                            break;
+                        }
+
+                        if (choicePasswordGeneration == "Show/hide the generated password")
+                        {
+                            showPassword = !showPassword;
+                            continue;
+                        }
+
+                        if (choicePasswordGeneration == "Copy old password")
+                        {
+                            var (_, existingPasswordError) = AppService.Instance.GetPassword(name);
+                            if (existingPasswordError is not null)
+                            {
+                                AnsiConsole.MarkupLine(
+                                    $"[{Cli.GetErrorColor(existingPasswordError.Severity)}]{existingPasswordError.Message}[/]");
+                            }
+
+                            continue;
+                        }
+
+                        if (choicePasswordGeneration == "Copy new password")
+                        {
+                            ClipboardHelper.Copy(generatedPassword!.ValueAsString);
+                            ProcessHelper.Fork(new[] { "cc", "10" });
+                            continue;
+                        }
+
+                        if (choicePasswordGeneration == "Edit length")
+                        {
+                            length = AnsiConsole.Ask("Length", 18);
+                            choicePasswordGeneration = "Generate a new one";
+                        }
+
+                        if (choicePasswordGeneration == "Edit alphabet")
+                        {
+                            alphabet = AnsiConsole.Ask("Alphabet", string.Empty);
+                            choicePasswordGeneration = "Generate a new one";
+                        }
+
+                        if (choicePasswordGeneration == "Generate a new one")
+                        {
+                            var (g, e) = AppService.Instance.GenerateNewPassword(length, alphabet);
+                            if (e is not null)
+                            {
+                                AnsiConsole.MarkupLine(
+                                    $"[{Cli.GetErrorColor(e.Severity)}]{e.Message}[/]");
+                                continue;
+                            }
+
+                            generatedPassword = new Password(g!.Value!);
+                            g.Dispose();
+                            g = null;
+                            continue;
+                        }
+                    }
+
                     continue;
                 }
 
@@ -149,7 +236,7 @@ public class Edit : ICommand
 
                     newPasswordConfirm = null;
                     GC.Collect();
-                    
+
                     // TODO: calculate entropy and tell if the password is good or not
 
                     newPasswordToSave = new Password(newPassword);
