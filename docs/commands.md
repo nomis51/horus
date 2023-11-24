@@ -101,6 +101,7 @@ You can edit several informations such as :
 - The password
   - By entering a new one manually
   - By asking the app to generate a new strong password for you
+    - You can then see the newly generated password, edit the alphabet or the length, copy it, copy your old password and keep on generating a new password you're happy with the result
 - The metadata
   - Add a new metadata (key / value)
   - Edit an existing metadata (key / value)
