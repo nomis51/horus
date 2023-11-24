@@ -1,0 +1,60 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             x:Class="WinPass.UI.App"
+             xmlns:local="using:WinPass.UI"
+             RequestedThemeVariant="Default">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <!-- <Application.Resources> -->
+    <!--     <ResourceDictionary> -->
+    <!--         <Color x:Key="RegionColor">#434b5e</Color> -->
+    <!--         <Color x:Key="BaseLow">#2e3440</Color> -->
+    <!--         <Color x:Key="BaseHigh">#3b4252</Color> -->
+    <!--     </ResourceDictionary> -->
+    <!-- </Application.Resources> -->
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <materialIcons:MaterialIconStyles />
+
+        <FluentTheme>
+            <!-- <FluentTheme.Palettes> -->
+            <!--     <ColorPaletteResources x:Key="Dark" -->
+            <!--                            RegionColor="#2e3440" -->
+            <!--                            BaseLow="#2e3440" -->
+            <!--                            BaseMedium="#3b4252" -->
+            <!--                            BaseHigh="#434b5e" -->
+            <!--                            Accent="#e5eaf0" -->
+            <!--                            AltMedium="#6e7889" /> -->
+            <!-- </FluentTheme.Palettes> -->
+        </FluentTheme>
+
+        <!-- <Style Selector="materialIcons|MaterialIcon"> -->
+        <!--     <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
+        <!-- </Style> -->
+        <!-- <Style Selector="TextBlock"> -->
+        <!--     <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
+        <!-- </Style> -->
+        <Style Selector="Button">
+            <!-- <Setter Property="Background" Value="{DynamicResource ButtonBackground}" /> -->
+            <!-- <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <!-- <Style Selector="Button:pointerover /template/ ContentPresenter"> -->
+        <!--     <Setter Property="Background" Value="{DynamicResource SystemBaseHighColor}" /> -->
+        <!--     <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
+        <!-- </Style> -->
+        <Style Selector="Panel.paper">
+            <Setter Property="Background" Value="{DynamicResource SystemBaseLowColor}" />
+        </Style>
+        <Style Selector="Border.paper">
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColor}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="4" />
+        </Style>
+    </Application.Styles>
+</Application>
