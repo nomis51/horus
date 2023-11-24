@@ -6,9 +6,9 @@
     <Version>2.0.0</Version>
     <Title>WinPass.Shared</Title>
     <Authors>nomis51</Authors>
-    <AssemblyVersion>2.0.0</AssemblyVersion>
-    <FileVersion>2.0.0</FileVersion>
-    <PackageVersion>2.0.0</PackageVersion>
+    <AssemblyVersion>2.0.1</AssemblyVersion>
+    <FileVersion>2.0.1</FileVersion>
+    <PackageVersion>2.0.1</PackageVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.3.6" />
