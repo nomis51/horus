@@ -55,15 +55,24 @@ public class Generate : ICommand
             }
         }
 
-        var (_, resultGenerateNewPassword) = AppService.Instance.GenerateNewPassword(length, customAlphabet, dontReturn: true);
+        var (resultGenerateNewPassword, resultGenerateNewPasswordError) = AppService.Instance.GenerateNewPassword(length, customAlphabet);
 
-        if (resultGenerateNewPassword is not null)
+        if (resultGenerateNewPasswordError is not null)
         {
             AnsiConsole.MarkupLine(
-                $"[{Cli.GetErrorColor(resultGenerateNewPassword.Severity)}]{resultGenerateNewPassword.Message}[/]");
+                $"[{Cli.GetErrorColor(resultGenerateNewPasswordError.Severity)}]{resultGenerateNewPasswordError.Message}[/]");
             return;
         }
 
+        var insertPasswordResult = AppService.Instance.InsertPassword(name, resultGenerateNewPassword!);
+
+        if (insertPasswordResult.HasError)
+        {
+            AnsiConsole.MarkupLine(
+                $"[{Cli.GetErrorColor(insertPasswordResult.Error!.Severity)}]{insertPasswordResult.Error!.Message}[/]");
+            return;
+        }
+        
         AnsiConsole.MarkupLine(Locale.Get("passwordGenerated", new object[] { name }));
     }
 

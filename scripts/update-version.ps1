@@ -7,9 +7,9 @@ param(
 $version = "$major.$minor.$patch"
 
 $csprojFilePaths = @(
-    '../src/WinPass/WinPass.csproj',
-    '../src/WinPass.Shared/WinPass.Shared.csproj',
-    '../src/WinPass.Core/WinPass.Core.csproj'
+    '../cli/WinPass/WinPass.csproj',
+    '../common/WinPass.Shared/WinPass.Shared.csproj',
+    '../common/WinPass.Core/WinPass.Core.csproj'
 )
 
 Write-Output "Updating version"
