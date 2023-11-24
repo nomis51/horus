@@ -31,8 +31,6 @@ List all the entries in the password store in a tree view.
 
 `winpass list`
 
-`winpass`
-
 ## show
 `winpass show [args] [name]`
 
@@ -158,6 +156,11 @@ There is an argument that you can provide to the command :
 `winpass rename -d "facebook"` : will duplicate the entry named "facebook" with a new name
 
 `winpass move facebook` : Same as `winpass rename facebook`
+
+## interact
+`winpass interact` or `winpass interactive` or simply `winpass`
+
+Launch the app into interactive mode. Let you run multiple commands in the same session.
 
 ## git
 `winpass git status` or `...`
