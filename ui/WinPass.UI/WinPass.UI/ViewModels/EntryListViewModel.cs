@@ -1,6 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using DynamicData;
+using Serilog;
+using WinPass.Core.Services;
+using WinPass.Shared.Models.Display;
 using WinPass.UI.Models;
 
 namespace WinPass.UI.ViewModels;
@@ -9,7 +14,6 @@ public class EntryListViewModel : ViewModelBase
 {
     #region Props
 
-    public EntryTreeViewModel EntryTreeViewModel { get; } = new();
     public ObservableCollection<EntryItemModel> Items { get; } = new();
 
     #endregion
@@ -27,40 +31,24 @@ public class EntryListViewModel : ViewModelBase
 
     private void RetrieveEntries()
     {
-      Items.AddRange(new[]
+        var (entries, error) = AppService.Instance.GetStoreEntries();
+        if (error is not null)
         {
-            new EntryItemModel { Name = "Test" },
-            new EntryItemModel
+            Log.Error("Unable to retrieve store entries: {Message}", error.Message);
+            return;
+        }
+
+        Items.AddRange(MapToEntryItemModels(entries));
+    }
+
+    private List<EntryItemModel> MapToEntryItemModels(IEnumerable<StoreEntry> entries)
+    {
+        return entries.Select(entry => new EntryItemModel
             {
-                Name = "Test",
-                Items = new()
-                {
-                    new EntryItemModel
-                    {
-                        Name = "Sub Test"
-                    }
-                }
-            },
-            new EntryItemModel
-            {
-                Name = "Test",
-                Items = new()
-                {
-                    new EntryItemModel
-                    {
-                        Name = "Sub Test",
-                        Items = new()
-                        {
-                            new EntryItemModel
-                            {
-                                Name = "Sub sub Test",
-                            }
-                        }
-                    }
-                }
-            },
-            new EntryItemModel { Name = "Test" },
-        });
+                Name = entry.Name,
+                Items = MapToEntryItemModels(entry.Entries)
+            })
+            .ToList();
     }
 
     #endregion

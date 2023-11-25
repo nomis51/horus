@@ -9,11 +9,5 @@ public class EntryItemModel
 {
     public string Name { get; set; }
     public List<EntryItemModel> Items { get; init; } = new();
-    public bool HasSubItems => Items.Any();
-    public bool IsOpened { get; set; }
-
-    public EntryTreeViewModel ItemsAsViewModel => new()
-    {
-        Items = new ObservableCollection<EntryItemModel>(Items)
-    };
+    public bool HasItems => Items.Any();
 }
