@@ -3,6 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:WinPass.UI.ViewModels"
+             xmlns:models="clr-namespace:WinPass.UI.Models"
+             xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -15,41 +17,173 @@
         <viewModels:EntryFormViewModel />
     </Design.DataContext>
 
-    <StackPanel Spacing="10">
+    <StackPanel Spacing="5">
         <TextBlock Text="{Binding EntryName}"
                    FontSize="24" />
         <Grid ColumnDefinitions="*,*"
               HorizontalAlignment="Stretch">
             <TextBlock Grid.Column="0"
                        Text="Password"
+                       VerticalAlignment="Bottom"
                        FontSize="18"
                        Foreground="{DynamicResource SystemAccentColor}" />
             <Button Grid.Column="1"
                     Classes="accent"
                     HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
                     Content="Edit" />
         </Grid>
         <StackPanel Spacing="8">
             <TextBox Watermark="Password"
+                     UseFloatingWatermark="True"
+                     MinHeight="48"
                      Classes="revealPasswordButton"
                      PasswordChar="•"
                      RevealPassword="False" />
             <TextBox Watermark="Confirm password"
+                     UseFloatingWatermark="True"
+                     MinHeight="48"
                      Classes="revealPasswordButton"
                      PasswordChar="•"
                      RevealPassword="False" />
         </StackPanel>
-        
-        <Grid ColumnDefinitions="*,*"
-              HorizontalAlignment="Stretch">
+
+        <Grid ColumnDefinitions="*,Auto"
+              HorizontalAlignment="Stretch"
+              Margin="0,10,0,0">
             <TextBlock Grid.Column="0"
-                       Text="Metadatas"
+                       Text="Metadata"
                        FontSize="18"
+                       VerticalAlignment="Bottom"
                        Foreground="{DynamicResource SystemAccentColor}" />
             <Button Grid.Column="1"
+                    x:Name="ButtonRevealMetadatas"
+                    IsVisible="{Binding !MetadatasRevealed}"
                     Classes="accent"
                     HorizontalAlignment="Right"
-                    Content="Reveal" />
+                    VerticalAlignment="Bottom"
+                    Content="Reveal metadata"
+                    Click="ButtonRevealMetadatas_OnClick" />
+            <DockPanel Grid.Column="1"
+                       IsVisible="{Binding MetadatasRevealed}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom">
+                <Button x:Name="ButtonCancelMetadatas"
+                        Classes="error"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Content="Cancel" />
+                <Button x:Name="ButtonSaveMetadatas"
+                        Margin="5,0,0,0"
+                        Classes="success"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Content="Save" />
+            </DockPanel>
         </Grid>
+
+        <ItemsRepeater ItemsSource="{Binding InternalMetadatas}">
+            <ItemsRepeater.Layout>
+                <StackLayout Spacing="8" />
+            </ItemsRepeater.Layout>
+            <ItemsRepeater.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="*, 3*, Auto">
+                        <TextBox Grid.Column="0"
+                                 x:DataType="models:MetadataModel"
+                                 IsReadOnly="True"
+                                 MinHeight="48"
+                                 Watermark="Key"
+                                 UseFloatingWatermark="True"
+                                 Text="{Binding DisplayKey}" />
+                        <TextBox Grid.Column="1"
+                                 x:DataType="models:MetadataModel"
+                                 Margin="5, 0,0,0"
+                                 IsReadOnly="True"
+                                 MinHeight="48"
+                                 Watermark="Value"
+                                 UseFloatingWatermark="True"
+                                 Text="{Binding DisplayValue}" />
+                    </Grid>
+                </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+
+        <Panel IsVisible="{Binding MetadatasRevealed}">
+            <Separator Margin="0,8"
+                       IsVisible="{Binding HasNormalMetadatas}" />
+        </Panel>
+
+        <ItemsRepeater ItemsSource="{Binding Metadatas}">
+            <ItemsRepeater.Layout>
+                <StackLayout Spacing="8" />
+            </ItemsRepeater.Layout>
+            <ItemsRepeater.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="*, 3*, Auto">
+                        <TextBox Grid.Column="0"
+                                 x:DataType="models:MetadataModel"
+                                 MinHeight="48"
+                                 Watermark="Key"
+                                 UseFloatingWatermark="True"
+                                 Text="{Binding DisplayKey}" />
+                        <TextBox Grid.Column="1"
+                                 x:DataType="models:MetadataModel"
+                                 Margin="5, 0,0,0"
+                                 MinHeight="48"
+                                 Watermark="Value"
+                                 UseFloatingWatermark="True"
+                                 Text="{Binding DisplayValue}" />
+                        <Button x:DataType="models:MetadataModel"
+                                Classes="transparent"
+                                Grid.Column="2"
+                                Margin="5, 0,0,0"
+                                VerticalAlignment="Center"
+                                x:Name="ButtonRemoveMetadata">
+                            <Button.Content>
+                                <icons:MaterialIcon Kind="Delete" />
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+
+        <Panel IsVisible="{Binding MetadatasRevealed}">
+            <TextBlock IsVisible="{Binding !HasMetadatas}"
+                       Text="No metadata" />
+        </Panel>
+
+        <Panel IsVisible="{Binding !MetadatasRevealed}">
+            <ItemsRepeater ItemsSource="{Binding MetadatasPlaceholders}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Spacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*, 3*">
+                            <TextBox Grid.Column="0"
+                                     Margin="5, 0,0,0"
+                                     IsReadOnly="True"
+                                     Watermark="Key"
+                                     UseFloatingWatermark="True"
+                                     Text="••••••••••••" />
+                            <TextBox Grid.Column="1"
+                                     IsReadOnly="True"
+                                     Margin="5, 0,0,0"
+                                     Watermark="Value"
+                                     UseFloatingWatermark="True"
+                                     Text="••••••••••••" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </Panel>
+
+        <Button x:Name="ButtonAddMetadata"
+                IsVisible="{Binding MetadatasRevealed}"
+                Classes="accent"
+                Content="Add metadata"
+                Click="ButtonAddMetadata_OnClick" />
     </StackPanel>
 </UserControl>

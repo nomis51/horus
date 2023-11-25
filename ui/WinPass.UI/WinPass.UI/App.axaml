@@ -49,6 +49,40 @@
             <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+        
+        <Style Selector="Button.error">
+            <Setter Property="Background" Value="Red" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.error:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="DarkRed" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="Button.success">
+            <Setter Property="Background" Value="LimeGreen" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.success:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="DarkGreen" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
+        <Style Selector="Button.transparent">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.transparent:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SystemBaseLowColor}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        
         <!-- <Style Selector="Button:pointerover /template/ ContentPresenter"> -->
         <!--     <Setter Property="Background" Value="{DynamicResource SystemBaseHighColor}" /> -->
         <!--     <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
