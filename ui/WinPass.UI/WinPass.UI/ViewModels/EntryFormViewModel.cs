@@ -20,8 +20,14 @@ public class EntryFormViewModel : ViewModelBase
     public string EntryName
     {
         get => _entryName;
-        set => this.RaiseAndSetIfChanged(ref _entryName, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _entryName, value);
+            this.RaisePropertyChanged(nameof(HasEntryName));
+        }
     }
+
+    public bool HasEntryName => !string.IsNullOrWhiteSpace(EntryName);
 
     public ObservableCollection<MetadataModel> Metadatas { get; } = new();
     public ObservableCollection<MetadataModel> InternalMetadatas { get; } = new();
@@ -64,7 +70,7 @@ public class EntryFormViewModel : ViewModelBase
         }
     }
 
-    public bool IsPasswordValid => Password == ConfirmPassword;
+    public bool IsPasswordValid => Password == ConfirmPassword && !string.IsNullOrEmpty(Password);
 
     private bool _isEditingPassword;
 
@@ -121,6 +127,7 @@ public class EntryFormViewModel : ViewModelBase
                 InternalMetadatas.ToList()
                     .Concat(Metadatas.ToList())
                     .Select(e => new Metadata(e.Key, e.Value, e.Type))
+                    .Where(m => !string.IsNullOrWhiteSpace(m.Key) || !string.IsNullOrWhiteSpace(m.Value))
                     .ToList()
             )
         );

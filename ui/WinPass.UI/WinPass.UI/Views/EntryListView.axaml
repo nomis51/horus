@@ -16,15 +16,14 @@
         <vm:EntryListViewModel />
     </Design.DataContext>
 
-    <StackPanel Spacing="2">
+    <StackPanel Spacing="2"
+                HorizontalAlignment="Stretch">
         <TextBox Watermark="Search"
                  AcceptsReturn="False"
                  AcceptsTab="False" />
         <TreeView x:Name="TreeView"
                   ItemsSource="{Binding Items}"
-                  Width="400"
-                  Height="480"
-                  HorizontalAlignment="Left"
+                  HorizontalAlignment="Stretch"
                   SelectionChanged="TreeView_OnSelectionChanged">
             <TreeView.ItemTemplate>
                 <TreeDataTemplate ItemsSource="{Binding Items}">

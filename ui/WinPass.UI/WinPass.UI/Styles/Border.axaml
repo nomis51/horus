@@ -1,0 +1,33 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="Border.success">
+        <Setter Property="Background"
+                Value="LimeGreen" />
+    </Style>
+    <Style Selector="Border.error">
+        <Setter Property="Background"
+                Value="Red" />
+    </Style>
+    <Style Selector="Border.accent">
+        <Setter Property="Background"
+                Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+    <Style Selector="Border.warning">
+        <Setter Property="Background"
+                Value="Orange" />
+    </Style>
+    <Style Selector="Border.paper">
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource SystemBaseLowColor}" />
+        <Setter Property="BorderThickness"
+                Value="1" />
+        <Setter Property="CornerRadius"
+                Value="4" />
+    </Style>
+</Styles>

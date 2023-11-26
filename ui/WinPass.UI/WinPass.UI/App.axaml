@@ -32,93 +32,18 @@
             <!--                            AltMedium="#6e7889" /> -->
             <!-- </FluentTheme.Palettes> -->
         </FluentTheme>
+        
+        <StyleInclude Source="Styles/TextBox.axaml"/>
+        <StyleInclude Source="Styles/Button.axaml"/>
+        <StyleInclude Source="Styles/DockPanel.axaml"/>
+        <StyleInclude Source="Styles/Border.axaml"/>
+        <StyleInclude Source="Styles/Panel.axaml"/>
 
-        <!-- <Style Selector="materialIcons|MaterialIcon"> -->
-        <!--     <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
-        <!-- </Style> -->
-        <!-- <Style Selector="TextBlock"> -->
-        <!--     <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
-        <!-- </Style> -->
-        <Style Selector="DockPanel.success">
-            <Setter Property="Background" Value="LimeGreen"/>
-        </Style>
-        <Style Selector="Border.success">
-            <Setter Property="Background" Value="LimeGreen"/>
-        </Style>
-        <Style Selector="DockPanel.error">
-            <Setter Property="Background" Value="Red"/>
-        </Style>
-        <Style Selector="Border.error">
-            <Setter Property="Background" Value="Red"/>
-        </Style>
-        <Style Selector="DockPanel.accent">
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
-        </Style>
-        <Style Selector="Border.accent">
-            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}"/>
-        </Style>
-        <Style Selector="DockPanel.warning">
-            <Setter Property="Background" Value="Orange"/>
-        </Style>
-        <Style Selector="Border.warning">
-            <Setter Property="Background" Value="Orange"/>
-        </Style>
-        
-        <Style Selector="Button.accent">
-            <Setter Property="Background" Value="{DynamicResource AccentButtonBackground}" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style Selector="Button.accent:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource AccentButtonBackgroundPressed}" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        
-        <Style Selector="Button.error">
-            <Setter Property="Background" Value="Red" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style Selector="Button.error:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="DarkRed" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        
-        <Style Selector="Button.success">
-            <Setter Property="Background" Value="LimeGreen" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style Selector="Button.success:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="DarkGreen" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        
-        <Style Selector="Button.transparent">
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style Selector="Button.transparent:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource SystemBaseLowColor}" />
-            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        
         <!-- <Style Selector="Button:pointerover /template/ ContentPresenter"> -->
         <!--     <Setter Property="Background" Value="{DynamicResource SystemBaseHighColor}" /> -->
         <!--     <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}" /> -->
         <!-- </Style> -->
-        <Style Selector="Panel.paper">
-            <Setter Property="Background" Value="{DynamicResource SystemBaseLowColor}" />
-        </Style>
-        <Style Selector="Border.paper">
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseLowColor}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="4" />
-        </Style>
+      
+       
     </Application.Styles>
 </Application>

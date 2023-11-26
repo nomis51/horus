@@ -9,6 +9,7 @@
         d:DesignHeight="450"
         x:Class="WinPass.UI.Windows.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        WindowStartupLocation="CenterScreen"
         Icon="/Assets/avalonia-logo.ico"
         Title="WinPass">
     <Design.DataContext>
