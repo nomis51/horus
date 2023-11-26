@@ -28,8 +28,8 @@
                                 VerticalAlignment="Center"
                                 IsVisible="{Binding HasEntryName}"
                                 Kind="Key"
-                                Height="30"
-                                Width="30"
+                                Height="36"
+                                Width="36"
                                 Margin="5,0,0,0" />
         </Grid>
 
