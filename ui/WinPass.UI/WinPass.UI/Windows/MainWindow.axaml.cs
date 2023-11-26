@@ -1,5 +1,4 @@
-using DynamicData.Binding;
-using WinPass.UI.Models;
+using Avalonia.Interactivity;
 using WinPass.UI.ViewModels;
 
 namespace WinPass.UI.Windows;
@@ -22,5 +21,10 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         EntryFormView.SetEntryItem(name);
     }
 
+    private void ButtonCloseSnackbar_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.CloseSnackbar();
+    }
     #endregion
+
 }

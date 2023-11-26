@@ -1,15 +1,14 @@
 ﻿using System;
-using Humanizer;
 using WinPass.Shared.Enums;
 
 namespace WinPass.UI.Models;
 
 public class MetadataModel
 {
+    public Guid Id { get; } = Guid.NewGuid();
     public string Key { get; set; } = string.Empty;
-    public string Value { get; set; }= string.Empty;
-    public MetadataType Type { get; set; } = MetadataType.Normal;
-    public string DisplayKey => Key.Humanize();
+    public string Value { get; set; } = string.Empty;
+    public MetadataType Type { get; init; } = MetadataType.Normal;
 
     public string DisplayValue
     {

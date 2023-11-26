@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using WinPass.UI.Services;
 using WinPass.UI.ViewModels;
 using MainWindow = WinPass.UI.Windows.MainWindow;
 

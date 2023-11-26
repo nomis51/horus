@@ -28,21 +28,47 @@
                        FontSize="18"
                        Foreground="{DynamicResource SystemAccentColor}" />
             <Button Grid.Column="1"
+                    x:Name="ButtonEditPassword"
+                    IsVisible="{Binding !IsEditingPassword}"
+                    Click="ButtonEditPassword_OnClick"
                     Classes="accent"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom"
                     Content="Edit" />
+            
+            <DockPanel Grid.Column="1"
+                       IsVisible="{Binding IsEditingPassword}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom">
+                <Button x:Name="ButtonCancelPassword"
+                        Click="ButtonCancelPassword_OnClick"
+                        Classes="error"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Content="Cancel" />
+                <Button x:Name="ButtonSavePassword"
+                        Margin="5,0,0,0"
+                        Classes="success"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Content="Save"
+                        Click="ButtonSavePassword_OnClick" />
+            </DockPanel>
         </Grid>
         <StackPanel Spacing="8">
             <TextBox Watermark="Password"
                      UseFloatingWatermark="True"
                      MinHeight="48"
+                     Text="{Binding Password, Mode=TwoWay}"
+                     IsReadOnly="{Binding !IsEditingPassword}"
                      Classes="revealPasswordButton"
                      PasswordChar="•"
                      RevealPassword="False" />
             <TextBox Watermark="Confirm password"
                      UseFloatingWatermark="True"
                      MinHeight="48"
+                     Text="{Binding ConfirmPassword, Mode=TwoWay}"
+                     IsReadOnly="{Binding !IsEditingPassword}"
                      Classes="revealPasswordButton"
                      PasswordChar="•"
                      RevealPassword="False" />
@@ -64,22 +90,6 @@
                     VerticalAlignment="Bottom"
                     Content="Reveal metadata"
                     Click="ButtonRevealMetadatas_OnClick" />
-            <DockPanel Grid.Column="1"
-                       IsVisible="{Binding MetadatasRevealed}"
-                       HorizontalAlignment="Right"
-                       VerticalAlignment="Bottom">
-                <Button x:Name="ButtonCancelMetadatas"
-                        Classes="error"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Content="Cancel" />
-                <Button x:Name="ButtonSaveMetadatas"
-                        Margin="5,0,0,0"
-                        Classes="success"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
-                        Content="Save" />
-            </DockPanel>
         </Grid>
 
         <ItemsRepeater ItemsSource="{Binding InternalMetadatas}">
@@ -95,7 +105,7 @@
                                  MinHeight="48"
                                  Watermark="Key"
                                  UseFloatingWatermark="True"
-                                 Text="{Binding DisplayKey}" />
+                                 Text="{Binding Key}" />
                         <TextBox Grid.Column="1"
                                  x:DataType="models:MetadataModel"
                                  Margin="5, 0,0,0"
@@ -126,20 +136,22 @@
                                  MinHeight="48"
                                  Watermark="Key"
                                  UseFloatingWatermark="True"
-                                 Text="{Binding DisplayKey}" />
+                                 Text="{Binding Key, Mode=TwoWay}" />
                         <TextBox Grid.Column="1"
                                  x:DataType="models:MetadataModel"
                                  Margin="5, 0,0,0"
                                  MinHeight="48"
                                  Watermark="Value"
                                  UseFloatingWatermark="True"
-                                 Text="{Binding DisplayValue}" />
+                                 Text="{Binding Value, Mode=TwoWay}" />
                         <Button x:DataType="models:MetadataModel"
                                 Classes="transparent"
                                 Grid.Column="2"
                                 Margin="5, 0,0,0"
                                 VerticalAlignment="Center"
-                                x:Name="ButtonRemoveMetadata">
+                                Tag="{Binding Id}"
+                                x:Name="ButtonRemoveMetadata"
+                                Click="ButtonRemoveMetadata_OnClick">
                             <Button.Content>
                                 <icons:MaterialIcon Kind="Delete" />
                             </Button.Content>
@@ -180,10 +192,33 @@
             </ItemsRepeater>
         </Panel>
 
-        <Button x:Name="ButtonAddMetadata"
-                IsVisible="{Binding MetadatasRevealed}"
-                Classes="accent"
-                Content="Add metadata"
-                Click="ButtonAddMetadata_OnClick" />
+        <Grid ColumnDefinitions="Auto,*,Auto"
+              HorizontalAlignment="Stretch"
+              IsVisible="{Binding MetadatasRevealed}"
+              Margin="0,10,0,0">
+            <Button Grid.Column="0"
+                    x:Name="ButtonAddMetadata"
+                    Classes="accent"
+                    Content="Add metadata"
+                    Click="ButtonAddMetadata_OnClick" />
+            <DockPanel Grid.Column="2"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom">
+                <Button x:Name="ButtonCancelMetadatas"
+                        Classes="error"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Content="Cancel"
+                        Click="ButtonCancelMetadatas_OnClick" />
+                <Button x:Name="ButtonSaveMetadatas"
+                        Margin="5,0,0,0"
+                        Classes="success"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Content="Save"
+                        Click="ButtonSaveMetadatas_OnClick" />
+            </DockPanel>
+        </Grid>
+
     </StackPanel>
 </UserControl>
