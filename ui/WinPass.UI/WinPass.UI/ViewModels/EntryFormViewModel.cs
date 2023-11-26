@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DynamicData;
@@ -80,6 +81,38 @@ public class EntryFormViewModel : ViewModelBase
         private set => this.RaiseAndSetIfChanged(ref _isEditingPassword, value);
     }
 
+    private double _passwordLength = 12;
+
+    public double PasswordLength
+    {
+        get => _passwordLength;
+        set => this.RaiseAndSetIfChanged(ref _passwordLength, value);
+    }
+
+    private bool _isGeneratingPassword;
+
+    public bool IsGeneratingPassword
+    {
+        get => _isGeneratingPassword;
+        set => this.RaiseAndSetIfChanged(ref _isGeneratingPassword, IsEditingPassword && value);
+    }
+
+    private bool _isPasswordVisible;
+
+    public bool IsPasswordVisible
+    {
+        get => _isPasswordVisible;
+        set => this.RaiseAndSetIfChanged(ref _isPasswordVisible, IsEditingPassword && value);
+    }
+
+    private string _customPasswordAlphabet = string.Empty;
+
+    public string CustomPasswordAlphabet
+    {
+        get => _customPasswordAlphabet;
+        set => this.RaiseAndSetIfChanged(ref _customPasswordAlphabet, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -92,6 +125,36 @@ public class EntryFormViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public void CopyOldPassword()
+    {
+        var (_, error) = AppService.Instance.GetPassword(EntryName);
+        if (error is null) return;
+
+        SnackbarService.Instance.Show("Unable to copy password", "warning");
+    }
+
+    public void GeneratePassword()
+    {
+        if (!IsEditingPassword) return;
+
+        if (!IsGeneratingPassword)
+        {
+            IsGeneratingPassword = true;
+        }
+
+        var (password, error) = AppService.Instance.GenerateNewPassword(Convert.ToInt32(PasswordLength), CustomPasswordAlphabet);
+        if (error is not null)
+        {
+            SnackbarService.Instance.Show("Unable generate password", "warning");
+            return;
+        }
+
+        IsPasswordVisible = true;
+        Password = password!.ValueAsString;
+        ConfirmPassword = password.ValueAsString;
+        password.Dispose();
+    }
 
     public void SavePassword()
     {
@@ -115,6 +178,8 @@ public class EntryFormViewModel : ViewModelBase
     public void CancelPassword()
     {
         IsEditingPassword = false;
+        IsGeneratingPassword = false;
+        IsPasswordVisible = false;
         ResetPassword();
     }
 

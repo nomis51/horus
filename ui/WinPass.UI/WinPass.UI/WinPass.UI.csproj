@@ -41,4 +41,9 @@
         <ProjectReference Include="..\..\..\common\WinPass.Core\WinPass.Core.csproj"/>
         <ProjectReference Include="..\..\..\common\WinPass.Shared\WinPass.Shared.csproj"/>
     </ItemGroup>
+
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Controls\Divider.axaml" />
+    </ItemGroup>
 </Project>

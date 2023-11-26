@@ -36,6 +36,21 @@
         </Setter>
     </Style>
 
+    <Style Selector="TextBox.clearButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
+        <Setter Property="InnerRightContent">
+            <Template>
+                <Button Theme="{StaticResource FluentTextBoxButton}"
+                        Command="{Binding $parent[TextBox].Clear}"
+                        Cursor="Hand"
+                        ClipToBounds="True">
+                    <icons:MaterialIcon Kind="Close"
+                                        Height="20"
+                                        Width="20" />
+                </Button>
+            </Template>
+        </Setter>
+    </Style>
+
     <Style Selector="TextBox.clearButtonAndCopyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
         <Setter Property="InnerRightContent">
             <Template>

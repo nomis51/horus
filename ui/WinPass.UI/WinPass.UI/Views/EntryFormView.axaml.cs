@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using WinPass.UI.Extensions;
 using WinPass.UI.ViewModels;
@@ -67,5 +69,27 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
     {
         ViewModel?.SavePassword();
     }
+
+    private void SliderPasswordLength_OnValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+    {
+        SliderPasswordLength.Value = Math.Round(SliderPasswordLength.Value);
+        ViewModel?.GeneratePassword();
+    }
+
+    private void ButtonGenerateNewPassword_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.GeneratePassword();
+    }
+
+    private void TextBoxCustomPasswordAlphabet_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        ViewModel?.GeneratePassword();
+    }
+
+    private void ButtonCopyOldPassword_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.CopyOldPassword();
+    }
+
     #endregion
 }
