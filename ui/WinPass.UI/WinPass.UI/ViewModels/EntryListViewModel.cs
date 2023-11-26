@@ -15,6 +15,7 @@ public class EntryListViewModel : ViewModelBase
     #region Props
 
     public ObservableCollection<EntryItemModel> Items { get; } = new();
+    public string SearchText { get; set; } = string.Empty;
 
     #endregion
 
@@ -23,6 +24,31 @@ public class EntryListViewModel : ViewModelBase
     public EntryListViewModel()
     {
         RetrieveEntries();
+    }
+
+    #endregion
+
+    #region Public methods
+
+    public void SearchEntries(bool searchMetadatas = false)
+    {
+        if (string.IsNullOrWhiteSpace(SearchText))
+        {
+            Items.Clear();
+            RetrieveEntries();
+            return;
+        }
+
+        var (entries, error) = AppService.Instance.SearchStoreEntries(SearchText, searchMetadatas);
+
+        if (error is not null)
+        {
+            Log.Error("Unable to search store entries: {Message}", error.Message);
+            return;
+        }
+
+        Items.Clear();
+        Items.AddRange(MapToEntryItemModels(entries));
     }
 
     #endregion

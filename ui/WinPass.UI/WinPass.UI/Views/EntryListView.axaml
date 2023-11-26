@@ -9,7 +9,7 @@
              d:DesignHeight="450"
              x:Class="WinPass.UI.Views.EntryListView"
              x:DataType="vm:EntryListViewModel"
-             Padding="5">
+             Padding="5" KeyUp="EventListView_OnKeyUp">
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -18,9 +18,15 @@
 
     <StackPanel Spacing="2"
                 HorizontalAlignment="Stretch">
-        <TextBox Watermark="Search"
+        <TextBox x:Name="TextBoxSearch"
+                 Classes="clearButton"
+                 GotFocus="TextBoxSearch_OnGotFocus"
+                 KeyUp="TextBoxSearch_OnKeyUp"
+                 Watermark="Search"
                  AcceptsReturn="False"
-                 AcceptsTab="False" />
+                 AcceptsTab="False"
+                 TextChanged="TextBoxSearch_OnTextChanged"
+                 Text="{Binding SearchText}" />
         <TreeView x:Name="TreeView"
                   ItemsSource="{Binding Items}"
                   HorizontalAlignment="Stretch"

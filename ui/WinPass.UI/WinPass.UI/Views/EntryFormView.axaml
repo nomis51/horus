@@ -18,6 +18,7 @@
     </Design.DataContext>
 
     <StackPanel Spacing="5">
+        <!-- Title -->
         <Grid ColumnDefinitions="Auto,Auto">
             <TextBlock Grid.Column="0"
                        Text="{Binding EntryName}"
@@ -29,6 +30,7 @@
                                 Width="20"
                                 Margin="5,0,0,0" />
         </Grid>
+        
         <!-- Password title -->
         <Grid ColumnDefinitions="*,*"
               HorizontalAlignment="Stretch">
