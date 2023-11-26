@@ -1,6 +1,7 @@
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using WinPass.UI.Models;
 using WinPass.UI.ViewModels;
@@ -22,11 +23,18 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
     public EntryListView()
     {
         InitializeComponent();
+
+        Loaded += OnLoaded;
     }
 
     #endregion
 
     #region Private methods
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        TreeView.SelectedItem = TreeView.Items.FirstOrDefault();
+    }
 
     private void TreeView_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
