@@ -1,0 +1,378 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
+             xmlns:models="clr-namespace:Horus.UI.Models"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Horus.UI.Views.EntryFormView"
+             x:DataType="viewModels:EntryFormViewModel"
+             Padding="5">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:EntryFormViewModel />
+    </Design.DataContext>
+
+    <StackPanel Spacing="5">
+        <!-- Title -->
+        <Grid ColumnDefinitions="Auto,Auto">
+            <TextBlock Grid.Column="0"
+                       VerticalAlignment="Center"
+                       Text="{Binding EntryName}"
+                       FontSize="36" />
+            <icons:MaterialIcon Grid.Column="1"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding HasEntryName}"
+                                Kind="Key"
+                                Height="36"
+                                Width="36"
+                                Margin="5,0,0,0" />
+        </Grid>
+
+        <!-- Password title -->
+        <Grid ColumnDefinitions="*,*"
+              HorizontalAlignment="Stretch">
+            <DockPanel Grid.Column="0"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Bottom">
+                <TextBlock Text="Password"
+                           VerticalAlignment="Bottom"
+                           FontSize="26"
+                           Foreground="{DynamicResource SystemAccentColor}" />
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="Copy the old password"
+                        ToolTip.VerticalOffset="-5">
+                    <Button x:Name="ButtonCopyOldPassword"
+                            Margin="5,0,0,0"
+                            IsVisible="{Binding IsEditingPassword}"
+                            Classes="accent"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Click="ButtonCopyOldPassword_OnClick">
+                        <Button.Content>
+                            <icons:MaterialIcon Kind="ContentCopy" />
+                        </Button.Content>
+                    </Button>
+                </Border>
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="Generate a new password"
+                        ToolTip.VerticalOffset="-5">
+                    <Button x:Name="ButtonGenerateNewPassword"
+                            Classes="accent"
+                            IsVisible="{Binding IsEditingPassword}"
+                            Margin="5,0,0,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Click="ButtonGenerateNewPassword_OnClick">
+                        <Button.Content>
+                            <icons:MaterialIcon Kind="Refresh" />
+                        </Button.Content>
+                    </Button>
+                </Border>
+            </DockPanel>
+
+            <Button Grid.Column="1"
+                    x:Name="ButtonEditPassword"
+                    IsVisible="{Binding !IsEditingPassword}"
+                    Click="ButtonEditPassword_OnClick"
+                    Classes="accent"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom">
+                <Button.Content>
+                    <DockPanel>
+                        <TextBlock Text="Edit"
+                                   VerticalAlignment="Center" />
+                        <icons:MaterialIcon Kind="Edit"
+                                            Margin="5,0,0,0"
+                                            VerticalAlignment="Center" />
+                    </DockPanel>
+                </Button.Content>
+            </Button>
+            <DockPanel Grid.Column="1"
+                       IsVisible="{Binding IsEditingPassword}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom">
+                <Button x:Name="ButtonCancelPassword"
+                        Click="ButtonCancelPassword_OnClick"
+                        Classes="error"
+                        Margin="15,0,0,0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom">
+                    <Button.Content>
+                        <DockPanel>
+                            <TextBlock Text="Cancel"
+                                       VerticalAlignment="Center" />
+                            <icons:MaterialIcon Kind="Close"
+                                                Margin="5,0,0,0"
+                                                VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Button.Content>
+                </Button>
+                <Button x:Name="ButtonSavePassword"
+                        Margin="5,0,0,0"
+                        IsEnabled="{Binding IsPasswordValid}"
+                        Classes="success"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Click="ButtonSavePassword_OnClick">
+                    <Button.Content>
+                        <DockPanel>
+                            <TextBlock Text="Save"
+                                       VerticalAlignment="Center" />
+                            <icons:MaterialIcon Kind="ContentSave"
+                                                Margin="5,0,0,0"
+                                                VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Button.Content>
+                </Button>
+            </DockPanel>
+        </Grid>
+
+        <!-- Password inputs -->
+        <StackPanel Spacing="8">
+            <TextBox Watermark="Password"
+                     x:Name="Test"
+                     UseFloatingWatermark="True"
+                     MinHeight="48"
+                     Text="{Binding Password, Mode=TwoWay}"
+                     IsReadOnly="{Binding !IsEditingPassword}"
+                     Classes="revealPasswordButtonAndClearButtonAndCopyButton"
+                     Classes.errored="{Binding !IsPasswordValid}"
+                     PasswordChar="•"
+                     RevealPassword="{Binding IsPasswordVisible, Mode=TwoWay}" />
+            <TextBox Watermark="Confirm password"
+                     UseFloatingWatermark="True"
+                     MinHeight="48"
+                     Text="{Binding ConfirmPassword, Mode=TwoWay}"
+                     IsReadOnly="{Binding !IsEditingPassword}"
+                     Classes="revealPasswordButtonAndClearButtonAndCopyButton"
+                     Classes.errored="{Binding !IsPasswordValid}"
+                     PasswordChar="•"
+                     RevealPassword="{Binding IsPasswordVisible, Mode=TwoWay}" />
+            <Grid ColumnDefinitions="*,Auto,3*"
+                  IsVisible="{Binding IsGeneratingPassword}">
+                <Slider Grid.Column="0"
+                        x:Name="SliderPasswordLength"
+                        Minimum="1"
+                        Maximum="50"
+                        VerticalAlignment="Center"
+                        TickFrequency="1"
+                        TickPlacement="BottomRight"
+                        Value="{Binding PasswordLength}"
+                        ValueChanged="SliderPasswordLength_OnValueChanged" />
+                <TextBlock Grid.Column="1"
+                           MinWidth="20"
+                           VerticalAlignment="Center"
+                           Margin="5,0,0,0"
+                           Text="{Binding PasswordLength}" />
+                <TextBox Grid.Column="2"
+                         x:Name="TextBoxCustomPasswordAlphabet"
+                         Margin="10,0,0,0"
+                         Watermark="Custom alphabet"
+                         UseFloatingWatermark="True"
+                         MinHeight="48"
+                         Text="{Binding CustomPasswordAlphabet, Mode=TwoWay}"
+                         TextChanged="TextBoxCustomPasswordAlphabet_OnTextChanged"
+                         Classes="clearButton" />
+            </Grid>
+        </StackPanel>
+
+        <!-- Metadata title -->
+        <Grid ColumnDefinitions="*,Auto"
+              HorizontalAlignment="Stretch"
+              Margin="0,10,0,0">
+            <TextBlock Grid.Column="0"
+                       Text="Metadata"
+                       FontSize="26"
+                       VerticalAlignment="Bottom"
+                       Foreground="{DynamicResource SystemAccentColor}" />
+            <Button Grid.Column="1"
+                    x:Name="ButtonRevealMetadatas"
+                    IsVisible="{Binding !MetadatasRevealed}"
+                    Classes="accent"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Click="ButtonRevealMetadatas_OnClick">
+                <Button.Content>
+                    <DockPanel>
+                        <TextBlock Text="Reveal metadata"
+                                   VerticalAlignment="Center" />
+                        <icons:MaterialIcon Kind="Visibility"
+                                            Margin="5,0,0,0"
+                                            VerticalAlignment="Center" />
+                    </DockPanel>
+                </Button.Content>
+            </Button>
+            <DockPanel Grid.Column="1"
+                       IsVisible="{Binding MetadatasRevealed}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Bottom">
+                <Button x:Name="ButtonCancelMetadatas"
+                        Classes="error"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Click="ButtonCancelMetadatas_OnClick">
+                    <Button.Content>
+                        <DockPanel>
+                            <TextBlock Text="Cancel"
+                                       VerticalAlignment="Center" />
+                            <icons:MaterialIcon Kind="Close"
+                                                Margin="5,0,0,0"
+                                                VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Button.Content>
+                </Button>
+                <Button x:Name="ButtonSaveMetadatas"
+                        Margin="5,0,0,0"
+                        Classes="success"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Click="ButtonSaveMetadatas_OnClick">
+                    <Button.Content>
+                        <DockPanel>
+                            <TextBlock Text="Save"
+                                       VerticalAlignment="Center" />
+                            <icons:MaterialIcon Kind="ContentSave"
+                                                Margin="5,0,0,0"
+                                                VerticalAlignment="Center" />
+                        </DockPanel>
+                    </Button.Content>
+                </Button>
+            </DockPanel>
+        </Grid>
+
+        <!-- Internal metadata inputs -->
+        <Panel IsVisible="{Binding MetadatasRevealed}">
+            <ItemsRepeater ItemsSource="{Binding InternalMetadatas}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Spacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*, 3*, Auto">
+                            <TextBox Grid.Column="0"
+                                     x:DataType="models:MetadataModel"
+                                     IsReadOnly="True"
+                                     MinHeight="48"
+                                     Watermark="Key"
+                                     UseFloatingWatermark="True"
+                                     Text="{Binding Key}" />
+                            <TextBox Grid.Column="1"
+                                     x:DataType="models:MetadataModel"
+                                     Margin="5, 0,0,0"
+                                     IsReadOnly="True"
+                                     MinHeight="48"
+                                     Watermark="Value"
+                                     UseFloatingWatermark="True"
+                                     Text="{Binding DisplayValue}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </Panel>
+
+        <!-- Divider -->
+        <Panel IsVisible="{Binding MetadatasRevealed}">
+            <Separator Margin="0,8"
+                       IsVisible="{Binding HasNormalMetadatas}" />
+        </Panel>
+
+        <!-- Metadata inputs -->
+        <Panel IsVisible="{Binding MetadatasRevealed}">
+            <ItemsRepeater ItemsSource="{Binding Metadatas}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Spacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*, 3*, Auto">
+                            <TextBox Grid.Column="0"
+                                     x:DataType="models:MetadataModel"
+                                     Classes="clearButton"
+                                     MinHeight="48"
+                                     Watermark="Key"
+                                     UseFloatingWatermark="True"
+                                     Text="{Binding Key, Mode=TwoWay}" />
+                            <TextBox Grid.Column="1"
+                                     x:DataType="models:MetadataModel"
+                                     Classes="clearButtonAndCopyButton"
+                                     Margin="5, 0,0,0"
+                                     MinHeight="48"
+                                     Watermark="Value"
+                                     UseFloatingWatermark="True"
+                                     Text="{Binding Value, Mode=TwoWay}" />
+                            <Button x:DataType="models:MetadataModel"
+                                    Classes="transparent"
+                                    Grid.Column="2"
+                                    Margin="5, 0,0,0"
+                                    VerticalAlignment="Center"
+                                    Tag="{Binding Id}"
+                                    x:Name="ButtonRemoveMetadata"
+                                    Click="ButtonRemoveMetadata_OnClick">
+                                <Button.Content>
+                                    <icons:MaterialIcon Kind="Delete" />
+                                </Button.Content>
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </Panel>
+
+        <!-- No metadata label -->
+        <Panel IsVisible="{Binding MetadatasRevealed}">
+            <TextBlock IsVisible="{Binding !HasMetadatas}"
+                       Text="No metadata" />
+        </Panel>
+
+        <!-- Metadata placeholders -->
+        <Panel IsVisible="{Binding !MetadatasRevealed}">
+            <ItemsRepeater ItemsSource="{Binding MetadatasPlaceholders}">
+                <ItemsRepeater.Layout>
+                    <StackLayout Spacing="8" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="*, 3*">
+                            <TextBox Grid.Column="0"
+                                     IsReadOnly="True"
+                                     Watermark="Key"
+                                     UseFloatingWatermark="True"
+                                     Text="••••••••••••" />
+                            <TextBox Grid.Column="1"
+                                     IsReadOnly="True"
+                                     Margin="5,0,0,0"
+                                     Watermark="Value"
+                                     UseFloatingWatermark="True"
+                                     Text="••••••••••••" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </Panel>
+
+        <!-- Metadata action buttons -->
+        <Button x:Name="ButtonAddMetadata"
+                IsVisible="{Binding MetadatasRevealed}"
+                Margin="0, 0,0,0"
+                Classes="accent"
+                Click="ButtonAddMetadata_OnClick">
+            <Button.Content>
+                <DockPanel>
+                    <TextBlock Text="Add metadata"
+                               VerticalAlignment="Center" />
+                    <icons:MaterialIcon Kind="Plus"
+                                        Margin="5,0,0,0"
+                                        VerticalAlignment="Center" />
+                </DockPanel>
+            </Button.Content>
+        </Button>
+
+    </StackPanel>
+</UserControl>
