@@ -1,3 +1,5 @@
+using Avalonia;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using WinPass.UI.ViewModels;
 
@@ -25,6 +27,11 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     {
         ViewModel?.CloseSnackbar();
     }
-    #endregion
 
+    private void TitleBar_OnOnWindowDragged(int x, int y)
+    {
+        Position = new PixelPoint(x, y);
+    }
+
+    #endregion
 }
