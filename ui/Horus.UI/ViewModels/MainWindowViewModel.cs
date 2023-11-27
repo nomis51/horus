@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Avalonia.Controls.Chrome;
 using Avalonia.Threading;
 using Horus.UI.Services;
 using ReactiveUI;
@@ -11,6 +12,7 @@ public class MainWindowViewModel : ViewModelBase
 
     public EntryListViewModel EntryListViewModel { get; set; } = new();
     public EntryFormViewModel EntryFormViewModel { get; set; } = new();
+    public TitleBarViewModel TitleBarViewModel { get; set; } = new();
 
     private string _snackbarText = string.Empty;
 
@@ -19,9 +21,9 @@ public class MainWindowViewModel : ViewModelBase
         get => _snackbarText;
         set => this.RaiseAndSetIfChanged(ref _snackbarText, value);
     }
-    
+
     private bool _isSnackbarVisible;
-    
+
     public bool IsSnackbarVisible
     {
         get => _isSnackbarVisible;

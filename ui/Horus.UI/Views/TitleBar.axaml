@@ -3,9 +3,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
+             x:DataType="viewModels:TitleBarViewModel"
              x:Class="Horus.UI.Views.TitleBar">
     <UserControl.Styles>
         <Style Selector="Button.titlebar">
@@ -31,7 +33,7 @@
                            Margin="0,5,0,0"
                            Height="20"
                            Width="20" />
-                    <TextBlock Text="WinPass"
+                    <TextBlock Text="{Binding Title}"
                                Margin="5,5,0,0"
                                PointerPressed="Ignore_OnPointerPressed"
                                VerticalAlignment="Center"
