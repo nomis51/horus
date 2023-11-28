@@ -1,12 +1,12 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
 
-public partial class TitleBar : UserControl
+public partial class TitleBar : ViewBase<TitleBarViewModel>
 {
     #region Events
 
@@ -87,6 +87,22 @@ public partial class TitleBar : UserControl
     private void ButtonMaximize_OnClick(object? sender, RoutedEventArgs e)
     {
         WindowMaximize?.Invoke();
+    }
+
+
+    private void ButtonOpenGitHubPage_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.OpenGitHubPage();
+    }
+
+    private void ButtonOpenTerminal_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.OpenTerminal();
+    }
+
+    private void ButtonOpenSettings_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.OpenSettings();
     }
 
     #endregion

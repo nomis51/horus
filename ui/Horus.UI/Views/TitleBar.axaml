@@ -54,17 +54,21 @@
         <DockPanel Grid.Column="2"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center">
-            <Button Classes="transparent titlebar">
+            <Button x:Name="ButtonOpenGitHubPage"
+                    Classes="transparent titlebar"
+                    Click="ButtonOpenGitHubPage_OnClick">
                 <Button.Content>
                     <icons:MaterialIcon Kind="Github" />
                 </Button.Content>
             </Button>
-            <Button Classes="transparent titlebar">
+            <Button x:Name="ButtonOpenSettings" Classes="transparent titlebar" Click="ButtonOpenSettings_OnClick">
                 <Button.Content>
                     <icons:MaterialIcon Kind="Settings" />
                 </Button.Content>
             </Button>
-            <Button Classes="transparent titlebar">
+            <Button x:Name="ButtonOpenTerminal"
+                    Classes="transparent titlebar"
+                    Click="ButtonOpenTerminal_OnClick">
                 <Button.Content>
                     <icons:MaterialIcon Kind="Terminal" />
                 </Button.Content>
