@@ -9,42 +9,61 @@
              d:DesignHeight="450"
              x:Class="Horus.UI.Views.EntryListView"
              x:DataType="viewModels:EntryListViewModel"
-             Padding="5" KeyUp="EventListView_OnKeyUp">
+             Padding="5"
+             KeyUp="EventListView_OnKeyUp">
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <viewModels:EntryListViewModel />
     </Design.DataContext>
 
-    <StackPanel Spacing="2"
-                HorizontalAlignment="Stretch">
-        <TextBox x:Name="TextBoxSearch"
-                 Classes="clearButton"
-                 GotFocus="TextBoxSearch_OnGotFocus"
-                 KeyUp="TextBoxSearch_OnKeyUp"
-                 Watermark="Search"
-                 AcceptsReturn="False"
-                 AcceptsTab="False"
-                 TextChanged="TextBoxSearch_OnTextChanged"
-                 Text="{Binding SearchText}" />
-        <TreeView x:Name="TreeView"
-                  ItemsSource="{Binding Items}"
-                  HorizontalAlignment="Stretch"
-                  SelectionChanged="TreeView_OnSelectionChanged">
-            <TreeView.ItemTemplate>
-                <TreeDataTemplate ItemsSource="{Binding Items}">
-                    <Grid ColumnDefinitions="Auto,*"
-                          HorizontalAlignment="Left">
-                        <TextBlock Grid.Column="0"
-                                   Text="{Binding Name}"
-                                   Tag="{Binding Name}" />
-                        <icons:MaterialIcon Grid.Column="1"
-                                            Kind="Key"
-                                            IsVisible="{Binding !HasItems}"
-                                            Margin="5,0,0,0" />
-                    </Grid>
-                </TreeDataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
-    </StackPanel>
+    <Grid RowDefinitions="*,Auto">
+        <StackPanel Spacing="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+            <TextBox x:Name="TextBoxSearch"
+                     Classes="clearButton"
+                     GotFocus="TextBoxSearch_OnGotFocus"
+                     KeyUp="TextBoxSearch_OnKeyUp"
+                     Watermark="Search"
+                     AcceptsReturn="False"
+                     AcceptsTab="False"
+                     TextChanged="TextBoxSearch_OnTextChanged"
+                     Text="{Binding SearchText}" />
+            <TreeView x:Name="TreeView"
+                      ItemsSource="{Binding Items}"
+                      HorizontalAlignment="Stretch"
+                      SelectionChanged="TreeView_OnSelectionChanged">
+                <TreeView.ItemTemplate>
+                    <TreeDataTemplate ItemsSource="{Binding Items}">
+                        <Grid ColumnDefinitions="Auto,*"
+                              HorizontalAlignment="Left">
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding Name}"
+                                       Tag="{Binding Name}" />
+                            <icons:MaterialIcon Grid.Column="1"
+                                                Kind="Key"
+                                                IsVisible="{Binding !HasItems}"
+                                                Margin="5,0,0,0" />
+                        </Grid>
+                    </TreeDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </StackPanel>
+
+        <Border Grid.Row="1"
+                Background="{DynamicResource ThemeAccentBrush}"
+                ToolTip.Placement="Top"
+                ToolTip.Tip="Create a new entry"
+                ToolTip.VerticalOffset="-5"
+                ToolTip.HorizontalOffset="150">
+            <Button Classes="accent"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom">
+                <Button.Content>
+                    <icons:MaterialIcon Kind="Plus" />
+                </Button.Content>
+            </Button>
+        </Border>
+    </Grid>
 </UserControl>
