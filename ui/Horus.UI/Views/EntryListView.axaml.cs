@@ -10,11 +10,15 @@ namespace Horus.UI.Views;
 
 public partial class EntryListView : ViewBase<EntryListViewModel>
 {
-    #region Commands
+    #region Events
 
     public delegate void EntrySelectedEvent(string name);
 
-    public event EntrySelectedEvent? OnEntrySelected;
+    public event EntrySelectedEvent? EntrySelected;
+
+    public delegate void CreateEntryEvent();
+
+    public event CreateEntryEvent? CreateEntry;
 
     #endregion
 
@@ -45,7 +49,7 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
             return;
         }
 
-        OnEntrySelected?.Invoke(item.Name);
+        EntrySelected?.Invoke(item.Name);
     }
 
     private void TextBoxSearch_OnTextChanged(object? sender, TextChangedEventArgs e)
@@ -73,6 +77,11 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
         {
             TextBoxSearch.Clear();
         }
+    }
+
+    private void ButtonCreateEntry_OnClick(object? sender, RoutedEventArgs e)
+    {
+        CreateEntry?.Invoke();
     }
 
     #endregion

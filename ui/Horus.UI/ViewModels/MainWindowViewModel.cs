@@ -13,6 +13,8 @@ public class MainWindowViewModel : ViewModelBase
     public EntryListViewModel EntryListViewModel { get; set; } = new();
     public EntryFormViewModel EntryFormViewModel { get; set; } = new();
     public TitleBarViewModel TitleBarViewModel { get; set; } = new();
+    public NewEntryDialogViewModel NewEntryDialogViewModel { get; set; } = new();
+    public bool EntrySelected { get; set; }
 
     private string _snackbarText = string.Empty;
 
@@ -62,6 +64,14 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _snackbarSeverityWarning, value);
     }
 
+    private bool _isNewEntryDialogVisible;
+
+    public bool IsNewEntryDialogVisible
+    {
+        get => _isNewEntryDialogVisible;
+        set => this.RaiseAndSetIfChanged(ref _isNewEntryDialogVisible, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -75,6 +85,18 @@ public class MainWindowViewModel : ViewModelBase
 
     #region Public methods
 
+    public void OpenNewEntryDialog()
+    {
+        IsNewEntryDialogVisible = true;
+    }
+
+    public void CloseNewEntryDialog()
+    {
+        IsNewEntryDialogVisible = false;
+        NewEntryDialogViewModel.Name = string.Empty;
+        this.RaisePropertyChanged(nameof(NewEntryDialogViewModel));
+    }
+
     public void CloseSnackbar()
     {
         IsSnackbarVisible = false;
@@ -82,7 +104,7 @@ public class MainWindowViewModel : ViewModelBase
 
     #endregion
 
-    #region Privat methods
+    #region Private methods
 
     private void Snackbar_OnShow(string message, string severity = "accent", int duration = 3000)
     {

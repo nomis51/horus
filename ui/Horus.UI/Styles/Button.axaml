@@ -73,4 +73,9 @@
             <Setter Property="Cursor"
                     Value="Hand" />
         </Style>
+        
+        <Style Selector="Button.text">
+                <Setter Property="Background"
+                        Value="Transparent" />
+        </Style>
 </Styles>

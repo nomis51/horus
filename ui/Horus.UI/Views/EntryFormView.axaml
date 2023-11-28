@@ -137,7 +137,6 @@
         <!-- Password inputs -->
         <StackPanel Spacing="8">
             <TextBox Watermark="Password"
-                     x:Name="Test"
                      UseFloatingWatermark="True"
                      MinHeight="48"
                      Text="{Binding Password, Mode=TwoWay}"

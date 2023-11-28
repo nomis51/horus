@@ -26,8 +26,9 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
     #region Private methods
 
-    private void EntryListView_OnOnEntrySelected(string name)
+    private void EntryListView_OnEntrySelected(string name)
     {
+        ViewModel!.EntrySelected = !string.IsNullOrWhiteSpace(name);
         EntryFormView.SetEntryItem(name);
     }
 
@@ -72,6 +73,16 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     private void TitleBar_OnWindowMinimize()
     {
         WindowState = WindowState.Minimized;
+    }
+
+    private void NewEntryDialogView_OnClose(string name)
+    {
+        ViewModel?.CloseNewEntryDialog();
+    }
+
+    private void EntryListView_OnCreateEntry()
+    {
+        ViewModel?.OpenNewEntryDialog();
     }
 
     #endregion

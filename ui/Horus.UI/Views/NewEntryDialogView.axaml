@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800"
+             d:DesignHeight="450"
+             MinWidth="400"
+             x:Class="Horus.UI.Views.NewEntryDialogView"
+             x:DataType="viewModels:NewEntryDialogViewModel">
+    <Border Classes="paper" BoxShadow="5 5 10 0 Black">
+        <Grid RowDefinitions="Auto,*,Auto">
+            <Grid Grid.Column="0" ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Margin="10,5,0,0" FontWeight="Bold" FontSize="18" Grid.Column="0" Text="Create a new entry" />
+                <Button Grid.Column="2" x:Name="ButtonClose"
+                        Classes="transparent" Click="ButtonClose_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="WindowClose" />
+                    </Button.Content>
+                </Button>
+            </Grid>
+            <Panel Grid.Row="1" Margin="5,5">
+                <TextBox Watermark="Name"
+                         VerticalAlignment="Top"
+                         HorizontalAlignment="Stretch"
+                         UseFloatingWatermark="True"
+                         MinHeight="48"
+                         MaxHeight="48"
+                         Text="{Binding Name, Mode=TwoWay}"
+                         Classes="clearButton"
+                         Classes.errored="{Binding !IsNameValid}" />
+            </Panel>
+            <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="5,10,5,5">
+                <DockPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <Button Classes="text" x:Name="ButtonCancel" Click="ButtonCancel_OnClick">
+                        <Button.Content>
+                            <TextBlock Text="Cancel" />
+                        </Button.Content>
+                    </Button>
+                    <Button Classes="accent" Margin="5,0,0,0" x:Name="ButtonCreate" Click="ButtonCreate_OnClick">
+                        <Button.Content>
+                            <DockPanel>
+                                <TextBlock Text="Create" />
+                                <icons:MaterialIcon Kind="Plus" />
+                            </DockPanel>
+                        </Button.Content>
+                    </Button>
+                </DockPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>
