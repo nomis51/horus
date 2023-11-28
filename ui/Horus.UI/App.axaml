@@ -30,7 +30,6 @@
         <StyleInclude Source="Styles/Button.axaml"/>
         <StyleInclude Source="Styles/DockPanel.axaml"/>
         <StyleInclude Source="Styles/Border.axaml"/>
-        <StyleInclude Source="Styles/Panel.axaml"/>
 
         <!-- <Style Selector="Button:pointerover /template/ ContentPresenter"> -->
         <!--     <Setter Property="Background" Value="{DynamicResource SystemBaseHighColor}" /> -->
