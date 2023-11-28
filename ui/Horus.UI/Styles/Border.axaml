@@ -29,5 +29,7 @@
                 Value="1" />
         <Setter Property="CornerRadius"
                 Value="4" />
+        <Setter Property="Background"
+                Value="{DynamicResource SystemBaseLowColor}" />
     </Style>
 </Styles>

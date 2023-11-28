@@ -1,21 +1,38 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
 
-public partial class TitleBar : UserControl
+public partial class TitleBar : ViewBase<TitleBarViewModel>
 {
     #region Events
 
-    public delegate void WindowDraggedEvent(int x, int y);
+    public delegate void WindowTitleBarPressedEvent(int x, int y);
 
-    public event WindowDraggedEvent? OnWindowDragged;
+    public event WindowTitleBarPressedEvent? WindowTitleBarPressed;
 
-    #endregion
-    
-    #region Members
+    public delegate void WindowTitleBarReleasedEvent();
 
-    private bool _isDraggingWindow;
+    public event WindowTitleBarReleasedEvent? WindowTitleBarReleased;
+
+    public delegate void WindowTitleBarMoveEvent(int x, int y);
+
+    public event WindowTitleBarMoveEvent? WindowTitleBarMove;
+
+    public delegate void WindowCloseEvent();
+
+    public event WindowCloseEvent? WindowClose;
+
+    public delegate void WindowMinimizeEvent();
+
+    public event WindowMinimizeEvent? WindowMinimize;
+
+    public delegate void WindowMaximizeEvent();
+
+    public event WindowMaximizeEvent? WindowMaximize;
 
     #endregion
 
@@ -30,27 +47,62 @@ public partial class TitleBar : UserControl
 
     #region Private methods
 
-    private void GridTitleBar_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    private void TitleBar_OnPointerMoved(object? sender, PointerEventArgs e)
     {
-        _isDraggingWindow = true;
+        if (Application.Current!.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) return;
+
+        var position = e.GetPosition(desktop.MainWindow);
+        WindowTitleBarMove?.Invoke((int)position.X, (int)position.Y);
     }
 
-    private void GridTitleBar_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    private void TitleBar_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        _isDraggingWindow = false;
+        if (Application.Current!.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) return;
+
+        var position = e.GetPosition(desktop.MainWindow);
+        WindowTitleBarPressed?.Invoke((int)position.X, (int)position.Y);
     }
 
-    private void GridTitleBar_OnPointerMoved(object? sender, PointerEventArgs e)
+    private void TitleBar_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (!_isDraggingWindow) return;
-
-        var pos = e.GetPosition(this);
-        OnWindowDragged?.Invoke((int)pos.X, (int)pos.Y);
+        WindowTitleBarReleased?.Invoke();
     }
 
     private void Ignore_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         e.Handled = true;
+    }
+
+
+    private void ButtonClose_OnClick(object? sender, RoutedEventArgs e)
+    {
+        WindowClose?.Invoke();
+    }
+
+    private void ButtonMinimize_OnClick(object? sender, RoutedEventArgs e)
+    {
+        WindowMinimize?.Invoke();
+    }
+
+    private void ButtonMaximize_OnClick(object? sender, RoutedEventArgs e)
+    {
+        WindowMaximize?.Invoke();
+    }
+
+
+    private void ButtonOpenGitHubPage_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.OpenGitHubPage();
+    }
+
+    private void ButtonOpenTerminal_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.OpenTerminal();
+    }
+
+    private void ButtonOpenSettings_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.OpenSettings();
     }
 
     #endregion

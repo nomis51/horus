@@ -1,4 +1,6 @@
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Horus.UI.ViewModels;
 
@@ -6,6 +8,13 @@ namespace Horus.UI.Windows;
 
 public partial class MainWindow : WindowBase<MainWindowViewModel>
 {
+    #region Members
+
+    private bool _isDraggingWindow = false;
+    private Point _dragStartPoint;
+
+    #endregion
+
     #region Constructors
 
     public MainWindow()
@@ -27,9 +36,42 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         ViewModel?.CloseSnackbar();
     }
 
-    private void TitleBar_OnOnWindowDragged(int x, int y)
+    private void TitleBar_OnWindowTitleBarPressed(int x, int y)
     {
-        Position = new PixelPoint(x, y);
+        if (WindowState is WindowState.FullScreen or WindowState.Minimized) return;
+
+        _isDraggingWindow = true;
+        _dragStartPoint = new Point(x, y);
+    }
+
+    private void TitleBar_OnWindowTitleBarReleased()
+    {
+        _isDraggingWindow = false;
+    }
+
+    private void TitleBar_OnWindowTitleBarMove(int x, int y)
+    {
+        if (!_isDraggingWindow) return;
+
+        Position = new PixelPoint(
+            Position.X + (int)(x - _dragStartPoint.X),
+            Position.Y + (int)(y - _dragStartPoint.Y)
+        );
+    }
+
+    private void TitleBar_OnWindowClose()
+    {
+        Close();
+    }
+
+    private void TitleBar_OnWindowMaximize()
+    {
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    }
+
+    private void TitleBar_OnWindowMinimize()
+    {
+        WindowState = WindowState.Minimized;
     }
 
     #endregion

@@ -6,13 +6,11 @@
              RequestedThemeVariant="Default">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-    <!-- <Application.Resources> -->
-    <!--     <ResourceDictionary> -->
-    <!--         <Color x:Key="RegionColor">#434b5e</Color> -->
-    <!--         <Color x:Key="BaseLow">#2e3440</Color> -->
-    <!--         <Color x:Key="BaseHigh">#3b4252</Color> -->
-    <!--     </ResourceDictionary> -->
-    <!-- </Application.Resources> -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="GoldenAccent">#cc8a3c</Color>
+        </ResourceDictionary>
+    </Application.Resources>
 
     <Application.DataTemplates>
         <ui:ViewLocator />
@@ -22,22 +20,16 @@
         <materialIcons:MaterialIconStyles />
 
         <FluentTheme>
-            <!-- <FluentTheme.Palettes> -->
-            <!--     <ColorPaletteResources x:Key="Dark" -->
-            <!--                            RegionColor="#2e3440" -->
-            <!--                            BaseLow="#2e3440" -->
-            <!--                            BaseMedium="#3b4252" -->
-            <!--                            BaseHigh="#434b5e" -->
-            <!--                            Accent="#e5eaf0" -->
-            <!--                            AltMedium="#6e7889" /> -->
-            <!-- </FluentTheme.Palettes> -->
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Dark"
+                                      Accent="{StaticResource GoldenAccent}" />
+            </FluentTheme.Palettes>
         </FluentTheme>
         
         <StyleInclude Source="Styles/TextBox.axaml"/>
         <StyleInclude Source="Styles/Button.axaml"/>
         <StyleInclude Source="Styles/DockPanel.axaml"/>
         <StyleInclude Source="Styles/Border.axaml"/>
-        <StyleInclude Source="Styles/Panel.axaml"/>
 
         <!-- <Style Selector="Button:pointerover /template/ ContentPresenter"> -->
         <!--     <Setter Property="Background" Value="{DynamicResource SystemBaseHighColor}" /> -->
