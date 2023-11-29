@@ -33,6 +33,10 @@ public partial class TitleBarView : ViewBase<TitleBarViewModel>
     public delegate void WindowMaximizeEvent();
 
     public event WindowMaximizeEvent? WindowMaximize;
+    
+    public delegate void OpenSettingsEvent();
+
+    public event OpenSettingsEvent? OpenSettings;
 
     #endregion
 
@@ -102,7 +106,7 @@ public partial class TitleBarView : ViewBase<TitleBarViewModel>
 
     private void ButtonOpenSettings_OnClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel?.OpenSettings();
+        OpenSettings?.Invoke();
     }
 
     #endregion

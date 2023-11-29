@@ -33,11 +33,6 @@ public class TitleBarViewModel : ViewModelBase
         }
     }
 
-    public void OpenSettings()
-    {
-        
-    }
-
     public void OpenTerminal()
     {
         TerminalHelper.SpawnTerminal(AppService.Instance.GetStoreLocation());

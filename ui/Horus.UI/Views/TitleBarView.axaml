@@ -61,7 +61,9 @@
                     <icons:MaterialIcon Kind="Github" />
                 </Button.Content>
             </Button>
-            <Button x:Name="ButtonOpenSettings" Classes="transparent titlebar" Click="ButtonOpenSettings_OnClick">
+            <Button x:Name="ButtonOpenSettings"
+                    Classes="transparent titlebar"
+                    Click="ButtonOpenSettings_OnClick">
                 <Button.Content>
                     <icons:MaterialIcon Kind="Settings" />
                 </Button.Content>

@@ -91,5 +91,15 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         ViewModel?.OpenNewEntryDialog();
     }
 
+    private void SettingsView_OnClose()
+    {
+        ViewModel?.CloseSettingsDialog();
+    }
+
+    private void TitleBarView_OnOpenSettings()
+    {
+        ViewModel?.OpenSettingsDialog();
+    }
+
     #endregion
 }

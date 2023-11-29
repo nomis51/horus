@@ -16,6 +16,8 @@ public class MainWindowViewModel : ViewModelBase
     public EntryFormViewModel EntryFormViewModel { get; set; } = new();
     public TitleBarViewModel TitleBarViewModel { get; set; } = new();
     public NewEntryDialogViewModel NewEntryDialogViewModel { get; set; } = new();
+    public SettingsViewModel SettingsViewModel { get; set; } = new();
+
     private bool _entrySelected;
 
     public bool EntrySelected
@@ -80,6 +82,14 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isNewEntryDialogVisible, value);
     }
 
+    private bool _isSettingsDialogVisible;
+
+    public bool IsSettingsDialogVisible
+    {
+        get => _isSettingsDialogVisible;
+        set => this.RaiseAndSetIfChanged(ref _isSettingsDialogVisible, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -100,6 +110,16 @@ public class MainWindowViewModel : ViewModelBase
 
         SnackbarService.Instance.Show("Failed to create the entry", "warning");
         return false;
+    }
+
+    public void CloseSettingsDialog()
+    {
+        IsSettingsDialogVisible = false;
+    }
+
+    public void OpenSettingsDialog()
+    {
+        IsSettingsDialogVisible = true;
     }
 
     public void OpenNewEntryDialog()
