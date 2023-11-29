@@ -33,6 +33,15 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
 
     #endregion
 
+    #region Public methods
+
+    public void ReloadList()
+    {
+        ViewModel?.RetrieveEntries();
+    }
+
+    #endregion
+
     #region Private methods
 
     private void OnLoaded(object? sender, RoutedEventArgs e)

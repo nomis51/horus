@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Avalonia.Controls.Chrome;
 using Avalonia.Threading;
+using Horus.Core.Services;
+using Horus.Shared.Models.Data;
 using Horus.UI.Services;
 using ReactiveUI;
 
@@ -14,7 +16,13 @@ public class MainWindowViewModel : ViewModelBase
     public EntryFormViewModel EntryFormViewModel { get; set; } = new();
     public TitleBarViewModel TitleBarViewModel { get; set; } = new();
     public NewEntryDialogViewModel NewEntryDialogViewModel { get; set; } = new();
-    public bool EntrySelected { get; set; }
+    private bool _entrySelected;
+
+    public bool EntrySelected
+    {
+        get => _entrySelected;
+        set => this.RaiseAndSetIfChanged(ref _entrySelected, value);
+    }
 
     private string _snackbarText = string.Empty;
 
@@ -84,6 +92,15 @@ public class MainWindowViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public bool CreateEntry(string name)
+    {
+        var result = AppService.Instance.InsertPassword(name, new Password("*****"));
+        if (!result.HasError) return true;
+
+        SnackbarService.Instance.Show("Failed to create the entry", "warning");
+        return false;
+    }
 
     public void OpenNewEntryDialog()
     {

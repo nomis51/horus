@@ -20,7 +20,7 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 
     #region Public methods
 
-    public void SetEntryItem(string name)
+    public void SetEntryItem(string name, bool isNew = false)
     {
         ViewModel?.SetEntryItem(name);
     }

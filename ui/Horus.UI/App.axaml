@@ -8,7 +8,11 @@
 
     <Application.Resources>
         <ResourceDictionary>
-            <Color x:Key="GoldenAccent">#cc8a3c</Color>
+            <Color x:Key="AccentColor">#097fbf</Color>
+            <Color x:Key="SuccessColor">#599e5e</Color>
+            <Color x:Key="SuccessLowColor">#438544</Color>
+            <Color x:Key="ErrorColor">#c94f4f</Color>
+            <Color x:Key="ErrorLowColor">#AC5050</Color>
         </ResourceDictionary>
     </Application.Resources>
 
@@ -22,7 +26,7 @@
         <FluentTheme>
             <FluentTheme.Palettes>
                 <ColorPaletteResources x:Key="Dark"
-                                      Accent="{StaticResource GoldenAccent}" />
+                                      Accent="{StaticResource AccentColor}" />
             </FluentTheme.Palettes>
         </FluentTheme>
         

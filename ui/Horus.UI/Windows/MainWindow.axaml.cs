@@ -78,6 +78,12 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     private void NewEntryDialogView_OnClose(string name)
     {
         ViewModel?.CloseNewEntryDialog();
+        if (string.IsNullOrWhiteSpace(name)) return;
+        if (!ViewModel!.CreateEntry(name)) return;
+
+        EntryListView.ReloadList();
+        ViewModel!.EntrySelected = true;
+        EntryFormView.SetEntryItem(name);
     }
 
     private void EntryListView_OnCreateEntry()

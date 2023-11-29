@@ -34,7 +34,6 @@ public class EntryListViewModel : ViewModelBase
     {
         if (string.IsNullOrWhiteSpace(SearchText))
         {
-            Items.Clear();
             RetrieveEntries();
             return;
         }
@@ -51,11 +50,7 @@ public class EntryListViewModel : ViewModelBase
         Items.AddRange(MapToEntryItemModels(entries));
     }
 
-    #endregion
-
-    #region Private methods
-
-    private void RetrieveEntries()
+    public void RetrieveEntries()
     {
         var (entries, error) = AppService.Instance.GetStoreEntries();
         if (error is not null)
@@ -64,8 +59,13 @@ public class EntryListViewModel : ViewModelBase
             return;
         }
 
+        Items.Clear();
         Items.AddRange(MapToEntryItemModels(entries));
     }
+
+    #endregion
+
+    #region Private methods
 
     private List<EntryItemModel> MapToEntryItemModels(IEnumerable<StoreEntry> entries)
     {

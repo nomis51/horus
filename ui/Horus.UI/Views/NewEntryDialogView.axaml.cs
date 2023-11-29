@@ -1,4 +1,5 @@
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
@@ -18,11 +19,17 @@ public partial class NewEntryDialogView : ViewBase<NewEntryDialogViewModel>
     public NewEntryDialogView()
     {
         InitializeComponent();
+        Loaded += OnLoaded;
     }
 
     #endregion
 
     #region Private methods
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        Dispatcher.UIThread.Invoke(() => { TextBoxName.Focus(); });
+    }
 
     private void ButtonCancel_OnClick(object? sender, RoutedEventArgs e)
     {

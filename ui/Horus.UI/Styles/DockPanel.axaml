@@ -7,11 +7,11 @@
     </Design.PreviewWith>
     <Style Selector="DockPanel.success">
         <Setter Property="Background"
-                Value="LimeGreen" />
+                Value="{StaticResource SuccessColor}" />
     </Style>
     <Style Selector="DockPanel.error">
         <Setter Property="Background"
-                Value="Red" />
+                Value="{StaticResource ErrorColor}" />
     </Style>
     <Style Selector="DockPanel.accent">
         <Setter Property="Background"

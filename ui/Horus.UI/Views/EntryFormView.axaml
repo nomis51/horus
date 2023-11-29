@@ -109,7 +109,7 @@
                             <TextBlock Text="Cancel"
                                        VerticalAlignment="Center" />
                             <icons:MaterialIcon Kind="Close"
-                                                Margin="5,0,0,0"
+                                                Margin="5,2,0,0"
                                                 VerticalAlignment="Center" />
                         </DockPanel>
                     </Button.Content>
@@ -126,7 +126,7 @@
                             <TextBlock Text="Save"
                                        VerticalAlignment="Center" />
                             <icons:MaterialIcon Kind="ContentSave"
-                                                Margin="5,0,0,0"
+                                                Margin="5,2,0,0"
                                                 VerticalAlignment="Center" />
                         </DockPanel>
                     </Button.Content>
@@ -203,7 +203,7 @@
                         <TextBlock Text="Reveal metadata"
                                    VerticalAlignment="Center" />
                         <icons:MaterialIcon Kind="Visibility"
-                                            Margin="5,0,0,0"
+                                            Margin="5,2,0,0"
                                             VerticalAlignment="Center" />
                     </DockPanel>
                 </Button.Content>
@@ -222,7 +222,7 @@
                             <TextBlock Text="Cancel"
                                        VerticalAlignment="Center" />
                             <icons:MaterialIcon Kind="Close"
-                                                Margin="5,0,0,0"
+                                                Margin="5,2,0,0"
                                                 VerticalAlignment="Center" />
                         </DockPanel>
                     </Button.Content>
@@ -238,7 +238,7 @@
                             <TextBlock Text="Save"
                                        VerticalAlignment="Center" />
                             <icons:MaterialIcon Kind="ContentSave"
-                                                Margin="5,0,0,0"
+                                                Margin="5,2,0,0"
                                                 VerticalAlignment="Center" />
                         </DockPanel>
                     </Button.Content>

@@ -8,11 +8,11 @@
 
     <Style Selector="Border.success">
         <Setter Property="Background"
-                Value="LimeGreen" />
+                Value="{StaticResource SuccessColor}" />
     </Style>
     <Style Selector="Border.error">
         <Setter Property="Background"
-                Value="Red" />
+                Value="{StaticResource ErrorColor}" />
     </Style>
     <Style Selector="Border.accent">
         <Setter Property="Background"

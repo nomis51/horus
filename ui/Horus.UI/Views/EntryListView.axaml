@@ -52,13 +52,12 @@
         </StackPanel>
 
         <Border Grid.Row="1"
-               
                 Background="{DynamicResource ThemeAccentBrush}"
                 ToolTip.Placement="Top"
                 ToolTip.Tip="Create a new entry"
                 ToolTip.VerticalOffset="-5"
                 ToolTip.HorizontalOffset="150">
-            <Button Classes="accent"
+            <Button Classes="accent fab"
                     x:Name="ButtonCreateEntry"
                     Click="ButtonCreateEntry_OnClick"
                     HorizontalAlignment="Right"

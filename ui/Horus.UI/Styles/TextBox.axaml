@@ -9,7 +9,7 @@
 
     <Style Selector="TextBox.errored[IsReadOnly=False]:not(TextBox:empty)">
         <Setter Property="BorderBrush"
-                Value="Red" />
+                Value="{StaticResource ErrorColor}" />
     </Style>
 
     <Style Selector="TextBox.copyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
