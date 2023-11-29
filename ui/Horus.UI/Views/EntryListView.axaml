@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
+             xmlns:avaloniaProgressRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -30,6 +31,14 @@
                      AcceptsTab="False"
                      TextChanged="TextBoxSearch_OnTextChanged"
                      Text="{Binding SearchText}" />
+            <avaloniaProgressRing:ProgressRing HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0, 10, 0,0"
+                                               Width="25"
+                                               Height="25"
+                                               IsActive="True"
+                                               IsVisible="{Binding IsLoading}"
+                                               Foreground="{StaticResource AccentColor}" />
             <TreeView x:Name="TreeView"
                       ItemsSource="{Binding Items}"
                       HorizontalAlignment="Stretch"
@@ -51,21 +60,36 @@
             </TreeView>
         </StackPanel>
 
-        <Border Grid.Row="1"
-                Background="{DynamicResource ThemeAccentBrush}"
-                ToolTip.Placement="Top"
-                ToolTip.Tip="Create a new entry"
-                ToolTip.VerticalOffset="-5"
-                ToolTip.HorizontalOffset="150">
-            <Button Classes="accent fab"
-                    x:Name="ButtonCreateEntry"
-                    Click="ButtonCreateEntry_OnClick"
+        <Grid Grid.Row="1" ColumnDefinitions="*,*">
+            <Border Grid.Column="0" Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Refresh entries"
+                    ToolTip.VerticalOffset="-5"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Bottom">
+                <Button Classes="transparent"
+                        x:Name="ButtonRefreshEntries"
+                        Click="ButtonRefreshEntries_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Refresh" />
+                    </Button.Content>
+                </Button>
+            </Border>
+            <Border Grid.Column="1"
+                    Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.VerticalOffset="-5"
+                    ToolTip.Tip="Create a new entry"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom">
-                <Button.Content>
-                    <icons:MaterialIcon Kind="Plus" />
-                </Button.Content>
-            </Button>
-        </Border>
+                <Button Classes="transparent"
+                        x:Name="ButtonCreateEntry"
+                        Click="ButtonCreateEntry_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Plus" />
+                    </Button.Content>
+                </Button>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

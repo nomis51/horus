@@ -79,7 +79,6 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     {
         ViewModel?.CloseNewEntryDialog();
         if (string.IsNullOrWhiteSpace(name)) return;
-        if (!ViewModel!.CreateEntry(name)) return;
 
         EntryListView.ReloadList();
         ViewModel!.EntrySelected = true;

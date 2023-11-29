@@ -6,6 +6,7 @@ using DynamicData;
 using Horus.Core.Services;
 using Horus.Shared.Models.Display;
 using Horus.UI.Models;
+using ReactiveUI;
 using Serilog;
 
 namespace Horus.UI.ViewModels;
@@ -16,6 +17,14 @@ public class EntryListViewModel : ViewModelBase
 
     public ObservableCollection<EntryItemModel> Items { get; } = new();
     public string SearchText { get; set; } = string.Empty;
+
+    private bool _isLoading;
+
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set => this.RaiseAndSetIfChanged(ref _isLoading, value);
+    }
 
     #endregion
 
@@ -38,7 +47,9 @@ public class EntryListViewModel : ViewModelBase
             return;
         }
 
+        IsLoading = true;
         var (entries, error) = AppService.Instance.SearchStoreEntries(SearchText, searchMetadatas);
+        IsLoading = false;
 
         if (error is not null)
         {
@@ -46,21 +57,30 @@ public class EntryListViewModel : ViewModelBase
             return;
         }
 
-        Items.Clear();
-        Items.AddRange(MapToEntryItemModels(entries));
+        InvokeUi(() =>
+        {
+            Items.Clear();
+            Items.AddRange(MapToEntryItemModels(entries));
+        });
     }
 
     public void RetrieveEntries()
     {
+        IsLoading = true;
         var (entries, error) = AppService.Instance.GetStoreEntries();
+        IsLoading = false;
+
         if (error is not null)
         {
             Log.Error("Unable to retrieve store entries: {Message}", error.Message);
             return;
         }
 
-        Items.Clear();
-        Items.AddRange(MapToEntryItemModels(entries));
+        InvokeUi(() =>
+        {
+            Items.Clear();
+            Items.AddRange(MapToEntryItemModels(entries));
+        });
     }
 
     #endregion

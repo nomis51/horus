@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -63,12 +64,12 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
 
     private void TextBoxSearch_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        ViewModel?.SearchEntries();
+        Dispatch(vm => vm?.SearchEntries());
     }
 
     private void TextBoxSearch_OnGotFocus(object? sender, GotFocusEventArgs e)
     {
-        Dispatcher.UIThread.Invoke(() => { TextBoxSearch.SelectAll(); });
+        InvokeUi(() => { TextBoxSearch.SelectAll(); });
     }
 
 
@@ -76,7 +77,7 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
     {
         if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.F)
         {
-            Dispatcher.UIThread.Invoke(() => { TextBoxSearch.Focus(); });
+            InvokeUi(() => { TextBoxSearch.Focus(); });
         }
     }
 
@@ -86,11 +87,21 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
         {
             TextBoxSearch.Clear();
         }
+
+        if (e.Key == Key.Enter)
+        {
+            Dispatch(vm => { vm?.SearchEntries(e.KeyModifiers == KeyModifiers.Control); });
+        }
     }
 
     private void ButtonCreateEntry_OnClick(object? sender, RoutedEventArgs e)
     {
         CreateEntry?.Invoke();
+    }
+
+    private void ButtonRefreshEntries_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Dispatch(vm => vm?.RetrieveEntries());
     }
 
     #endregion

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using DynamicData;
 using Horus.Core.Services;
 using Horus.Shared.Enums;
@@ -71,6 +73,7 @@ public class EntryFormViewModel : ViewModelBase
     }
 
     public bool IsPasswordValid => Password == ConfirmPassword && !string.IsNullOrEmpty(Password);
+    public bool CanSavePassword => IsPasswordValid && !IsLoading;
 
     private bool _isEditingPassword;
 
@@ -112,6 +115,14 @@ public class EntryFormViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _customPasswordAlphabet, value);
     }
 
+    private bool _isLoading;
+
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set => this.RaiseAndSetIfChanged(ref _isLoading, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -127,7 +138,10 @@ public class EntryFormViewModel : ViewModelBase
 
     public void CopyOldPassword()
     {
+        IsLoading = true;
         var (_, error) = AppService.Instance.GetPassword(EntryName);
+        IsLoading = false;
+
         if (error is null) return;
 
         SnackbarService.Instance.Show("Unable to copy password", "warning");
@@ -157,7 +171,10 @@ public class EntryFormViewModel : ViewModelBase
 
     public void SavePassword()
     {
+        IsLoading = true;
         var result = AppService.Instance.EditPassword(EntryName, new Password(Password));
+        IsLoading = false;
+
         if (result.HasError)
         {
             SnackbarService.Instance.Show("Unable to save password", "error", 5000);
@@ -184,6 +201,7 @@ public class EntryFormViewModel : ViewModelBase
 
     public void SaveMetadatas()
     {
+        IsLoading = true;
         var result = AppService.Instance.EditMetadatas(
             EntryName,
             new MetadataCollection(
@@ -195,6 +213,8 @@ public class EntryFormViewModel : ViewModelBase
                     .ToList()
             )
         );
+        IsLoading = false;
+
         if (result.HasError)
         {
             SnackbarService.Instance.Show("Unable to save metadata", "error", 5000);
@@ -221,27 +241,33 @@ public class EntryFormViewModel : ViewModelBase
 
     public void RetrieveMetadatas()
     {
+        IsLoading = true;
         var (metadatas, error) = AppService.Instance.GetMetadatas(EntryName);
+        IsLoading = false;
+
         if (error is not null) return;
 
-        foreach (var metadata in metadatas)
+        InvokeUi(() =>
         {
-            var item = new MetadataModel
+            foreach (var metadata in metadatas)
             {
-                Key = metadata.Key,
-                Value = metadata.Value,
-                Type = metadata.Type,
-            };
+                var item = new MetadataModel
+                {
+                    Key = metadata.Key,
+                    Value = metadata.Value,
+                    Type = metadata.Type,
+                };
 
-            if (metadata.Type == MetadataType.Internal)
-            {
-                InternalMetadatas.Add(item);
+                if (metadata.Type == MetadataType.Internal)
+                {
+                    InternalMetadatas.Add(item);
+                }
+                else if (metadata.Type == MetadataType.Normal)
+                {
+                    Metadatas.Add(item);
+                }
             }
-            else if (metadata.Type == MetadataType.Normal)
-            {
-                Metadatas.Add(item);
-            }
-        }
+        });
 
         MetadatasRevealed = true;
         this.RaisePropertyChanged(nameof(HasNormalMetadatas));

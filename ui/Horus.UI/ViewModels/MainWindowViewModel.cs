@@ -103,15 +103,6 @@ public class MainWindowViewModel : ViewModelBase
 
     #region Public methods
 
-    public bool CreateEntry(string name)
-    {
-        var result = AppService.Instance.InsertPassword(name, new Password("*****"));
-        if (!result.HasError) return true;
-
-        SnackbarService.Instance.Show("Failed to create the entry", "warning");
-        return false;
-    }
-
     public void CloseSettingsDialog()
     {
         IsSettingsDialogVisible = false;

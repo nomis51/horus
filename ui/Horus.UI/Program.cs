@@ -15,7 +15,7 @@ sealed class Program
     public static void Main(string[] args)
     {
         AppService.Instance.Initialize(new AppServiceDependenciesProvider(
-            new FsService(".winpass-tests"),
+            new FsService(".horus-tests"),
             new GitService(),
             new GpgService(),
             new SettingsService()

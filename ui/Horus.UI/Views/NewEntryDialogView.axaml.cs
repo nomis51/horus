@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Horus.UI.ViewModels;
@@ -38,7 +39,12 @@ public partial class NewEntryDialogView : ViewBase<NewEntryDialogViewModel>
 
     private void ButtonCreate_OnClick(object? sender, RoutedEventArgs e)
     {
-        Close?.Invoke(ViewModel!.Name);
+        Dispatch(vm =>
+        {
+            if (!vm!.CreateEntry()) return;
+
+            InvokeUi(() => Close?.Invoke(vm.Name));
+        });
     }
 
     private void ButtonClose_OnClick(object? sender, RoutedEventArgs e)

@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Horus.UI.Extensions;
 using Horus.UI.ViewModels;
 
@@ -31,7 +32,7 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 
     private void ButtonRevealMetadatas_OnClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel?.RetrieveMetadatas();
+        Dispatch(vm => vm?.RetrieveMetadatas());
     }
 
     private void ButtonAddMetadata_OnClick(object? sender, RoutedEventArgs e)
@@ -51,7 +52,7 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 
     private void ButtonSaveMetadatas_OnClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel?.SaveMetadatas();
+        Dispatch(vm => vm?.SaveMetadatas());
     }
 
     private void ButtonEditPassword_OnClick(object? sender, RoutedEventArgs e)
@@ -66,12 +67,12 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 
     private void ButtonSavePassword_OnClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel?.SavePassword();
+        Dispatch(vm => vm?.SavePassword());
     }
 
     private void SliderPasswordLength_OnValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
-        SliderPasswordLength.Value = Math.Round((double)SliderPasswordLength.Value);
+        SliderPasswordLength.Value = Math.Round(SliderPasswordLength.Value);
         ViewModel?.GeneratePassword();
     }
 
@@ -87,7 +88,7 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 
     private void ButtonCopyOldPassword_OnClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel?.CopyOldPassword();
+        Dispatch(vm => vm?.CopyOldPassword());
     }
 
     #endregion
