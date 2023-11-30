@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
 using Horus.UI.Extensions;
 using Horus.UI.ViewModels;
 
@@ -15,6 +14,10 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
     public delegate void DeleteEntryEvent(string name);
 
     public event DeleteEntryEvent? DeleteEntry;
+    
+    public delegate void DuplicateEntryEvent(string name);
+
+    public event DuplicateEntryEvent? DuplicateEntry;
 
     #endregion
 
@@ -102,6 +105,11 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
     private void ButtonDeleteEntry_OnClick(object? sender, RoutedEventArgs e)
     {
         DeleteEntry?.Invoke(ViewModel!.EntryName);
+    }
+
+    private void ButtonCloneEntry_OnClick(object? sender, RoutedEventArgs e)
+    {
+        DuplicateEntry?.Invoke(ViewModel!.EntryName);
     }
 
     #endregion

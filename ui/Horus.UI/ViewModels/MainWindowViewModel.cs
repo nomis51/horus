@@ -15,6 +15,7 @@ public class MainWindowViewModel : ViewModelBase
     public NewEntryDialogViewModel NewEntryDialogViewModel { get; set; } = new();
     public SettingsViewModel SettingsViewModel { get; set; } = new();
     public DeleteEntryDialogViewModel DeleteEntryDialogViewModel { get; set; } = new();
+    public DuplicateEntryDialogViewModel DuplicateEntryDialogViewModel { get; set; } = new();
 
     private bool _entrySelected;
 
@@ -96,6 +97,14 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isDeleteEntryDialogVisible, value);
     }
 
+    private bool _isDuplicateEntryDialogVisible;
+
+    public bool IsDuplicateEntryDialogVisible
+    {
+        get => _isDuplicateEntryDialogVisible;
+        set => this.RaiseAndSetIfChanged(ref _isDuplicateEntryDialogVisible, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -109,6 +118,16 @@ public class MainWindowViewModel : ViewModelBase
 
     #region Public methods
 
+    public void CloseDuplicateEntryDialog()
+    {
+        IsDuplicateEntryDialogVisible = false;
+    }
+
+    public void OpenDuplicateEntryDialog()
+    {
+        IsDuplicateEntryDialogVisible = true;
+    }
+
     public void CloseDeleteEntryDialog()
     {
         IsDeleteEntryDialogVisible = false;
@@ -118,7 +137,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         IsDeleteEntryDialogVisible = true;
     }
-    
+
     public void CloseSettingsDialog()
     {
         IsSettingsDialogVisible = false;

@@ -396,20 +396,39 @@
             </Button>
         </StackPanel>
 
-        <Border Grid.Row="1"
-                Background="{DynamicResource ThemeAccentBrush}"
-                ToolTip.Placement="Top"
-                ToolTip.VerticalOffset="-5"
-                ToolTip.Tip="Delete the entry"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom">
-            <Button Classes="transparent"
-                    IsEnabled="{Binding !IsLoading}"
-                    x:Name="ButtonDeleteEntry" Click="ButtonDeleteEntry_OnClick">
-                <Button.Content>
-                    <icons:MaterialIcon Kind="Trash" />
-                </Button.Content>
-            </Button>
-        </Border>
+        <DockPanel Grid.Row="1"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom">
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.VerticalOffset="-5"
+                    ToolTip.Tip="Duplicate the entry"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom">
+                <Button Classes="transparent"
+                        IsEnabled="{Binding !IsLoading}"
+                        x:Name="ButtonCloneEntry"
+                        Click="ButtonCloneEntry_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="ContentDuplicate" />
+                    </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.VerticalOffset="-5"
+                    ToolTip.Tip="Delete the entry"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom">
+                <Button Classes="transparent"
+                        IsEnabled="{Binding !IsLoading}"
+                        x:Name="ButtonDeleteEntry"
+                        Click="ButtonDeleteEntry_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Trash" />
+                    </Button.Content>
+                </Button>
+            </Border>
+        </DockPanel>
     </Grid>
 </UserControl>

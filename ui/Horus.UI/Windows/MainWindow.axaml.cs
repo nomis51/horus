@@ -111,5 +111,20 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         ViewModel?.OpenDeleteEntryDialog();
     }
 
+    private void EntryFormView_OnDuplicateEntry(string name)
+    {
+        DuplicateEntryDialogView.SetEntryName(name);
+        ViewModel?.OpenDuplicateEntryDialog();
+    }
+
+    private void DuplicateEntryDialogView_OnClose(bool created)
+    {
+        ViewModel?.CloseDuplicateEntryDialog();
+        if (created)
+        {
+            EntryListView.ReloadList();
+        }
+    }
+
     #endregion
 }

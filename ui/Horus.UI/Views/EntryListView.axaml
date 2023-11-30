@@ -46,23 +46,28 @@
                       SelectionChanged="TreeView_OnSelectionChanged">
                 <TreeView.ItemTemplate>
                     <TreeDataTemplate ItemsSource="{Binding Items}">
-                        <Grid ColumnDefinitions="Auto,*"
+                        <Grid ColumnDefinitions="Auto,*, Auto"
                               HorizontalAlignment="Left">
                             <TextBlock Grid.Column="0"
+                                       
+                                       VerticalAlignment="Center"
                                        Text="{Binding Name}"
                                        Tag="{Binding Name}" />
                             <icons:MaterialIcon Grid.Column="1"
+                                                Margin="5,0,0,0"
+                                                VerticalAlignment="Center"
                                                 Kind="Key"
-                                                IsVisible="{Binding !HasItems}"
-                                                Margin="5,0,0,0" />
+                                                IsVisible="{Binding !HasItems}" />
                         </Grid>
                     </TreeDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>
         </StackPanel>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,*">
-            <Border Grid.Column="0" Background="{DynamicResource ThemeAccentBrush}"
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,*">
+            <Border Grid.Column="0"
+                    Background="{DynamicResource ThemeAccentBrush}"
                     ToolTip.Placement="Top"
                     ToolTip.Tip="Refresh entries"
                     ToolTip.VerticalOffset="-5"
