@@ -26,21 +26,24 @@ public class EntryFormViewModel : ViewModelBase
         {
             this.RaiseAndSetIfChanged(ref _entryName, value);
             this.RaisePropertyChanged(nameof(HasEntryName));
+            this.RaisePropertyChanged(nameof(HasEntryNameAndNotEditingIt));
         }
     }
 
     public bool HasEntryName => !string.IsNullOrWhiteSpace(EntryName);
 
+    public bool HasEntryNameAndNotEditingIt => HasEntryName && !IsEditingName;
+
     public ObservableCollection<MetadataModel> Metadatas { get; } = new();
     public ObservableCollection<MetadataModel> InternalMetadatas { get; } = new();
-    private bool _metadatasRevealed;
+    private bool _areMetadatasRevealed;
 
-    public bool MetadatasRevealed
+    public bool AreMetadatasRevealed
     {
-        get => _metadatasRevealed;
+        get => _areMetadatasRevealed;
         private set
         {
-            this.RaiseAndSetIfChanged(ref _metadatasRevealed, value);
+            this.RaiseAndSetIfChanged(ref _areMetadatasRevealed, value);
             this.RaisePropertyChanged(nameof(HasMetadatas));
         }
     }
@@ -123,6 +126,22 @@ public class EntryFormViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isLoading, value);
     }
 
+    private bool _isEditingName;
+
+    public bool IsEditingName
+    {
+        get => _isEditingName;
+        set => this.RaiseAndSetIfChanged(ref _isEditingName, value);
+    }
+
+    private string _newEntryName = string.Empty;
+
+    public string NewEntryName
+    {
+        get => _newEntryName;
+        set { this.RaiseAndSetIfChanged(ref _newEntryName, value); }
+    }
+
     #endregion
 
     #region Constructors
@@ -135,6 +154,38 @@ public class EntryFormViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public bool SaveNewEntryName()
+    {
+        IsLoading = true;
+        var result = AppService.Instance.RenameStoreEntry(EntryName, NewEntryName);
+        IsLoading = false;
+
+        if (result.HasError)
+        {
+            SnackbarService.Instance.Show("Failed to rename entry", "error", 5000);
+            return false;
+        }
+
+        IsEditingName = false;
+        SetEntryItem(NewEntryName);
+        this.RaisePropertyChanged(nameof(HasEntryNameAndNotEditingIt));
+        SnackbarService.Instance.Show("Entry renamed", "success");
+        return true;
+    }
+
+    public void EditName()
+    {
+        NewEntryName = EntryName;
+        IsEditingName = true;
+        this.RaisePropertyChanged(nameof(HasEntryNameAndNotEditingIt));
+    }
+
+    public void CancelEditName()
+    {
+        IsEditingName = false;
+        this.RaisePropertyChanged(nameof(HasEntryNameAndNotEditingIt));
+    }
 
     public void CopyOldPassword()
     {
@@ -237,6 +288,8 @@ public class EntryFormViewModel : ViewModelBase
     public void SetEntryItem(string name)
     {
         EntryName = name;
+        IsEditingPassword = false;
+        AreMetadatasRevealed = false;
     }
 
     public void RetrieveMetadatas()
@@ -269,7 +322,7 @@ public class EntryFormViewModel : ViewModelBase
             }
         });
 
-        MetadatasRevealed = true;
+        AreMetadatasRevealed = true;
         this.RaisePropertyChanged(nameof(HasNormalMetadatas));
     }
 
@@ -283,7 +336,7 @@ public class EntryFormViewModel : ViewModelBase
     {
         Metadatas.Clear();
         InternalMetadatas.Clear();
-        MetadatasRevealed = false;
+        AreMetadatasRevealed = false;
         this.RaisePropertyChanged(nameof(HasNormalMetadatas));
     }
 

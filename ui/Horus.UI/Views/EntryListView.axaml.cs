@@ -38,7 +38,7 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
 
     public void ReloadList()
     {
-        ViewModel?.RetrieveEntries();
+        Dispatch(vm => vm?.RetrieveEntries());
     }
 
     #endregion

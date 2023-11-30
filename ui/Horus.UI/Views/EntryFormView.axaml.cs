@@ -1,6 +1,7 @@
 ﻿using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Horus.UI.Extensions;
 using Horus.UI.ViewModels;
@@ -14,10 +15,14 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
     public delegate void DeleteEntryEvent(string name);
 
     public event DeleteEntryEvent? DeleteEntry;
-    
+
     public delegate void DuplicateEntryEvent(string name);
 
     public event DuplicateEntryEvent? DuplicateEntry;
+    
+    public delegate void EntryRenamedEntryEvent();
+
+    public event EntryRenamedEntryEvent? EntryRenamedEntry;
 
     #endregion
 
@@ -110,6 +115,31 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
     private void ButtonCloneEntry_OnClick(object? sender, RoutedEventArgs e)
     {
         DuplicateEntry?.Invoke(ViewModel!.EntryName);
+    }
+
+    private void ButtonEntryName_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+    }
+
+    private void ButtonCancelNewName_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.CancelEditName();
+    }
+
+    private void ButtonSaveNewName_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Dispatch(vm =>
+        {
+            if (!vm!.SaveNewEntryName()) return;
+
+            EntryRenamedEntry?.Invoke();
+        });
+    }
+
+    private void ButtonEntryName_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel!.IsEditingPassword || ViewModel!.AreMetadatasRevealed) return;
+        ViewModel?.EditName();
     }
 
     #endregion

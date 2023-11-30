@@ -126,5 +126,10 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         }
     }
 
+    private void EntryFormView_OnEntryRenamedEntry()
+    {
+        EntryListView.ReloadList();
+    }
+
     #endregion
 }

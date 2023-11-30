@@ -55,7 +55,7 @@
                 <views:EntryFormView x:Name="EntryFormView"
                                      DataContext="{Binding EntryFormViewModel}"
                                      DeleteEntry="EntryFormView_OnDeleteEntry"
-                                     DuplicateEntry="EntryFormView_OnDuplicateEntry" />
+                                     DuplicateEntry="EntryFormView_OnDuplicateEntry" EntryRenamedEntry="EntryFormView_OnEntryRenamedEntry" />
             </Border>
             <Border Grid.Row="0"
                     Grid.Column="1"

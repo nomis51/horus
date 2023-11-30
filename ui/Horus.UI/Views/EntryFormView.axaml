@@ -21,19 +21,67 @@
     <Grid RowDefinitions="*,Auto">
         <StackPanel Spacing="5">
             <!-- Title -->
-            <Grid ColumnDefinitions="Auto,Auto,Auto">
-                <TextBlock Grid.Column="0"
+            <Grid ColumnDefinitions="Auto,Auto">
+                <Button Grid.Column="0"
+                        x:Name="ButtonEntryName"
+                        Classes="transparent"
+                        VerticalAlignment="Center"
+                        Click="ButtonEntryName_OnClick"
+                        IsVisible="{Binding !IsEditingName}"
+                        FontSize="36"
+                        MinHeight="48"
+                        Padding="0">
+                    <Button.Content>
+                        <DockPanel>
+                            <TextBlock Text="{Binding EntryName}"
+                                       VerticalAlignment="Center" />
+                            <icons:MaterialIcon VerticalAlignment="Center"
+                                                IsVisible="{Binding HasEntryNameAndNotEditingIt}"
+                                                Kind="Key"
+                                                Height="36"
+                                                Width="36"
+                                                Margin="5,0,0,0" />
+                        </DockPanel>
+                    </Button.Content>
+                </Button>
+                <DockPanel Grid.Column="0"
                            VerticalAlignment="Center"
-                           Text="{Binding EntryName}"
-                           FontSize="36" />
-                <icons:MaterialIcon Grid.Column="1"
-                                    VerticalAlignment="Center"
-                                    IsVisible="{Binding HasEntryName}"
-                                    Kind="Key"
-                                    Height="36"
-                                    Width="36"
-                                    Margin="5,0,0,0" />
-                <avaloniaProgressRing:ProgressRing Grid.Column="2"
+                           IsVisible="{Binding IsEditingName}">
+                    <TextBox VerticalAlignment="Center"
+                             MinWidth="500"
+                             IsEnabled="{Binding !IsLoading}"
+                             Text="{Binding NewEntryName, Mode=TwoWay}"
+                             Watermark="Name"
+                             UseFloatingWatermark="True"
+                             Height="48" />
+                    <Button x:Name="ButtonSaveNewName"
+                            IsEnabled="{Binding !IsLoading}"
+                            Margin="5,0,0,0"
+                            Classes="success"
+                            VerticalAlignment="Center"
+                            Click="ButtonSaveNewName_OnClick">
+                        <Button.Content>
+                            <DockPanel>
+                                <TextBlock Text="Save"
+                                           VerticalAlignment="Center" />
+                                <icons:MaterialIcon Kind="ContentSave"
+                                                    VerticalAlignment="Center" />
+                            </DockPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button x:Name="ButtonCancelNewName"
+                            IsEnabled="{Binding !IsLoading}"
+                            Margin="5,0,0,0"
+                            Classes="transparent"
+                            VerticalAlignment="Center"
+                            Click="ButtonCancelNewName_OnClick">
+                        <Button.Content>
+                            <TextBlock Text="Cancel"
+                                       VerticalAlignment="Center" />
+                        </Button.Content>
+                    </Button>
+                </DockPanel>
+                <avaloniaProgressRing:ProgressRing Grid.Column="1"
                                                    VerticalAlignment="Center"
                                                    Margin="10,0,0,0"
                                                    Width="25"
@@ -212,7 +260,7 @@
                 <Button Grid.Column="1"
                         x:Name="ButtonRevealMetadatas"
                         IsEnabled="{Binding !IsLoading}"
-                        IsVisible="{Binding !MetadatasRevealed}"
+                        IsVisible="{Binding !AreMetadatasRevealed}"
                         Classes="accent"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom"
@@ -228,7 +276,7 @@
                     </Button.Content>
                 </Button>
                 <DockPanel Grid.Column="1"
-                           IsVisible="{Binding MetadatasRevealed}"
+                           IsVisible="{Binding AreMetadatasRevealed}"
                            HorizontalAlignment="Right"
                            VerticalAlignment="Bottom">
                     <Button x:Name="ButtonCancelMetadatas"
@@ -268,7 +316,7 @@
             </Grid>
 
             <!-- Internal metadata inputs -->
-            <Panel IsVisible="{Binding MetadatasRevealed}">
+            <Panel IsVisible="{Binding AreMetadatasRevealed}">
                 <ItemsRepeater ItemsSource="{Binding InternalMetadatas}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="8" />
@@ -298,13 +346,13 @@
             </Panel>
 
             <!-- Divider -->
-            <Panel IsVisible="{Binding MetadatasRevealed}">
+            <Panel IsVisible="{Binding AreMetadatasRevealed}">
                 <Separator Margin="0,8"
                            IsVisible="{Binding HasNormalMetadatas}" />
             </Panel>
 
             <!-- Metadata inputs -->
-            <Panel IsVisible="{Binding MetadatasRevealed}">
+            <Panel IsVisible="{Binding AreMetadatasRevealed}">
                 <ItemsRepeater ItemsSource="{Binding Metadatas}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="8" />
@@ -346,13 +394,13 @@
             </Panel>
 
             <!-- No metadata label -->
-            <Panel IsVisible="{Binding MetadatasRevealed}">
+            <Panel IsVisible="{Binding AreMetadatasRevealed}">
                 <TextBlock IsVisible="{Binding !HasMetadatas}"
                            Text="No metadata" />
             </Panel>
 
             <!-- Metadata placeholders -->
-            <Panel IsVisible="{Binding !MetadatasRevealed}">
+            <Panel IsVisible="{Binding !AreMetadatasRevealed}">
                 <ItemsRepeater ItemsSource="{Binding MetadatasPlaceholders}">
                     <ItemsRepeater.Layout>
                         <StackLayout Spacing="8" />
@@ -380,7 +428,7 @@
             <!-- Metadata action buttons -->
             <Button x:Name="ButtonAddMetadata"
                     IsEnabled="{Binding !IsLoading}"
-                    IsVisible="{Binding MetadatasRevealed}"
+                    IsVisible="{Binding AreMetadatasRevealed}"
                     Margin="0, 0,0,0"
                     Classes="accent"
                     Click="ButtonAddMetadata_OnClick">
