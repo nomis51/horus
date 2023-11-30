@@ -1,8 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Avalonia.Controls.Chrome;
 using Avalonia.Threading;
-using Horus.Core.Services;
-using Horus.Shared.Models.Data;
 using Horus.UI.Services;
 using ReactiveUI;
 
@@ -17,6 +14,7 @@ public class MainWindowViewModel : ViewModelBase
     public TitleBarViewModel TitleBarViewModel { get; set; } = new();
     public NewEntryDialogViewModel NewEntryDialogViewModel { get; set; } = new();
     public SettingsViewModel SettingsViewModel { get; set; } = new();
+    public DeleteEntryDialogViewModel DeleteEntryDialogViewModel { get; set; } = new();
 
     private bool _entrySelected;
 
@@ -90,6 +88,14 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isSettingsDialogVisible, value);
     }
 
+    private bool _isDeleteEntryDialogVisible;
+
+    public bool IsDeleteEntryDialogVisible
+    {
+        get => _isDeleteEntryDialogVisible;
+        set => this.RaiseAndSetIfChanged(ref _isDeleteEntryDialogVisible, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -103,6 +109,16 @@ public class MainWindowViewModel : ViewModelBase
 
     #region Public methods
 
+    public void CloseDeleteEntryDialog()
+    {
+        IsDeleteEntryDialogVisible = false;
+    }
+
+    public void OpenDeleteEntryDialog()
+    {
+        IsDeleteEntryDialogVisible = true;
+    }
+    
     public void CloseSettingsDialog()
     {
         IsSettingsDialogVisible = false;

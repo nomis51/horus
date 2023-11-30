@@ -100,5 +100,16 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         ViewModel?.OpenSettingsDialog();
     }
 
+    private void DeleteEntryDialogView_OnClose()
+    {
+        ViewModel?.CloseDeleteEntryDialog();
+    }
+
+    private void EntryFormView_OnDeleteEntry(string name)
+    {
+        DeleteEntryDialogView.SetEntryName(name);
+        ViewModel?.OpenDeleteEntryDialog();
+    }
+
     #endregion
 }

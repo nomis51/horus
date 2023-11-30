@@ -101,7 +101,17 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
 
     private void ButtonRefreshEntries_OnClick(object? sender, RoutedEventArgs e)
     {
-        Dispatch(vm => vm?.RetrieveEntries());
+        Dispatch(vm =>
+        {
+            if (string.IsNullOrWhiteSpace(vm?.SearchText))
+            {
+                vm?.RetrieveEntries();
+            }
+            else
+            {
+                vm?.SearchEntries();
+            }
+        });
     }
 
     #endregion

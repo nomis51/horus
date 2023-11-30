@@ -405,7 +405,7 @@
                 VerticalAlignment="Bottom">
             <Button Classes="transparent"
                     IsEnabled="{Binding !IsLoading}"
-                    x:Name="ButtonDeleteEntry">
+                    x:Name="ButtonDeleteEntry" Click="ButtonDeleteEntry_OnClick">
                 <Button.Content>
                     <icons:MaterialIcon Kind="Trash" />
                 </Button.Content>

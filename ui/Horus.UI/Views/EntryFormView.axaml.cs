@@ -10,6 +10,14 @@ namespace Horus.UI.Views;
 
 public partial class EntryFormView : ViewBase<EntryFormViewModel>
 {
+    #region Events
+
+    public delegate void DeleteEntryEvent(string name);
+
+    public event DeleteEntryEvent? DeleteEntry;
+
+    #endregion
+
     #region Constructors
 
     public EntryFormView()
@@ -89,6 +97,11 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
     private void ButtonCopyOldPassword_OnClick(object? sender, RoutedEventArgs e)
     {
         Dispatch(vm => vm?.CopyOldPassword());
+    }
+
+    private void ButtonDeleteEntry_OnClick(object? sender, RoutedEventArgs e)
+    {
+        DeleteEntry?.Invoke(ViewModel!.EntryName);
     }
 
     #endregion
