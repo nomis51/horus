@@ -13,12 +13,20 @@ public class MainWindowViewModel : ViewModelBase
     public DialogManagerViewModel DialogManagerViewModel { get; set; } = new();
     public SnackbarManagerViewModel SnackbarManagerViewModel { get; set; } = new();
 
-    private bool _initialized;
+    private bool _isLoading = true;
 
-    public bool Initialized
+    public bool IsLoading
     {
-        get => _initialized;
-        set => this.RaiseAndSetIfChanged(ref _initialized, value);
+        get => _isLoading;
+        set => this.RaiseAndSetIfChanged(ref _isLoading, value);
+    }
+
+    private string _loadingMessage = string.Empty;
+
+    public string LoadingMessage
+    {
+        get => _loadingMessage;
+        set => this.RaiseAndSetIfChanged(ref _loadingMessage, value);
     }
 
     private bool _entrySelected;

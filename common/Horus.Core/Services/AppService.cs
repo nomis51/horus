@@ -101,6 +101,16 @@ public class AppService : IAppService
     {
         return _gitService.Push();
     }
+    
+    public EmptyResult GitPull()
+    {
+        return _gitService.Pull();
+    }
+
+    public Result<Tuple<int,int>, Error?> GitFetch()
+    {
+        return _gitService.Fetch();
+    }
 
     public ResultStruct<bool, Error?> GitIsAheadOfRemote()
     {

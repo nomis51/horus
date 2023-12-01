@@ -87,12 +87,17 @@ public class EntryListViewModel : ViewModelBase
 
     #region Private methods
 
-    private List<EntryItemModel> MapToEntryItemModels(IEnumerable<StoreEntry> entries)
+    private List<EntryItemModel> MapToEntryItemModels(IEnumerable<StoreEntry> entries, string folder = "")
     {
         return entries.Select(entry => new EntryItemModel
             {
                 Name = entry.Name,
-                Items = MapToEntryItemModels(entry.Entries)
+                FullName = string.Join(
+                    "/",
+                    new[] { folder, entry.Name }
+                        .Where(s => !string.IsNullOrEmpty(s))
+                ),
+                Items = MapToEntryItemModels(entry.Entries, entry.Name),
             })
             .ToList();
     }

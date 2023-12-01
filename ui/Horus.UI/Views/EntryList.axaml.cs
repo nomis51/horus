@@ -61,7 +61,7 @@ public partial class EntryList : ViewBase<EntryListViewModel>
             return;
         }
 
-        EntrySelected?.Invoke(item.Name);
+        EntrySelected?.Invoke(item.FullName);
     }
 
     private void TextBoxSearch_OnTextChanged(object? sender, TextChangedEventArgs e)

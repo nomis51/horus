@@ -57,6 +57,89 @@ public class GitService : IGitService
         }
     }
 
+    public EmptyResult Pull()
+    {
+        try
+        {
+            GetPowerShellInstance()
+                .AddArgument("pull")
+                .Invoke<string>();
+            return new EmptyResult();
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git pull: {Message}", e.Message);
+            return new EmptyResult(new GitPushFailedError(e.Message));
+        }
+    }
+
+    public Result<Tuple<int, int>, Error?> Fetch()
+    {
+        try
+        {
+            var lines = GetPowerShellInstance()
+                .AddArgument("fetch")
+                .AddStatement()
+                .AddCommand(GitProcessName)
+                .AddArgument("status")
+                .Invoke<string>();
+
+            var aheadBy = 0;
+            var behindBy = 0;
+
+            const string aheadLabel = "Your branch is ahead of '";
+            var aheadLine = lines.FirstOrDefault(l => l.Contains(aheadLabel));
+            if (!string.IsNullOrEmpty(aheadLine))
+            {
+                var index = aheadLine.IndexOf(aheadLabel, StringComparison.OrdinalIgnoreCase);
+                if (index != -1)
+                {
+                    const string byLabel = "' by ";
+                    var endIndex = aheadLine.IndexOf(byLabel, index, StringComparison.OrdinalIgnoreCase);
+                    if (endIndex != -1)
+                    {
+                        endIndex += byLabel.Length;
+                        var nextIndex = aheadLine.IndexOf(" commit", endIndex, StringComparison.OrdinalIgnoreCase);
+                        var value = aheadLine[endIndex..nextIndex];
+                        if (int.TryParse(value, out var intValue))
+                        {
+                            aheadBy = intValue;
+                        }
+                    }
+                }
+            }
+
+            const string behindByLabel = "Your branch is behind of '";
+            var behindLine = lines.FirstOrDefault(l => l.Contains(behindByLabel));
+            if (!string.IsNullOrEmpty(behindLine))
+            {
+                var index = behindLine.IndexOf(behindByLabel, StringComparison.OrdinalIgnoreCase);
+                if (index != -1)
+                {
+                    const string byLabel = "' by ";
+                    var endIndex = behindLine.IndexOf(byLabel, index, StringComparison.OrdinalIgnoreCase);
+                    if (endIndex != -1)
+                    {
+                        endIndex += byLabel.Length;
+                        var nextIndex = behindLine.IndexOf(" commit", endIndex, StringComparison.OrdinalIgnoreCase);
+                        var value = behindLine[endIndex..nextIndex];
+                        if (int.TryParse(value, out var intValue))
+                        {
+                            behindBy = intValue;
+                        }
+                    }
+                }
+            }
+
+            return new Result<Tuple<int, int>, Error?>(Tuple.Create(aheadBy, behindBy));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git fetch or git status: {Message}", e.Message);
+            return new Result<Tuple<int, int>, Error?>(new GitFetchFailedError(e.Message));
+        }
+    }
+
     public ResultStruct<bool, Error?> IsAheadOfRemote()
     {
         try

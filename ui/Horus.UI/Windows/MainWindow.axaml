@@ -35,9 +35,9 @@
                         WindowClose="TitleBar_OnWindowClose"
                         WindowMaximize="TitleBar_OnWindowMaximize"
                         WindowMinimize="TitleBar_OnWindowMinimize"
-                        OpenSettings="TitleBarView_OnOpenSettings" />
+                        OpenSettings="TitleBarView_OnOpenSettings" ToggleSpinner="TitleBar_OnToggleSpinner" />
         <Grid Grid.Row="1"
-              IsVisible="{Binding Initialized}"
+              IsVisible="{Binding !IsLoading}"
               ColumnDefinitions="*,3*"
               RowDefinitions="*">
             <Border Grid.Row="0"
@@ -65,16 +65,18 @@
                 <TextBlock Text="Select an entry" />
             </Border>
         </Grid>
-        <avaloniaProgressRing:ProgressRing Grid.Row="1"
-                                           Grid.Column="0"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Center"
-                                           Margin="10,0,0,0"
-                                           Width="50"
-                                           Height="50"
-                                           IsActive="True"
-                                           IsVisible="{Binding !Initialized}"
-                                           Foreground="{StaticResource AccentColor}" />
+        <StackPanel Spacing="4" Grid.Row="1"
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center">
+            <avaloniaProgressRing:ProgressRing Width="50"
+                                               Height="50"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               IsActive="True"
+                                               IsVisible="{Binding IsLoading}"
+                                               Foreground="{StaticResource AccentColor}" />
+            <TextBlock Text="{Binding LoadingMessage}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </StackPanel>
         <views:DialogManager x:Name="DialogManager"
                              Grid.Row="1"
                              Grid.Column="0"

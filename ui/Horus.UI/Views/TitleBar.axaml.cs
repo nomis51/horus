@@ -33,10 +33,14 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
     public delegate void WindowMaximizeEvent();
 
     public event WindowMaximizeEvent? WindowMaximize;
-    
+
     public delegate void OpenSettingsEvent();
 
     public event OpenSettingsEvent? OpenSettings;
+
+    public delegate void ToggleSpinnerEvent(bool value, string message = "");
+
+    public event ToggleSpinnerEvent? ToggleSpinner;
 
     #endregion
 
@@ -107,6 +111,16 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
     private void ButtonOpenSettings_OnClick(object? sender, RoutedEventArgs e)
     {
         OpenSettings?.Invoke();
+    }
+
+    private void ButtonSync_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ToggleSpinner?.Invoke(true, "Synchronizing the store...");
+        Dispatch(vm =>
+        {
+            vm?.Sync();
+            InvokeUi(() => ToggleSpinner?.Invoke(false));
+        });
     }
 
     #endregion

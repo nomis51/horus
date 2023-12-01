@@ -36,7 +36,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     {
         if (ViewModel!.IsStoreInitialized())
         {
-            ViewModel!.Initialized = true;
+            ViewModel!.IsLoading = false;
             return;
         }
 
@@ -114,15 +114,16 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             case DialogType.DuplicateEntry:
                 if (data is true) EntryList.ReloadList();
                 break;
-            
+
             case DialogType.DeleteEntry:
                 if (data is true)
                 {
                     EntryList.ReloadList();
                     ViewModel!.EntrySelected = false;
                 }
+
                 break;
-            
+
             case DialogType.NewEntry:
                 if (data is not string name) return;
                 if (string.IsNullOrWhiteSpace(name)) return;
@@ -133,9 +134,15 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 break;
 
             case DialogType.InitializeStore:
-                ViewModel!.Initialized = true;
+                ViewModel!.IsLoading = true;
                 break;
         }
+    }
+
+    private void TitleBar_OnToggleSpinner(bool value, string message = "")
+    {
+        ViewModel!.LoadingMessage = message;
+        ViewModel!.IsLoading = value;
     }
 
     #endregion

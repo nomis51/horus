@@ -22,15 +22,20 @@
         <StackPanel Spacing="2"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch">
-            <TextBox x:Name="TextBoxSearch"
-                     Classes="clearButton"
-                     GotFocus="TextBoxSearch_OnGotFocus"
-                     KeyUp="TextBoxSearch_OnKeyUp"
-                     Watermark="Search"
-                     AcceptsReturn="False"
-                     AcceptsTab="False"
-                     TextChanged="TextBoxSearch_OnTextChanged"
-                     Text="{Binding SearchText}" />
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.VerticalOffset="-5"
+                    ToolTip.Tip="Ctrl + Enter to search in metadata">
+                <TextBox x:Name="TextBoxSearch"
+                         Classes="clearButton"
+                         GotFocus="TextBoxSearch_OnGotFocus"
+                         KeyUp="TextBoxSearch_OnKeyUp"
+                         Watermark="Search"
+                         AcceptsReturn="False"
+                         AcceptsTab="False"
+                         TextChanged="TextBoxSearch_OnTextChanged"
+                         Text="{Binding SearchText}" />
+            </Border>
             <avaloniaProgressRing:ProgressRing HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
                                                Margin="0, 10, 0,0"
@@ -49,7 +54,6 @@
                         <Grid ColumnDefinitions="Auto,*, Auto"
                               HorizontalAlignment="Left">
                             <TextBlock Grid.Column="0"
-                                       
                                        VerticalAlignment="Center"
                                        Text="{Binding Name}"
                                        Tag="{Binding Name}" />
