@@ -16,7 +16,7 @@
         <Panel IsVisible="{Binding IsDuplicateEntryDialogVisible}"
                HorizontalAlignment="Center"
                VerticalAlignment="Center">
-            <dialogs:DuplicateEntryDialogView HorizontalAlignment="Center"
+            <dialogs:DuplicateEntryDialog HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               DataContext="{Binding DuplicateEntryDialogViewModel}"
                                               Close="Dialog_OnClose" />
@@ -24,7 +24,7 @@
         <Panel IsVisible="{Binding IsNewEntryDialogVisible}"
                HorizontalAlignment="Center"
                VerticalAlignment="Center">
-            <dialogs:NewEntryDialogView HorizontalAlignment="Center"
+            <dialogs:NewEntryDialog HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         DataContext="{Binding NewEntryDialogViewModel}"
                                         Close="Dialog_OnClose" />
@@ -32,7 +32,7 @@
         <Panel IsVisible="{Binding IsDeleteEntryDialogVisible}"
                HorizontalAlignment="Center"
                VerticalAlignment="Center">
-            <dialogs:DeleteEntryDialogView HorizontalAlignment="Center"
+            <dialogs:DeleteEntryDialog HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            DataContext="{Binding DeleteEntryDialogViewModel}"
                                            Close="Dialog_OnClose" />
@@ -40,7 +40,7 @@
         <Panel IsVisible="{Binding IsInitializeStoreDialogVisible}"
                HorizontalAlignment="Center"
                VerticalAlignment="Center">
-            <dialogs:InitializeStoreDialogView HorizontalAlignment="Center"
+            <dialogs:InitializeStoreDialog HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
                                                DataContext="{Binding InitializeStoreDialogViewModel}"
                                                Close="Dialog_OnClose" />
@@ -48,7 +48,7 @@
         <Panel IsVisible="{Binding IsSettingsDialogVisible}"
                HorizontalAlignment="Center"
                VerticalAlignment="Center">
-            <dialogs:SettingsView HorizontalAlignment="Center"
+            <dialogs:SettingsDialog HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   DataContext="{Binding SettingsViewModel}"
                                   Close="Dialog_OnClose" />

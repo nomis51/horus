@@ -4,11 +4,11 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
 
-public partial class InitializeStoreDialogView : DialogView<InitializeStoreDialogViewModel>
+public partial class InitializeStoreDialog : DialogView<InitializeStoreDialogViewModel>
 {
     #region Constructors
 
-    public InitializeStoreDialogView()
+    public InitializeStoreDialog()
     {
         InitializeComponent();
     }

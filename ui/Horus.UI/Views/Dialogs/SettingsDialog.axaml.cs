@@ -4,11 +4,11 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
 
-public partial class SettingsView : DialogView<SettingsViewModel>
+public partial class SettingsDialog : DialogView<SettingsViewModel>
 {
     #region Constructors
 
-    public SettingsView()
+    public SettingsDialog()
     {
         InitializeComponent();
     }

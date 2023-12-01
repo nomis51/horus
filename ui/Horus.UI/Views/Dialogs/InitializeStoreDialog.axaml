@@ -8,9 +8,8 @@
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
-             MinWidth="400"
-             x:Class="Horus.UI.Views.Dialogs.DeleteEntryDialogView"
-             x:DataType="viewModels:DeleteEntryDialogViewModel">
+             x:Class="Horus.UI.Views.Dialogs.InitializeStoreDialog"
+             x:DataType="viewModels:InitializeStoreDialogViewModel">
     <Border Background="#333"
             CornerRadius="4"
             BorderThickness="2"
@@ -22,7 +21,7 @@
                            FontWeight="Bold"
                            FontSize="18"
                            Grid.Column="0"
-                           Text="Delete the entry" />
+                           Text="Create a new entry" />
                 <Button Grid.Column="2"
                         x:Name="ButtonClose"
                         IsEnabled="{Binding !IsLoading}"
@@ -33,13 +32,26 @@
                     </Button.Content>
                 </Button>
             </Grid>
-            <Panel Grid.Row="1"
-                   Margin="5,5">
-                <StackPanel>
-                    <TextBlock Text="{Binding Message}" />
-                    <TextBlock Text="You can always rollback this action using git" />
-                </StackPanel>
-            </Panel>
+            <StackPanel Grid.Row="1"
+                        Spacing="2"
+                        Margin="5,5">
+                <TextBox x:Name="TextBoxGpgId"
+                         IsEnabled="{Binding !IsLoading}"
+                         Watermark="GPG ID"
+                         UseFloatingWatermark="True"
+                         MinHeight="48"
+                         MaxHeight="48"
+                         Text="{Binding GpgId, Mode=TwoWay}"
+                         Classes="clearButton" />
+                <TextBox x:Name="TextBoxGitUrl"
+                         IsEnabled="{Binding !IsLoading}"
+                         Watermark="Remote Git URL (private)"
+                         UseFloatingWatermark="True"
+                         MinHeight="48"
+                         MaxHeight="48"
+                         Text="{Binding GpgId, Mode=TwoWay}"
+                         Classes="clearButton" />
+            </StackPanel>
             <Grid Grid.Row="2"
                   ColumnDefinitions="*,Auto"
                   Margin="5,10,5,5">
@@ -56,24 +68,24 @@
                            VerticalAlignment="Bottom">
                     <Button Classes="text"
                             IsEnabled="{Binding !IsLoading}"
-                            x:Name="ButtonCancel"
-                            Click="ButtonCancel_OnClick">
+                            x:Name="ButtonQuit"
+                            Click="ButtonQuit_OnClick">
                         <Button.Content>
-                            <TextBlock Text="Cancel" />
+                            <TextBlock Text="Quit" />
                         </Button.Content>
                     </Button>
-                    <Button Classes="error"
+                    <Button Classes="accent"
                             IsEnabled="{Binding !IsLoading}"
                             Margin="5,0,0,0"
-                            x:Name="ButtonDelete"
-                            Click="ButtonDelete_OnClick">
+                            x:Name="ButtonCreate"
+                            Click="ButtonCreate_OnClick">
                         <Button.Content>
                             <DockPanel>
-                                <TextBlock Text="Delete"
+                                <TextBlock Text="Create"
                                            VerticalAlignment="Center" />
                                 <icons:MaterialIcon Margin="5, 2, 0, 0"
                                                     VerticalAlignment="Center"
-                                                    Kind="Trash" />
+                                                    Kind="Plus" />
                             </DockPanel>
                         </Button.Content>
                     </Button>

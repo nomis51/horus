@@ -5,23 +5,14 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
 
-public partial class DuplicateEntryDialogView : DialogView<DuplicateEntryDialogViewModel>
+public partial class NewEntryDialog : DialogView<NewEntryDialogViewModel>
 {
     #region Constructors
 
-    public DuplicateEntryDialogView()
+    public NewEntryDialog()
     {
         InitializeComponent();
         Loaded += OnLoaded;
-    }
-
-    #endregion
-
-    #region Public methods
-
-    public void SetEntryName(string name)
-    {
-        ViewModel!.Name = name;
     }
 
     #endregion
@@ -35,22 +26,22 @@ public partial class DuplicateEntryDialogView : DialogView<DuplicateEntryDialogV
 
     private void ButtonCancel_OnClick(object? sender, RoutedEventArgs e)
     {
-        OnClose(false);
+        OnClose();
     }
 
     private void ButtonCreate_OnClick(object? sender, RoutedEventArgs e)
     {
         Dispatch(vm =>
         {
-            if (!vm!.DuplicateEntry()) return;
+            if (!vm!.CreateEntry()) return;
 
-            InvokeUi(() => OnClose(true));
+            InvokeUi(() => OnClose(vm.Name));
         });
     }
 
     private void ButtonClose_OnClick(object? sender, RoutedEventArgs e)
     {
-        OnClose(false);
+        OnClose();
     }
 
     #endregion

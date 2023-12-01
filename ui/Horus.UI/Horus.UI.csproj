@@ -34,23 +34,23 @@
             <DependentUpon>MainWindow.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\Dialogs\DeleteEntryDialogView.axaml.cs">
+        <Compile Update="Views\Dialogs\DeleteEntryDialog.axaml.cs">
           <DependentUpon>DeleteEntryDialogView.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\Dialogs\DuplicateEntryDialogView.axaml.cs">
+        <Compile Update="Views\Dialogs\DuplicateEntryDialog.axaml.cs">
           <DependentUpon>DuplicateEntryDialogView.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\Dialogs\InitializeStoreDialogView.axaml.cs">
+        <Compile Update="Views\Dialogs\InitializeStoreDialog.axaml.cs">
           <DependentUpon>InitializeStoreDialogView.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\Dialogs\NewEntryDialogView.axaml.cs">
+        <Compile Update="Views\Dialogs\NewEntryDialog.axaml.cs">
           <DependentUpon>NewEntryDialogView.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\Dialogs\SettingsView.axaml.cs">
+        <Compile Update="Views\Dialogs\SettingsDialog.axaml.cs">
           <DependentUpon>SettingsView.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>

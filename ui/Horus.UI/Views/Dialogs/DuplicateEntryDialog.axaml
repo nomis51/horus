@@ -9,8 +9,8 @@
              d:DesignWidth="800"
              d:DesignHeight="450"
              MinWidth="400"
-             x:Class="Horus.UI.Views.Dialogs.NewEntryDialogView"
-             x:DataType="viewModels:NewEntryDialogViewModel">
+             x:Class="Horus.UI.Views.Dialogs.DuplicateEntryDialog"
+             x:DataType="viewModels:DuplicateEntryDialogViewModel">
     <Border Background="#333"
             CornerRadius="4"
             BorderThickness="2"
@@ -22,7 +22,7 @@
                            FontWeight="Bold"
                            FontSize="18"
                            Grid.Column="0"
-                           Text="Create a new entry" />
+                           Text="{Binding Title}" />
                 <Button Grid.Column="2"
                         x:Name="ButtonClose"
                         IsEnabled="{Binding !IsLoading}"
@@ -37,13 +37,13 @@
                    Margin="5,5">
                 <TextBox x:Name="TextBoxName"
                          IsEnabled="{Binding !IsLoading}"
-                         Watermark="Name"
+                         Watermark="New name"
                          VerticalAlignment="Top"
                          HorizontalAlignment="Stretch"
                          UseFloatingWatermark="True"
                          MinHeight="48"
                          MaxHeight="48"
-                         Text="{Binding Name, Mode=TwoWay}"
+                         Text="{Binding NewName, Mode=TwoWay}"
                          Classes="clearButton"
                          Classes.errored="{Binding !IsNameValid}" />
             </Panel>

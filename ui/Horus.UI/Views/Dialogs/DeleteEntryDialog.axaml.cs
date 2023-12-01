@@ -4,11 +4,11 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
 
-public partial class DeleteEntryDialogView : DialogView<DeleteEntryDialogViewModel>
+public partial class DeleteEntryDialog : DialogView<DeleteEntryDialogViewModel>
 {
     #region Constructors
 
-    public DeleteEntryDialogView()
+    public DeleteEntryDialog()
     {
         InitializeComponent();
     }
