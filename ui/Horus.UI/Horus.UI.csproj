@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <LangVersion>12</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -33,8 +34,24 @@
             <DependentUpon>MainWindow.axaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
-        <Compile Update="Views\DuplicateEntryDialogView.axaml.cs">
+        <Compile Update="Views\Dialogs\DeleteEntryDialogView.axaml.cs">
+          <DependentUpon>DeleteEntryDialogView.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Dialogs\DuplicateEntryDialogView.axaml.cs">
           <DependentUpon>DuplicateEntryDialogView.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Dialogs\InitializeStoreDialogView.axaml.cs">
+          <DependentUpon>InitializeStoreDialogView.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Dialogs\NewEntryDialogView.axaml.cs">
+          <DependentUpon>NewEntryDialogView.axaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
+        <Compile Update="Views\Dialogs\SettingsView.axaml.cs">
+          <DependentUpon>SettingsView.axaml</DependentUpon>
           <SubType>Code</SubType>
         </Compile>
     </ItemGroup>
