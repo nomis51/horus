@@ -113,15 +113,5 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
         OpenSettings?.Invoke();
     }
 
-    private void ButtonSync_OnClick(object? sender, RoutedEventArgs e)
-    {
-        ToggleSpinner?.Invoke(true, "Synchronizing the store...");
-        Dispatch(vm =>
-        {
-            vm?.Sync();
-            InvokeUi(() => ToggleSpinner?.Invoke(false));
-        });
-    }
-
     #endregion
 }
