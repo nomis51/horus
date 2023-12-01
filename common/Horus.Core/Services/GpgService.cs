@@ -6,6 +6,7 @@ using Horus.Shared.Models.Data;
 using Horus.Shared.Models.Errors.Gpg;
 using Newtonsoft.Json;
 using Serilog;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Horus.Core.Services;
 
@@ -76,7 +77,7 @@ public class GpgService : IGpgService
 
         try
         {
-            var lstMetadata = JsonConvert.DeserializeObject<List<Metadata>>(data);
+            var lstMetadata = JsonSerializer.Deserialize<List<Metadata>>(data);
             return lstMetadata is null
                 ? new Result<MetadataCollection?, Error?>(new GpgDecryptError("Resulting data was null"))
                 : new Result<MetadataCollection?, Error?>(new MetadataCollection(path, lstMetadata));
@@ -107,7 +108,7 @@ public class GpgService : IGpgService
                 results.Add(
                     new MetadataCollection(
                         items[i].Item1,
-                        JsonConvert.DeserializeObject<List<Metadata>>(lines[i])!
+                        JsonSerializer.Deserialize<List<Metadata>>(lines[i])!
                     )
                 );
             }

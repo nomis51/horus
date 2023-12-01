@@ -32,7 +32,7 @@ public class DialogManagerViewModel : ViewModelBase
     }
 
     public NewEntryDialogViewModel NewEntryDialogViewModel { get; set; } = new();
-    public SettingsViewModel SettingsViewModel { get; set; } = new();
+    public SettingsDialogViewModel SettingsDialogViewModel { get; set; } = new();
     public DeleteEntryDialogViewModel DeleteEntryDialogViewModel { get; set; } = new();
     public DuplicateEntryDialogViewModel DuplicateEntryDialogViewModel { get; set; } = new();
     public InitializeStoreDialogViewModel InitializeStoreDialogViewModel { get; set; } = new();
@@ -104,10 +104,10 @@ public class DialogManagerViewModel : ViewModelBase
                 break;
 
             case DialogType.Settings:
-                SettingsViewModel = new SettingsViewModel
+                SettingsDialogViewModel = new SettingsDialogViewModel
                 {
                 };
-                this.RaisePropertyChanged(nameof(SettingsViewModel));
+                this.RaisePropertyChanged(nameof(SettingsDialogViewModel));
                 break;
         }
     }

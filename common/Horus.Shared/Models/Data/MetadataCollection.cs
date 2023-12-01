@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Horus.Shared.Models.Data;
 
@@ -79,6 +79,6 @@ public class MetadataCollection : ICollection<Metadata>
 
     public override string ToString()
     {
-        return JsonConvert.SerializeObject(_entries);
+        return JsonSerializer.Serialize(_entries);
     }
 }

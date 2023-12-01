@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
 
 namespace Horus.Shared.Models.Data;
 
@@ -13,6 +12,6 @@ public class Settings
 
     public override string ToString()
     {
-        return JsonConvert.SerializeObject(this);
+        return JsonSerializer.Serialize(this);
     }
 }

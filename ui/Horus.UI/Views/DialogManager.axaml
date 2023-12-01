@@ -50,7 +50,7 @@
                VerticalAlignment="Center">
             <dialogs:SettingsDialog HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
-                                  DataContext="{Binding SettingsViewModel}"
+                                  DataContext="{Binding SettingsDialogViewModel}"
                                   Close="Dialog_OnClose" />
         </Panel>
     </Panel>

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Horus.Shared.Helpers;
 
@@ -101,7 +102,7 @@ public static class UpdateHelper
         var response = await client.GetAsync(string.Empty);
         if (!response.IsSuccessStatusCode) return default;
         var data = await response.Content.ReadAsStringAsync();
-        return JsonConvert.DeserializeObject<JObject>(data);
+        return JsonSerializer.Deserialize<JObject>(data);
     }
 
     #endregion

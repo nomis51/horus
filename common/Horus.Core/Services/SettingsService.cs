@@ -4,6 +4,7 @@ using Horus.Shared.Models.Data;
 using Horus.Shared.Models.Errors.Settings;
 using Newtonsoft.Json;
 using Serilog;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Horus.Core.Services;
 
@@ -49,7 +50,7 @@ public class SettingsService : ISettingsService
             var appFolder = AppService.Instance.GetAppLocation();
             var settingsFilePath = Path.Join(appFolder, SettingsFile);
             var data = File.ReadAllText(settingsFilePath);
-            return new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data));
+            return new Result<Settings?, Error?>(JsonSerializer.Deserialize<Settings>(data));
         }
         catch (Exception e)
         {
