@@ -302,6 +302,16 @@ public class AppService : IAppService
     {
         return _fsService.GetStoreLocation();
     }
+    
+    public string GetAppLocation()
+    {
+        return _fsService.GetAppLocation();
+    }
+    
+    public string GetLogsLocation()
+    {
+        return _fsService.GetLogsLocation();
+    }
 
     public Result<string, Error?> GetStoreId()
     {

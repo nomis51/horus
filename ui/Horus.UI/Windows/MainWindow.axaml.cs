@@ -137,7 +137,6 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                     EntryList.ReloadList();
                     ViewModel!.EntrySelected = false;
                 }
-
                 break;
 
             case DialogType.NewEntry:
@@ -150,7 +149,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 break;
 
             case DialogType.InitializeStore:
-                ViewModel!.IsLoading = true;
+                ViewModel!.IsLoading = false;
                 break;
         }
     }

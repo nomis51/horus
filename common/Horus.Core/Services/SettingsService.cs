@@ -2,6 +2,7 @@
 using Horus.Shared.Models.Abstractions;
 using Horus.Shared.Models.Data;
 using Horus.Shared.Models.Errors.Settings;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace Horus.Core.Services;
@@ -10,7 +11,7 @@ public class SettingsService : ISettingsService
 {
     #region Constants
 
-    private const string EnvVarName = "HORUS_SETTINGS";
+    private const string SettingsFile = "settings.json";
 
     #endregion
 
@@ -27,7 +28,9 @@ public class SettingsService : ISettingsService
         var data = settings.ToString();
         try
         {
-            Environment.SetEnvironmentVariable(EnvVarName, data, EnvironmentVariableTarget.User);
+            var appFolder = AppService.Instance.GetAppLocation();
+            var settingsFilePath = Path.Join(appFolder, SettingsFile);
+            File.WriteAllText(settingsFilePath, data);
         }
         catch (Exception e)
         {
@@ -41,54 +44,17 @@ public class SettingsService : ISettingsService
     {
         if (_settings is not null) return new Result<Settings?, Error?>(_settings);
 
-        string? data;
         try
         {
-            data = Environment.GetEnvironmentVariable(EnvVarName, EnvironmentVariableTarget.User);
+            var appFolder = AppService.Instance.GetAppLocation();
+            var settingsFilePath = Path.Join(appFolder, SettingsFile);
+            var data = File.ReadAllText(settingsFilePath);
+            return new Result<Settings?, Error?>(JsonConvert.DeserializeObject<Settings>(data));
         }
         catch (Exception e)
         {
             return new Result<Settings?, Error?>(new SettingsGetEnvironmentVariableFailedError(e.Message));
         }
-
-        if (string.IsNullOrEmpty(data))
-        {
-            _settings = new Settings();
-            return new Result<Settings?, Error?>(_settings);
-        }
-
-        var settings = new Settings();
-        var parts = data.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-        foreach (var part in parts)
-        {
-            var values = part.Split("=", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (values.Length != 2) continue;
-
-            switch (values[0])
-            {
-                case nameof(Settings.ClearTimeout):
-                    if (!int.TryParse(values[1], out var clearTimeout)) continue;
-                    settings.ClearTimeout = clearTimeout;
-                    break;
-
-                case nameof(Settings.DefaultLength):
-                    if (!int.TryParse(values[1], out var defaultLength)) continue;
-                    settings.DefaultLength = defaultLength;
-                    break;
-
-                case nameof(Settings.DefaultCustomAlphabet):
-                    settings.DefaultCustomAlphabet = values[1];
-                    break;
-
-                case nameof(Settings.Language):
-                    settings.Language = values[1];
-                    break;
-            }
-        }
-
-        _settings = settings;
-
-        return new Result<Settings?, Error?>(_settings);
     }
 
     public void Initialize()

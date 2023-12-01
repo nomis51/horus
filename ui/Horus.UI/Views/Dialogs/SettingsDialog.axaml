@@ -30,19 +30,32 @@
                 </Button>
             </Grid>
             <StackPanel Grid.Row="1"
-                        Spacing="2"
+                        Spacing="8"
                         Margin="5,5">
-                <TextBox x:Name="TextBoxPasswordLength" Classes="clearButton" Watermark="Default password length"
-                         UseFloatingWatermark="True" MinHeight="48" />
-                <TextBox x:Name="TextBoxPasswordAlphabet" Classes="clearButton" Watermark="Default password alphabet"
-                         UseFloatingWatermark="True" MinHeight="48" />
-                <TextBox x:Name="TextBoxClearTimeout" Classes="clearButton"
+                <TextBox x:Name="TextBoxPasswordLength"
+                         Classes="clearButton"
+                         Watermark="Default password length"
+                         UseFloatingWatermark="True"
+                         MinHeight="48" />
+                <TextBox x:Name="TextBoxPasswordAlphabet"
+                         Classes="clearButton"
+                         Watermark="Default password alphabet"
+                         UseFloatingWatermark="True"
+                         MinHeight="48" />
+                <TextBox x:Name="TextBoxClearTimeout"
+                         Classes="clearButton"
                          Watermark="Delay before clearing the clipboard after copying a password"
-                         UseFloatingWatermark="True" MinHeight="48" />
-                <TextBox x:Name="TextBoxAutoFetchInterval" Classes="clearButton"
+                         UseFloatingWatermark="True"
+                         MinHeight="48" />
+                <TextBox x:Name="TextBoxAutoFetchInterval"
+                         Classes="clearButton"
                          Watermark="Auto fetch interval (in minutes)"
-                         UseFloatingWatermark="True" MinHeight="48" />
-                <ComboBox x:Name="ComboBoxLanguage" SelectedIndex="0" MaxDropDownHeight="100">
+                         UseFloatingWatermark="True"
+                         MinHeight="48" />
+                <ComboBox x:Name="ComboBoxLanguage"
+                          SelectedIndex="0"
+                          MaxDropDownHeight="100"
+                          HorizontalAlignment="Stretch">
                     <ComboBoxItem>English</ComboBoxItem>
                     <ComboBoxItem>Français</ComboBoxItem>
                     <ComboBoxItem>Deutsch</ComboBoxItem>

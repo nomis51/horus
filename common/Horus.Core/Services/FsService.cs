@@ -17,13 +17,18 @@ public class FsService : IFsService
 {
     #region Constants
 
-    private readonly string _storeFolderName;
-    private readonly string _migrationStoreFolderName;
+    private readonly string _appFolder;
     public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
 
+    private const string StoreFolderName = "store";
+    private const string MigrationStoreFolderName = "migration-store";
+    private const string LogsFolderName = "logs";
+
     private readonly string _storeFolderPath;
     private readonly string _migrationStoreFolderPath;
+    private readonly string _appFolderPath;
+    private readonly string _logsFolderPath;
 
     #endregion
 
@@ -35,16 +40,15 @@ public class FsService : IFsService
 
     #region Constructors
 
-    public FsService(string storeFolderName = ".horus")
+    public FsService(string appFolder = ".horus")
     {
-        _storeFolderName = storeFolderName;
-        _migrationStoreFolderName = $"{_storeFolderName}-migration";
+        _appFolder = appFolder;
 
-        _storeFolderPath =
-            Environment.ExpandEnvironmentVariables(
-                $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_storeFolderName}/");
-        _migrationStoreFolderPath = Environment.ExpandEnvironmentVariables(
-            $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_migrationStoreFolderName}/");
+        _appFolderPath = Environment.ExpandEnvironmentVariables(
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_appFolder}/");
+        _storeFolderPath = Path.Join(_appFolderPath, StoreFolderName);
+        _migrationStoreFolderPath = Path.Join(_appFolderPath, MigrationStoreFolderName);
+        _logsFolderPath = Path.Join(_appFolderPath, LogsFolderName);
     }
 
     #endregion
@@ -76,7 +80,7 @@ public class FsService : IFsService
             if (filePath.EndsWith(".m.gpg")) continue;
 
             var metadataFilePath = filePath.Replace(".gpg", ".m.gpg");
-            var newMetadataFilePath = metadataFilePath.Replace(_storeFolderName, _migrationStoreFolderName);
+            var newMetadataFilePath = metadataFilePath.Replace(_appFolder, MigrationStoreFolderName);
             var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(metadataFilePath);
             if (errorDecryptMetadatas is not null)
             {
@@ -91,7 +95,7 @@ public class FsService : IFsService
                 return new EmptyResult(new GpgDecryptError(encryptMetadatasResult.Error!.Message));
             }
 
-            var newFilePath = filePath.Replace(_storeFolderName, _migrationStoreFolderName);
+            var newFilePath = filePath.Replace(_appFolder, MigrationStoreFolderName);
             var (password, errorDecryptPassword) = AppService.Instance.DecryptPassword(filePath);
             if (errorDecryptPassword is not null)
             {
@@ -115,7 +119,7 @@ public class FsService : IFsService
 
         foreach (var newFile in Directory.GetFiles(_migrationStoreFolderPath, "*.gpg", SearchOption.AllDirectories))
         {
-            File.Move(newFile, newFile.Replace(_migrationStoreFolderName, _storeFolderName));
+            File.Move(newFile, newFile.Replace(MigrationStoreFolderName, _appFolder));
         }
 
         File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
@@ -469,6 +473,16 @@ public class FsService : IFsService
     {
         if (!Directory.Exists(_storeFolderPath)) Directory.CreateDirectory(_storeFolderPath);
         return _storeFolderPath;
+    }
+
+    public string GetAppLocation()
+    {
+        return _appFolderPath;
+    }
+
+    public string GetLogsLocation()
+    {
+        return _logsFolderPath;
     }
 
     public virtual Result<string, Error?> GetStoreId()

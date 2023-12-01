@@ -11,6 +11,7 @@ public interface IFsService : IService
 
     Result<Password?, Error?> GenerateNewPassword(int length = 0, string customAlphabet = "", bool copy = false,
         bool dontReturn = false);
+
     Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false);
     Result<List<StoreEntry>, Error?> RetrieveStoreEntries();
     EmptyResult RemoveStoreEntry(string name);
@@ -25,6 +26,8 @@ public interface IFsService : IService
     void ReleaseLock();
     bool AcquireLock();
     string GetStoreLocation();
+    string GetAppLocation();
+    string GetLogsLocation();
     Result<string, Error?> GetStoreId();
     EmptyResult InitializeStoreFolder(string gpgId, string gitUrl);
     bool IsStoreInitialized();
