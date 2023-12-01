@@ -5,6 +5,8 @@ using Horus.Shared.Models.Data;
 using Horus.Shared.Models.Display;
 using Horus.Shared.Models.Errors.Git;
 using Horus.Shared.Models.Errors.Gpg;
+using Serilog;
+using Serilog.Events;
 
 namespace Horus.Core.Services;
 
@@ -101,13 +103,13 @@ public class AppService : IAppService
     {
         return _gitService.Push();
     }
-    
+
     public EmptyResult GitPull()
     {
         return _gitService.Pull();
     }
 
-    public Result<Tuple<int,int>, Error?> GitFetch()
+    public Result<Tuple<int, int>, Error?> GitFetch()
     {
         return _gitService.Fetch();
     }
@@ -133,7 +135,7 @@ public class AppService : IAppService
     }
 
     public Result<Password?, Error?> GenerateNewPassword(int length = 0, string customAlphabet = "",
-       bool copy = false, bool dontReturn = false)
+        bool copy = false, bool dontReturn = false)
     {
         return _fsService.GenerateNewPassword(length, customAlphabet, copy: copy, dontReturn: dontReturn);
     }
@@ -302,12 +304,12 @@ public class AppService : IAppService
     {
         return _fsService.GetStoreLocation();
     }
-    
+
     public string GetAppLocation()
     {
         return _fsService.GetAppLocation();
     }
-    
+
     public string GetLogsLocation()
     {
         return _fsService.GetLogsLocation();
@@ -329,6 +331,20 @@ public class AppService : IAppService
         _gitService.Initialize();
         _gpgService.Initialize();
         _settingsService.Initialize();
+
+        InitializeLogs();
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private void InitializeLogs()
+    {
+        var appFolder = GetAppLocation();
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.File(Path.Join(appFolder, "logs", ".txt"), rollingInterval: RollingInterval.Day)
+            .CreateLogger();
     }
 
     #endregion
