@@ -20,6 +20,8 @@ sealed class Program
             new GpgService(),
             new SettingsService()
         ));
+        AppService.Instance.AcquireLock();
+        
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
     }

@@ -114,7 +114,15 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             case DialogType.DuplicateEntry:
                 if (data is true) EntryList.ReloadList();
                 break;
-
+            
+            case DialogType.DeleteEntry:
+                if (data is true)
+                {
+                    EntryList.ReloadList();
+                    ViewModel!.EntrySelected = false;
+                }
+                break;
+            
             case DialogType.NewEntry:
                 if (data is not string name) return;
                 if (string.IsNullOrWhiteSpace(name)) return;

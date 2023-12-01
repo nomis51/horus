@@ -28,12 +28,12 @@ public partial class DeleteEntryDialog : DialogView<DeleteEntryDialogViewModel>
 
     private void ButtonClose_OnClick(object? sender, RoutedEventArgs e)
     {
-        OnClose();
+        OnClose(false);
     }
 
     private void ButtonCancel_OnClick(object? sender, RoutedEventArgs e)
     {
-        OnClose();
+        OnClose(false);
     }
 
     private void ButtonDelete_OnClick(object? sender, RoutedEventArgs e)
@@ -42,7 +42,7 @@ public partial class DeleteEntryDialog : DialogView<DeleteEntryDialogViewModel>
         {
             if (!vm!.DeleteEntry()) return;
 
-            InvokeUi(() => OnClose());
+            InvokeUi(() => OnClose(true));
         });
     }
 
