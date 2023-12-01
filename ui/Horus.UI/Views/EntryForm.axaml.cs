@@ -10,7 +10,7 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
 
-public partial class EntryFormView : ViewBase<EntryFormViewModel>
+public partial class EntryForm : ViewBase<EntryFormViewModel>
 {
     #region Events
 
@@ -22,7 +22,7 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 
     #region Constructors
 
-    public EntryFormView()
+    public EntryForm()
     {
         InitializeComponent();
     }

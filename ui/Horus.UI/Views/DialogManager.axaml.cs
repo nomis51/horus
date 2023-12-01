@@ -3,7 +3,7 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
 
-public partial class DialogManagerView : ViewBase<DialogManagerViewModel>
+public partial class DialogManager : ViewBase<DialogManagerViewModel>
 {
     #region Events
 
@@ -15,7 +15,7 @@ public partial class DialogManagerView : ViewBase<DialogManagerViewModel>
 
     #region Constructors
 
-    public DialogManagerView()
+    public DialogManager()
     {
         InitializeComponent();
     }

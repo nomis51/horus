@@ -36,13 +36,13 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
     private void DialogService_OnShow(DialogType dialogType, object? data)
     {
-        DialogManagerView.ShowDialog(dialogType, data);
+        DialogManager.ShowDialog(dialogType, data);
     }
 
-    private void EntryListView_OnEntrySelected(string name)
+    private void EntryList_OnEntrySelected(string name)
     {
         ViewModel!.EntrySelected = !string.IsNullOrWhiteSpace(name);
-        EntryFormView.SetEntryItem(name);
+        EntryForm.SetEntryItem(name);
     }
 
     private void TitleBar_OnWindowTitleBarPressed(int x, int y)
@@ -88,26 +88,26 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         DialogService.Instance.Show(DialogType.Settings);
     }
 
-    private void EntryFormView_OnEntryRenamedEntry()
+    private void EntryForm_OnEntryRenamedEntry()
     {
-        EntryListView.ReloadList();
+        EntryList.ReloadList();
     }
 
-    private void DialogManagerView_OnClose(DialogType dialogType, object? data)
+    private void DialogManager_OnClose(DialogType dialogType, object? data)
     {
         switch (dialogType)
         {
             case DialogType.DuplicateEntry:
-                if (data is true) EntryListView.ReloadList();
+                if (data is true) EntryList.ReloadList();
                 break;
 
             case DialogType.NewEntry:
                 if (data is not string name) return;
                 if (string.IsNullOrWhiteSpace(name)) return;
 
-                EntryListView.ReloadList();
+                EntryList.ReloadList();
                 ViewModel!.EntrySelected = true;
-                EntryFormView.SetEntryItem(name);
+                EntryForm.SetEntryItem(name);
                 break;
         }
     }

@@ -11,7 +11,7 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
 
-public partial class EntryListView : ViewBase<EntryListViewModel>
+public partial class EntryList : ViewBase<EntryListViewModel>
 {
     #region Events
 
@@ -27,7 +27,7 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
 
     #region Constructors
 
-    public EntryListView()
+    public EntryList()
     {
         InitializeComponent();
 

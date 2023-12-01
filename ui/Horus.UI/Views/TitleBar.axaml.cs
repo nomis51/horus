@@ -6,7 +6,7 @@ using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
 
-public partial class TitleBarView : ViewBase<TitleBarViewModel>
+public partial class TitleBar : ViewBase<TitleBarViewModel>
 {
     #region Events
 
@@ -42,7 +42,7 @@ public partial class TitleBarView : ViewBase<TitleBarViewModel>
 
     #region Constructors
 
-    public TitleBarView()
+    public TitleBar()
     {
         InitializeComponent();
     }
