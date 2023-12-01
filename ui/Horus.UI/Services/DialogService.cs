@@ -1,22 +1,24 @@
-﻿namespace Horus.UI.Services;
+﻿using Horus.UI.Enums;
 
-public class SnackbarService
+namespace Horus.UI.Services;
+
+public class DialogService
 {
     #region Singleton
 
     private static readonly object LockInstance = new();
 #pragma warning disable CS8618
-    private static SnackbarService _instance;
+    private static DialogService _instance;
 #pragma warning restore CS8618
 
-    public static SnackbarService Instance
+    public static DialogService Instance
     {
         get
         {
             lock (LockInstance)
             {
                 // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-                _instance ??= new SnackbarService();
+                _instance ??= new DialogService();
             }
 
             return _instance;
@@ -24,21 +26,21 @@ public class SnackbarService
     }
 
     #endregion
-
+    
     #region Events
 
-    public delegate void ShowEvent(string message, string severity = "accent", int duration = 3000);
+    public delegate void ShowEvent(DialogType dialogType, object? data = null);
 
     public event ShowEvent? OnShow;
 
     #endregion
-    
+
     #region Public methods
 
-    public void Show(string message, string severity = "accent", int duration = 3000)
+    public void Show(DialogType dialogType, object? data = null)
     {
-        OnShow?.Invoke(message, severity, duration);
+        OnShow?.Invoke(dialogType, data);
     }
-    
+
     #endregion
 }

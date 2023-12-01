@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Horus.UI.Enums;
+using Horus.UI.Services;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Windows;
@@ -10,7 +12,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 {
     #region Members
 
-    private bool _isDraggingWindow = false;
+    private bool _isDraggingWindow;
     private Point _dragStartPoint;
 
     #endregion
@@ -20,11 +22,18 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     public MainWindow()
     {
         InitializeComponent();
+
+        DialogService.Instance.OnShow += DialogService_OnShow;
     }
 
     #endregion
 
     #region Private methods
+
+    private void DialogService_OnShow(DialogType dialogType, object? data)
+    {
+        DialogManagerView.ShowDialog(dialogType, data);
+    }
 
     private void EntryListView_OnEntrySelected(string name)
     {
@@ -75,60 +84,33 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         WindowState = WindowState.Minimized;
     }
 
-    private void NewEntryDialogView_OnClose(string name)
-    {
-        ViewModel?.CloseNewEntryDialog();
-        if (string.IsNullOrWhiteSpace(name)) return;
-
-        EntryListView.ReloadList();
-        ViewModel!.EntrySelected = true;
-        EntryFormView.SetEntryItem(name);
-    }
-
-    private void EntryListView_OnCreateEntry()
-    {
-        ViewModel?.OpenNewEntryDialog();
-    }
-
-    private void SettingsView_OnClose()
-    {
-        ViewModel?.CloseSettingsDialog();
-    }
-
     private void TitleBarView_OnOpenSettings()
     {
-        ViewModel?.OpenSettingsDialog();
-    }
-
-    private void DeleteEntryDialogView_OnClose()
-    {
-        ViewModel?.CloseDeleteEntryDialog();
-    }
-
-    private void EntryFormView_OnDeleteEntry(string name)
-    {
-        DeleteEntryDialogView.SetEntryName(name);
-        ViewModel?.OpenDeleteEntryDialog();
-    }
-
-    private void EntryFormView_OnDuplicateEntry(string name)
-    {
-        DuplicateEntryDialogView.SetEntryName(name);
-        ViewModel?.OpenDuplicateEntryDialog();
-    }
-
-    private void DuplicateEntryDialogView_OnClose(bool created)
-    {
-        ViewModel?.CloseDuplicateEntryDialog();
-        if (created)
-        {
-            EntryListView.ReloadList();
-        }
+        DialogService.Instance.Show(DialogType.Settings);
     }
 
     private void EntryFormView_OnEntryRenamedEntry()
     {
         EntryListView.ReloadList();
+    }
+
+    private void DialogManagerView_OnClose(DialogType dialogType, object? data)
+    {
+        switch (dialogType)
+        {
+            case DialogType.DuplicateEntry:
+                if (data is true) EntryListView.ReloadList();
+                break;
+
+            case DialogType.NewEntry:
+                if (data is not string name) return;
+                if (string.IsNullOrWhiteSpace(name)) return;
+
+                EntryListView.ReloadList();
+                ViewModel!.EntrySelected = true;
+                EntryFormView.SetEntryItem(name);
+                break;
+        }
     }
 
     #endregion

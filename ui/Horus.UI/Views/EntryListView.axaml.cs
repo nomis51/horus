@@ -4,7 +4,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Horus.UI.Enums;
 using Horus.UI.Models;
+using Horus.UI.Services;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
@@ -96,7 +98,7 @@ public partial class EntryListView : ViewBase<EntryListViewModel>
 
     private void ButtonCreateEntry_OnClick(object? sender, RoutedEventArgs e)
     {
-        CreateEntry?.Invoke();
+        DialogService.Instance.Show(DialogType.NewEntry);
     }
 
     private void ButtonRefreshEntries_OnClick(object? sender, RoutedEventArgs e)

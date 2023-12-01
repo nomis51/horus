@@ -3,7 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Horus.UI.Enums;
 using Horus.UI.Extensions;
+using Horus.UI.Services;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views;
@@ -12,14 +14,6 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 {
     #region Events
 
-    public delegate void DeleteEntryEvent(string name);
-
-    public event DeleteEntryEvent? DeleteEntry;
-
-    public delegate void DuplicateEntryEvent(string name);
-
-    public event DuplicateEntryEvent? DuplicateEntry;
-    
     public delegate void EntryRenamedEntryEvent();
 
     public event EntryRenamedEntryEvent? EntryRenamedEntry;
@@ -109,16 +103,12 @@ public partial class EntryFormView : ViewBase<EntryFormViewModel>
 
     private void ButtonDeleteEntry_OnClick(object? sender, RoutedEventArgs e)
     {
-        DeleteEntry?.Invoke(ViewModel!.EntryName);
+        DialogService.Instance.Show(DialogType.DeleteEntry, ViewModel!.EntryName);
     }
 
-    private void ButtonCloneEntry_OnClick(object? sender, RoutedEventArgs e)
+    private void ButtonDuplicateEntry_OnClick(object? sender, RoutedEventArgs e)
     {
-        DuplicateEntry?.Invoke(ViewModel!.EntryName);
-    }
-
-    private void ButtonEntryName_OnPointerPressed(object? sender, PointerPressedEventArgs e)
-    {
+        DialogService.Instance.Show(DialogType.DuplicateEntry, ViewModel!.EntryName);
     }
 
     private void ButtonCancelNewName_OnClick(object? sender, RoutedEventArgs e)

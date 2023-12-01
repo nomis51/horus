@@ -12,10 +12,7 @@ public class MainWindowViewModel : ViewModelBase
     public EntryListViewModel EntryListViewModel { get; set; } = new();
     public EntryFormViewModel EntryFormViewModel { get; set; } = new();
     public TitleBarViewModel TitleBarViewModel { get; set; } = new();
-    public NewEntryDialogViewModel NewEntryDialogViewModel { get; set; } = new();
-    public SettingsViewModel SettingsViewModel { get; set; } = new();
-    public DeleteEntryDialogViewModel DeleteEntryDialogViewModel { get; set; } = new();
-    public DuplicateEntryDialogViewModel DuplicateEntryDialogViewModel { get; set; } = new();
+    public DialogManagerViewModel DialogManagerViewModel { get; set; } = new();
 
     private bool _entrySelected;
 
@@ -73,38 +70,6 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _snackbarSeverityWarning, value);
     }
 
-    private bool _isNewEntryDialogVisible;
-
-    public bool IsNewEntryDialogVisible
-    {
-        get => _isNewEntryDialogVisible;
-        set => this.RaiseAndSetIfChanged(ref _isNewEntryDialogVisible, value);
-    }
-
-    private bool _isSettingsDialogVisible;
-
-    public bool IsSettingsDialogVisible
-    {
-        get => _isSettingsDialogVisible;
-        set => this.RaiseAndSetIfChanged(ref _isSettingsDialogVisible, value);
-    }
-
-    private bool _isDeleteEntryDialogVisible;
-
-    public bool IsDeleteEntryDialogVisible
-    {
-        get => _isDeleteEntryDialogVisible;
-        set => this.RaiseAndSetIfChanged(ref _isDeleteEntryDialogVisible, value);
-    }
-
-    private bool _isDuplicateEntryDialogVisible;
-
-    public bool IsDuplicateEntryDialogVisible
-    {
-        get => _isDuplicateEntryDialogVisible;
-        set => this.RaiseAndSetIfChanged(ref _isDuplicateEntryDialogVisible, value);
-    }
-
     #endregion
 
     #region Constructors
@@ -117,48 +82,6 @@ public class MainWindowViewModel : ViewModelBase
     #endregion
 
     #region Public methods
-
-    public void CloseDuplicateEntryDialog()
-    {
-        IsDuplicateEntryDialogVisible = false;
-    }
-
-    public void OpenDuplicateEntryDialog()
-    {
-        IsDuplicateEntryDialogVisible = true;
-    }
-
-    public void CloseDeleteEntryDialog()
-    {
-        IsDeleteEntryDialogVisible = false;
-    }
-
-    public void OpenDeleteEntryDialog()
-    {
-        IsDeleteEntryDialogVisible = true;
-    }
-
-    public void CloseSettingsDialog()
-    {
-        IsSettingsDialogVisible = false;
-    }
-
-    public void OpenSettingsDialog()
-    {
-        IsSettingsDialogVisible = true;
-    }
-
-    public void OpenNewEntryDialog()
-    {
-        IsNewEntryDialogVisible = true;
-    }
-
-    public void CloseNewEntryDialog()
-    {
-        IsNewEntryDialogVisible = false;
-        NewEntryDialogViewModel.Name = string.Empty;
-        this.RaisePropertyChanged(nameof(NewEntryDialogViewModel));
-    }
 
     public void CloseSnackbar()
     {

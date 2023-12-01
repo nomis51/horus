@@ -455,8 +455,8 @@
                     VerticalAlignment="Bottom">
                 <Button Classes="transparent"
                         IsEnabled="{Binding !IsLoading}"
-                        x:Name="ButtonCloneEntry"
-                        Click="ButtonCloneEntry_OnClick">
+                        x:Name="ButtonDuplicateEntry"
+                        Click="ButtonDuplicateEntry_OnClick">
                     <Button.Content>
                         <icons:MaterialIcon Kind="ContentDuplicate" />
                     </Button.Content>
