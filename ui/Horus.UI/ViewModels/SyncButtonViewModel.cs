@@ -61,9 +61,12 @@ public class SyncButtonViewModel : ViewModelBase
 
     public void Sync()
     {
+        SpinnerOverlayService.Instance.Show("Synchronizing the store, please wait...");
+
         var result = AppService.Instance.GitPull();
         if (result.HasError)
         {
+            SpinnerOverlayService.Instance.Hide();
             SnackbarService.Instance.Show("Fail to synchronize the store", SnackbarSeverity.Error, 5000);
             return;
         }
@@ -71,10 +74,12 @@ public class SyncButtonViewModel : ViewModelBase
         result = AppService.Instance.GitPush();
         if (result.HasError)
         {
+            SpinnerOverlayService.Instance.Hide();
             SnackbarService.Instance.Show("Fail to synchronize the store", SnackbarSeverity.Error, 5000);
             return;
         }
 
+        SpinnerOverlayService.Instance.Hide();
         SnackbarService.Instance.Show("Store synchronized", SnackbarSeverity.Success);
 
         Task.Run(CheckStoreSync);

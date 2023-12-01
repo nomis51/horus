@@ -24,6 +24,8 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
         DialogService.Instance.OnShow += DialogService_OnShow;
         SnackbarService.Instance.OnShow += SnackbarManager_OnShow;
+        SpinnerOverlayService.Instance.OnShow += SpinnerOverlay_OnShow;
+        SpinnerOverlayService.Instance.OnHide += SpinnerOverlay_OnHide;
 
         Loaded += OnLoaded;
     }
@@ -31,6 +33,20 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     #endregion
 
     #region Private methods
+
+    private void SpinnerOverlay_OnHide()
+    {
+        Dispatch(vm => { vm!.IsLoading = false; });
+    }
+
+    private void SpinnerOverlay_OnShow(string message)
+    {
+        Dispatch(vm =>
+        {
+            vm!.LoadingMessage = message;
+            vm!.IsLoading = true;
+        });
+    }
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
@@ -137,12 +153,6 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 ViewModel!.IsLoading = true;
                 break;
         }
-    }
-
-    private void TitleBar_OnToggleSpinner(bool value, string message = "")
-    {
-        ViewModel!.LoadingMessage = message;
-        ViewModel!.IsLoading = value;
     }
 
     #endregion

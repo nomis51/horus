@@ -35,7 +35,7 @@
                         WindowClose="TitleBar_OnWindowClose"
                         WindowMaximize="TitleBar_OnWindowMaximize"
                         WindowMinimize="TitleBar_OnWindowMinimize"
-                        OpenSettings="TitleBarView_OnOpenSettings" ToggleSpinner="TitleBar_OnToggleSpinner" />
+                        OpenSettings="TitleBarView_OnOpenSettings" />
         <Grid Grid.Row="1"
               IsVisible="{Binding !IsLoading}"
               ColumnDefinitions="*,3*"
