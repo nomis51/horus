@@ -3,11 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
              MinWidth="400"
-             x:Class="Horus.UI.Views.Dialogs.SettingsDialog">
+             x:Class="Horus.UI.Views.Dialogs.SettingsDialog"
+             x:DataType="viewModels:SettingsDialogViewModel">
     <Border Background="#333"
             CornerRadius="4"
             BorderThickness="2"
@@ -31,23 +33,32 @@
             </Grid>
             <StackPanel Grid.Row="1"
                         Spacing="8"
-                        Margin="5,5">
+                        Margin="5,5"
+                        MinWidth="500">
                 <TextBox x:Name="TextBoxPasswordLength"
+                         Text="{Binding Settings.DefaultLength, Mode=OneWay}"
+                         TextChanged="TextBoxPasswordLength_OnTextChanged"
                          Classes="clearButton"
                          Watermark="Default password length"
                          UseFloatingWatermark="True"
                          MinHeight="48" />
                 <TextBox x:Name="TextBoxPasswordAlphabet"
+                         Text="{Binding Settings.DefaultCustomAlphabet, Mode=OneWay}"
+                         TextChanged="TextBoxPasswordAlphabet_OnTextChanged"
                          Classes="clearButton"
                          Watermark="Default password alphabet"
                          UseFloatingWatermark="True"
                          MinHeight="48" />
                 <TextBox x:Name="TextBoxClearTimeout"
+                         Text="{Binding Settings.ClearTimeout, Mode=OneWay}"
+                         TextChanged="TextBoxClearTimeout_OnTextChanged"
                          Classes="clearButton"
                          Watermark="Delay before clearing the clipboard after copying a password"
                          UseFloatingWatermark="True"
                          MinHeight="48" />
                 <TextBox x:Name="TextBoxAutoFetchInterval"
+                         Text="{Binding Settings.FetchInterval, Mode=OneWay}"
+                         TextChanged="TextBoxAutoFetchInterval_OnTextChanged"
                          Classes="clearButton"
                          Watermark="Auto fetch interval (in minutes)"
                          UseFloatingWatermark="True"
