@@ -8,6 +8,7 @@
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
+             MinWidth="650"
              x:Class="Horus.UI.Views.Dialogs.InitializeStoreDialog"
              x:DataType="viewModels:InitializeStoreDialogViewModel">
     <Border Background="#333"
@@ -33,7 +34,7 @@
                 </Button>
             </Grid>
             <StackPanel Grid.Row="1"
-                        Spacing="2"
+                        Spacing="5"
                         Margin="5,5">
                 <TextBox x:Name="TextBoxGpgId"
                          IsEnabled="{Binding !IsLoading}"
@@ -49,7 +50,7 @@
                          UseFloatingWatermark="True"
                          MinHeight="48"
                          MaxHeight="48"
-                         Text="{Binding GpgId, Mode=TwoWay}"
+                         Text="{Binding GitUrl, Mode=TwoWay}"
                          Classes="clearButton" />
             </StackPanel>
             <Grid Grid.Row="2"

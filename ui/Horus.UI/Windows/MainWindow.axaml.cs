@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using Horus.UI.ViewModels;
@@ -23,11 +24,24 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
         DialogService.Instance.OnShow += DialogService_OnShow;
         SnackbarService.Instance.OnShow += SnackbarManager_OnShow;
+
+        Loaded += OnLoaded;
     }
 
     #endregion
 
     #region Private methods
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel!.IsStoreInitialized())
+        {
+            ViewModel!.Initialized = true;
+            return;
+        }
+
+        DialogService.Instance.Show(DialogType.InitializeStore);
+    }
 
     private void SnackbarManager_OnShow(string message, SnackbarSeverity severity, int duration)
     {
@@ -108,6 +122,10 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 EntryList.ReloadList();
                 ViewModel!.EntrySelected = true;
                 EntryForm.SetEntryItem(name);
+                break;
+
+            case DialogType.InitializeStore:
+                ViewModel!.Initialized = true;
                 break;
         }
     }

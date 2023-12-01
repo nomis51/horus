@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
         xmlns:views="clr-namespace:Horus.UI.Views"
+        xmlns:avaloniaProgressRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
         mc:Ignorable="d"
         d:DesignWidth="800"
         d:DesignHeight="450"
@@ -35,8 +36,8 @@
                         WindowMaximize="TitleBar_OnWindowMaximize"
                         WindowMinimize="TitleBar_OnWindowMinimize"
                         OpenSettings="TitleBarView_OnOpenSettings" />
-
         <Grid Grid.Row="1"
+              IsVisible="{Binding Initialized}"
               ColumnDefinitions="*,3*"
               RowDefinitions="*">
             <Border Grid.Row="0"
@@ -63,24 +64,29 @@
                     IsVisible="{Binding !EntrySelected}">
                 <TextBlock Text="Select an entry" />
             </Border>
-
-            <views:DialogManager x:Name="DialogManager"
-                                 Grid.Column="0"
-                                 Grid.ColumnSpan="2"
-                                 Grid.Row="0"
-                                 Grid.RowSpan="1"
-                                 DataContext="{Binding DialogManagerViewModel}"
-                                 HorizontalAlignment="Stretch"
-                                 VerticalAlignment="Stretch"
-                                 Close="DialogManager_OnClose" />
-            <views:SnackbarManager x:Name="SnackbarManager"
-                                   Grid.Column="0"
-                                   Grid.ColumnSpan="2"
-                                   Grid.Row="0"
-                                   Grid.RowSpan="1"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Bottom"
-                                   DataContext="{Binding SnackbarManagerViewModel}" />
         </Grid>
+        <avaloniaProgressRing:ProgressRing Grid.Row="1"
+                                           Grid.Column="0"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Margin="10,0,0,0"
+                                           Width="50"
+                                           Height="50"
+                                           IsActive="True"
+                                           IsVisible="{Binding !Initialized}"
+                                           Foreground="{StaticResource AccentColor}" />
+        <views:DialogManager x:Name="DialogManager"
+                             Grid.Row="1"
+                             Grid.Column="0"
+                             DataContext="{Binding DialogManagerViewModel}"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"
+                             Close="DialogManager_OnClose" />
+        <views:SnackbarManager x:Name="SnackbarManager"
+                               Grid.Row="1"
+                               Grid.Column="0"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Bottom"
+                               DataContext="{Binding SnackbarManagerViewModel}" />
     </Grid>
 </Window>

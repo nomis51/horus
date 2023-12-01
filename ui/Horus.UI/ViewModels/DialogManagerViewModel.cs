@@ -26,8 +26,8 @@ public class DialogManagerViewModel : ViewModelBase
             this.RaisePropertyChanged(nameof(IsNewEntryDialogVisible));
             this.RaisePropertyChanged(nameof(IsDeleteEntryDialogVisible));
             this.RaisePropertyChanged(nameof(IsDuplicateEntryDialogVisible));
-            this.RaisePropertyChanged(nameof(InitializeStoreDialogViewModel));
-            this.RaisePropertyChanged(nameof(SettingsViewModel));
+            this.RaisePropertyChanged(nameof(IsInitializeStoreDialogVisible));
+            this.RaisePropertyChanged(nameof(IsSettingsDialogVisible));
         }
     }
 
