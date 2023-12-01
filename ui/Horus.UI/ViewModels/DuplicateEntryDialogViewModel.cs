@@ -1,4 +1,5 @@
 using Horus.Core.Services;
+using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
 
@@ -56,11 +57,11 @@ public class DuplicateEntryDialogViewModel : ViewModelBase
         IsLoading = false;
         if (!result.HasError)
         {
-            SnackbarService.Instance.Show("Entry created", "success");
+            SnackbarService.Instance.Show("Entry created", SnackbarSeverity.Success);
             return true;
         }
 
-        SnackbarService.Instance.Show("Failed to duplicate the entry", "warning");
+        SnackbarService.Instance.Show("Failed to duplicate the entry", SnackbarSeverity.Warning);
         return false;
     }
 

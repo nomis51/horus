@@ -7,6 +7,7 @@ using DynamicData;
 using Horus.Core.Services;
 using Horus.Shared.Enums;
 using Horus.Shared.Models.Data;
+using Horus.UI.Enums;
 using Horus.UI.Models;
 using Horus.UI.Services;
 using ReactiveUI;
@@ -163,14 +164,14 @@ public class EntryFormViewModel : ViewModelBase
 
         if (result.HasError)
         {
-            SnackbarService.Instance.Show("Failed to rename entry", "error", 5000);
+            SnackbarService.Instance.Show("Failed to rename entry", SnackbarSeverity.Error, 5000);
             return false;
         }
 
         IsEditingName = false;
         SetEntryItem(NewEntryName);
         this.RaisePropertyChanged(nameof(HasEntryNameAndNotEditingIt));
-        SnackbarService.Instance.Show("Entry renamed", "success");
+        SnackbarService.Instance.Show("Entry renamed", SnackbarSeverity.Success);
         return true;
     }
 
@@ -195,7 +196,7 @@ public class EntryFormViewModel : ViewModelBase
 
         if (error is null) return;
 
-        SnackbarService.Instance.Show("Unable to copy password", "warning");
+        SnackbarService.Instance.Show("Unable to copy password", SnackbarSeverity.Warning);
     }
 
     public void GeneratePassword()
@@ -210,7 +211,7 @@ public class EntryFormViewModel : ViewModelBase
         var (password, error) = AppService.Instance.GenerateNewPassword(Convert.ToInt32(PasswordLength), CustomPasswordAlphabet);
         if (error is not null)
         {
-            SnackbarService.Instance.Show("Unable generate password", "warning");
+            SnackbarService.Instance.Show("Unable generate password", SnackbarSeverity.Warning);
             return;
         }
 
@@ -228,11 +229,11 @@ public class EntryFormViewModel : ViewModelBase
 
         if (result.HasError)
         {
-            SnackbarService.Instance.Show("Unable to save password", "error", 5000);
+            SnackbarService.Instance.Show("Unable to save password", SnackbarSeverity.Error, 5000);
             return;
         }
 
-        SnackbarService.Instance.Show("Password saved", "success");
+        SnackbarService.Instance.Show("Password saved", SnackbarSeverity.Success);
         CancelPassword();
     }
 
@@ -268,11 +269,11 @@ public class EntryFormViewModel : ViewModelBase
 
         if (result.HasError)
         {
-            SnackbarService.Instance.Show("Unable to save metadata", "error", 5000);
+            SnackbarService.Instance.Show("Unable to save metadata", SnackbarSeverity.Error, 5000);
             return;
         }
 
-        SnackbarService.Instance.Show("Metadata saved", "success");
+        SnackbarService.Instance.Show("Metadata saved", SnackbarSeverity.Success);
         CancelMetadatas();
     }
 

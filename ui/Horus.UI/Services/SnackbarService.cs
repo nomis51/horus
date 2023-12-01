@@ -1,4 +1,6 @@
-﻿namespace Horus.UI.Services;
+﻿using Horus.UI.Enums;
+
+namespace Horus.UI.Services;
 
 public class SnackbarService
 {
@@ -27,7 +29,7 @@ public class SnackbarService
 
     #region Events
 
-    public delegate void ShowEvent(string message, string severity = "accent", int duration = 3000);
+    public delegate void ShowEvent(string message, SnackbarSeverity severity = SnackbarSeverity.Accent, int duration = 3000);
 
     public event ShowEvent? OnShow;
 
@@ -35,7 +37,7 @@ public class SnackbarService
     
     #region Public methods
 
-    public void Show(string message, string severity = "accent", int duration = 3000)
+    public void Show(string message, SnackbarSeverity severity = SnackbarSeverity.Accent, int duration = 3000)
     {
         OnShow?.Invoke(message, severity, duration);
     }

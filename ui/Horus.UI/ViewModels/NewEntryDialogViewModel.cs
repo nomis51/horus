@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Horus.Core.Services;
 using Horus.Shared.Models.Data;
+using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
 
@@ -44,7 +45,7 @@ public class NewEntryDialogViewModel : ViewModelBase
         IsLoading = false;
         if (!result.HasError) return true;
 
-        SnackbarService.Instance.Show("Failed to create the entry", "warning");
+        SnackbarService.Instance.Show("Failed to create the entry", SnackbarSeverity.Warning);
         return false;
     }
 

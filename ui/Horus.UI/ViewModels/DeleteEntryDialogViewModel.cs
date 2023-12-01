@@ -1,4 +1,5 @@
 ﻿using Horus.Core.Services;
+using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
 
@@ -32,11 +33,11 @@ public class DeleteEntryDialogViewModel : ViewModelBase
 
         if (result.HasError)
         {
-            SnackbarService.Instance.Show("Failed to delete entry", "error", 5000);
+            SnackbarService.Instance.Show("Failed to delete entry", SnackbarSeverity.Error, 5000);
             return false;
         }
 
-        SnackbarService.Instance.Show("Entry deleted", "success");
+        SnackbarService.Instance.Show("Entry deleted", SnackbarSeverity.Success);
         return true;
     }
 

@@ -1,7 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using Horus.UI.ViewModels;
@@ -24,11 +22,17 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         InitializeComponent();
 
         DialogService.Instance.OnShow += DialogService_OnShow;
+        SnackbarService.Instance.OnShow += SnackbarManager_OnShow;
     }
 
     #endregion
 
     #region Private methods
+
+    private void SnackbarManager_OnShow(string message, SnackbarSeverity severity, int duration)
+    {
+        SnackbarManager.ShowSnackbar(message, severity, duration);
+    }
 
     private void DialogService_OnShow(DialogType dialogType, object? data)
     {
@@ -39,11 +43,6 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     {
         ViewModel!.EntrySelected = !string.IsNullOrWhiteSpace(name);
         EntryFormView.SetEntryItem(name);
-    }
-
-    private void ButtonCloseSnackbar_OnClick(object? sender, RoutedEventArgs e)
-    {
-        ViewModel?.CloseSnackbar();
     }
 
     private void TitleBar_OnWindowTitleBarPressed(int x, int y)
