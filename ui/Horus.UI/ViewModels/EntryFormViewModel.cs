@@ -309,7 +309,11 @@ public class EntryFormViewModel : ViewModelBase
         var (metadatas, error) = AppService.Instance.GetMetadatas(EntryName);
         IsLoading = false;
 
-        if (error is not null) return;
+        if (error is not null)
+        {
+            SnackbarService.Instance.Show("Failed to decrypt metadata", SnackbarSeverity.Error, 5000);
+            return;
+        }
 
         InvokeUi(() =>
         {
