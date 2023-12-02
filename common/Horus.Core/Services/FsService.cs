@@ -174,7 +174,7 @@ public class FsService : IFsService
             if (error is not null)
                 return new Result<List<StoreEntry>, Error?>(error);
 
-            metadatas = lstMetadatas;
+            metadatas = lstMetadatas!;
         }
 
         var loweredText = text.Trim().ToLower();
@@ -721,7 +721,7 @@ public class FsService : IFsService
             var (m, error) = RetrieveStoreEntryMetadatas(name);
             if (error is not null) return new EmptyResult(error);
 
-            metadatas = m;
+            metadatas = m!;
         }
         else
         {

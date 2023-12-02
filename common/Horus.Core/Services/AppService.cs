@@ -37,10 +37,10 @@ public class AppService : IAppService
 
     #region Services
 
-    private IFsService _fsService;
-    private IGpgService _gpgService;
-    private IGitService _gitService;
-    private ISettingsService _settingsService;
+    private IFsService _fsService = null!;
+    private IGpgService _gpgService = null!;
+    private IGitService _gitService = null!;
+    private ISettingsService _settingsService = null!;
 
     #endregion
 

@@ -19,10 +19,6 @@ public partial class EntryList : ViewBase<EntryListViewModel>
 
     public event EntrySelectedEvent? EntrySelected;
 
-    public delegate void CreateEntryEvent();
-
-    public event CreateEntryEvent? CreateEntry;
-
     #endregion
 
     #region Constructors

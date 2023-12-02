@@ -7,7 +7,7 @@ public class MetadataCollection : ICollection<Metadata>
 {
     private readonly List<Metadata> _entries = new();
 
-    public string Name { get; }
+    public string Name { get; } = null!;
     public int Count => _entries.Count;
     public bool IsReadOnly => false;
 

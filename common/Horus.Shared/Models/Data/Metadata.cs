@@ -4,9 +4,9 @@ namespace Horus.Shared.Models.Data;
 
 public class Metadata
 {
-    public string Key { get; set; }
-    public string Value { get; set; }
-    public MetadataType Type { get; set; }
+    public string Key { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
+    public MetadataType Type { get; set; } = MetadataType.Normal;
 
     public Metadata()
     {

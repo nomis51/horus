@@ -38,10 +38,6 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
 
     public event OpenSettingsEvent? OpenSettings;
 
-    public delegate void ToggleSpinnerEvent(bool value, string message = "");
-
-    public event ToggleSpinnerEvent? ToggleSpinner;
-
     #endregion
 
     #region Constructors
