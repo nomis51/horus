@@ -53,7 +53,12 @@ public class InitializeStoreDialogViewModel : ViewModelBase
     private bool CreateStore()
     {
         var result = AppService.Instance.InitializeStoreFolder(GpgId, GitUrl);
-        if (!result.HasError) return true;
+        if (!result.HasError)
+        {
+            AppService.Instance.AcquireLock();
+            SnackbarService.Instance.Show("Store created", SnackbarSeverity.Success);
+            return true;
+        }
 
         SnackbarService.Instance.Show($"Failed to initialize store: {result.Error!.Message}", SnackbarSeverity.Error, 5000);
         return false;

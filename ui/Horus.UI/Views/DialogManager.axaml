@@ -53,5 +53,13 @@
                                   DataContext="{Binding SettingsDialogViewModel}"
                                   Close="Dialog_OnClose" />
         </Panel>
+        <Panel IsVisible="{Binding IsDestroyStoreDialogVisible}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+            <dialogs:DestroyStoreDialog HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    DataContext="{Binding DestroyStoreDialogViewModel}"
+                                    Close="Dialog_OnClose" />
+        </Panel>
     </Panel>
 </UserControl>

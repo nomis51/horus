@@ -21,6 +21,14 @@ public class SettingsDialogViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isLoading, value);
     }
 
+    private bool _hasChanges;
+
+    public bool HasChanges
+    {
+        get => _hasChanges;
+        set => this.RaiseAndSetIfChanged(ref _hasChanges, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -33,6 +41,22 @@ public class SettingsDialogViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public void ConfirmDestroyStore()
+    {
+        if (HasChanges)
+        {
+            SnackbarService.Instance.Show("Save settings first", SnackbarSeverity.Warning, 5000);
+            return;
+        }
+
+        DialogService.Instance.Show(DialogType.DestroyStore);
+    }
+
+    public void PerformChanges()
+    {
+        HasChanges = true;
+    }
 
     public bool SaveSettings()
     {

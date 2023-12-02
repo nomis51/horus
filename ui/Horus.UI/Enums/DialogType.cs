@@ -8,4 +8,5 @@ public enum DialogType
     DuplicateEntry,
     InitializeStore,
     Settings,
+    DestroyStore,
 }

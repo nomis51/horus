@@ -34,9 +34,13 @@ public partial class EntryList : ViewBase<EntryListViewModel>
 
     #region Public methods
 
-    public void ReloadList()
+    public void ReloadList(bool autoSelectFirst = false)
     {
-        Dispatch(vm => vm?.RetrieveEntries());
+        Dispatch(vm =>
+        {
+            vm?.RetrieveEntries();
+            InvokeUi(() => { TreeView.SelectedItem = TreeView.Items.FirstOrDefault(); });
+        });
     }
 
     #endregion

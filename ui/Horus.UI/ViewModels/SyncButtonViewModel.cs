@@ -38,7 +38,7 @@ public class SyncButtonViewModel : ViewModelBase
                     AheadOfRemoteBy > 0 ? $"Ahead of remote by {AheadOfRemoteBy} change{(AheadOfRemoteBy > 1 ? "s" : string.Empty)}" : string.Empty,
                 }.Where(s => !string.IsNullOrEmpty(s))
                 .ToList();
-            return !messages.Any() ? "The store is up to date" : string.Join(" and ", messages);
+            return messages.Count == 0 ? "The store is up to date" : string.Join(" and ", messages);
         }
     }
 

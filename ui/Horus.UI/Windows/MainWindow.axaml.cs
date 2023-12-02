@@ -44,11 +44,16 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         Dispatch(vm =>
         {
             vm!.LoadingMessage = message;
-            vm!.IsLoading = true;
+            vm.IsLoading = true;
         });
     }
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        VerifyStoreInitialized();
+    }
+
+    private void VerifyStoreInitialized()
     {
         if (ViewModel!.IsStoreInitialized())
         {
@@ -134,9 +139,10 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             case DialogType.DeleteEntry:
                 if (data is true)
                 {
-                    EntryList.ReloadList();
+                    EntryList.ReloadList(true);
                     ViewModel!.EntrySelected = false;
                 }
+
                 break;
 
             case DialogType.NewEntry:
@@ -149,7 +155,12 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 break;
 
             case DialogType.InitializeStore:
+                EntryList.ReloadList(true);
                 ViewModel!.IsLoading = false;
+                break;
+
+            case DialogType.DestroyStore:
+                VerifyStoreInitialized();
                 break;
         }
     }

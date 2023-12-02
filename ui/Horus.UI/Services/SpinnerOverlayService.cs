@@ -39,7 +39,7 @@ public class SpinnerOverlayService
 
     #region Public methods
 
-    public void Show(string message)
+    public void Show(string message = "")
     {
         OnShow?.Invoke(message);
     }

@@ -8,9 +8,9 @@
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
-             MinWidth="650"
-             x:Class="Horus.UI.Views.Dialogs.InitializeStoreDialog"
-             x:DataType="viewModels:InitializeStoreDialogViewModel">
+             MinWidth="400"
+             x:Class="Horus.UI.Views.Dialogs.DestroyStoreDialog"
+             x:DataType="viewModels:DestroyStoreDialogViewModel">
     <Border Background="#333"
             CornerRadius="4"
             BorderThickness="2"
@@ -22,7 +22,7 @@
                            FontWeight="Bold"
                            FontSize="18"
                            Grid.Column="0"
-                           Text="Create a password store" />
+                           Text="Destroy the store" />
                 <Button Grid.Column="2"
                         x:Name="ButtonClose"
                         IsEnabled="{Binding !IsLoading}"
@@ -33,26 +33,38 @@
                     </Button.Content>
                 </Button>
             </Grid>
-            <StackPanel Grid.Row="1"
-                        Spacing="5"
-                        Margin="5,5">
-                <TextBox x:Name="TextBoxGpgId"
-                         IsEnabled="{Binding !IsLoading}"
-                         Watermark="GPG ID"
-                         UseFloatingWatermark="True"
-                         MinHeight="48"
-                         MaxHeight="48"
-                         Text="{Binding GpgId, Mode=TwoWay}"
-                         Classes="clearButton" />
-                <TextBox x:Name="TextBoxGitUrl"
-                         IsEnabled="{Binding !IsLoading}"
-                         Watermark="Remote Git URL (private)"
-                         UseFloatingWatermark="True"
-                         MinHeight="48"
-                         MaxHeight="48"
-                         Text="{Binding GitUrl, Mode=TwoWay}"
-                         Classes="clearButton" />
-            </StackPanel>
+            <Panel Grid.Row="1"
+                   Margin="10,5">
+                <StackPanel IsVisible="{Binding IsFirstConfirmVisible}"
+                            Spacing="8">
+                    <TextBlock Text="Are you sure you want to delete the password store?"
+                               FontWeight="Bold" />
+                    <Button x:Name="ButtonFirstConfirm"
+                            Classes="warning"
+                            Content="Yes, I want to delete the password store"
+                            Click="ButtonFirstConfirm_OnClick" />
+                </StackPanel>
+                <StackPanel IsVisible="{Binding IsSecondConfirmVisible}"
+                            Spacing="8">
+                    <TextBlock Text="Are you REALLY sure you want to delete the password store?"
+                               FontWeight="Bold" />
+                    <Button x:Name="ButtonSecondConfirm"
+                            Classes="error"
+                            Content="Yes, I'm REALLY sure I want to delete the password store"
+                            Click="ButtonSecondConfirm_OnClick" />
+                </StackPanel>
+                <StackPanel IsVisible="{Binding IsThirdConfirmVisible}"
+                            Spacing="8">
+                    <TextBlock
+                        Text="Please type the name of the git repository as a last confirmation, that you want to delete the password store."
+                        FontWeight="Bold" />
+                    <TextBox x:Name="TextBoxRepositoryName"
+                             Watermark="Repository name"
+                             UseFloatingWatermark="True"
+                             MinHeight="48"
+                             Text="{Binding RepositoryName, Mode=TwoWay}" />
+                </StackPanel>
+            </Panel>
             <Grid Grid.Row="2"
                   ColumnDefinitions="*,Auto"
                   Margin="5,10,5,5">
@@ -69,25 +81,19 @@
                            VerticalAlignment="Bottom">
                     <Button Classes="text"
                             IsEnabled="{Binding !IsLoading}"
-                            x:Name="ButtonQuit"
-                            Click="ButtonQuit_OnClick">
+                            x:Name="ButtonCancel"
+                            Click="ButtonCancel_OnClick">
                         <Button.Content>
-                            <TextBlock Text="Quit" />
+                            <TextBlock Text="Cancel" />
                         </Button.Content>
                     </Button>
-                    <Button Classes="accent"
+                    <Button Classes="error"
+                            IsVisible="{Binding ThirdConfirm}"
                             IsEnabled="{Binding !IsLoading}"
-                            Margin="5,0,0,0"
-                            x:Name="ButtonCreate"
-                            Click="ButtonCreate_OnClick">
+                            x:Name="ButtonDestroy"
+                            Click="ButtonDestroy_OnClick">
                         <Button.Content>
-                            <DockPanel>
-                                <TextBlock Text="Create"
-                                           VerticalAlignment="Center" />
-                                <icons:MaterialIcon Margin="5, 2, 0, 0"
-                                                    VerticalAlignment="Center"
-                                                    Kind="Plus" />
-                            </DockPanel>
+                            <TextBlock Text="Destroy the store" />
                         </Button.Content>
                     </Button>
                 </DockPanel>

@@ -1,6 +1,8 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Horus.UI.Abstractions;
+using Horus.UI.Enums;
+using Horus.UI.Services;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
@@ -40,22 +42,43 @@ public partial class SettingsDialog : DialogView<SettingsDialogViewModel>
 
     private void TextBoxPasswordLength_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        ViewModel!.Settings.DefaultLength = int.TryParse(TextBoxPasswordLength.Text, out var intValue) && intValue >= 0 ? intValue : 0;
+        var value = int.TryParse(TextBoxPasswordLength.Text, out var intValue) && intValue >= 0 ? intValue : 0;
+        if (value == ViewModel!.Settings.DefaultLength) return;
+
+        ViewModel!.Settings.DefaultLength = value;
+        ViewModel?.PerformChanges();
     }
 
     private void TextBoxPasswordAlphabet_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        ViewModel!.Settings.DefaultCustomAlphabet = TextBoxPasswordAlphabet.Text ?? string.Empty;
+        var value = TextBoxPasswordAlphabet.Text ?? string.Empty;
+        if (value == ViewModel!.Settings.DefaultCustomAlphabet) return;
+
+        ViewModel!.Settings.DefaultCustomAlphabet = value;
+        ViewModel?.PerformChanges();
     }
 
     private void TextBoxClearTimeout_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        ViewModel!.Settings.ClearTimeout = int.TryParse(TextBoxClearTimeout.Text, out var intValue) && intValue >= 0 ? intValue : 0;
+        var value = int.TryParse(TextBoxClearTimeout.Text, out var intValue) && intValue >= 0 ? intValue : 0;
+        if (value == ViewModel!.Settings.ClearTimeout) return;
+
+        ViewModel!.Settings.ClearTimeout = value;
+        ViewModel?.PerformChanges();
     }
 
     private void TextBoxAutoFetchInterval_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
-        ViewModel!.Settings.FetchInterval = int.TryParse(TextBoxAutoFetchInterval.Text, out var intValue) && intValue >= 0 ? intValue : 0;
+        var value = int.TryParse(TextBoxAutoFetchInterval.Text, out var intValue) && intValue >= 0 ? intValue : 0;
+        if (value == ViewModel!.Settings.FetchInterval) return;
+
+        ViewModel!.Settings.FetchInterval = value;
+        ViewModel?.PerformChanges();
+    }
+
+    private void ButtonDestroyStore_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel?.ConfirmDestroyStore();
     }
 
     #endregion
