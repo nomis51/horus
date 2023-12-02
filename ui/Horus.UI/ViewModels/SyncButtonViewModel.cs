@@ -34,8 +34,8 @@ public class SyncButtonViewModel : ViewModelBase
         {
             var messages = new[]
                 {
-                    BehindOfRemoteBy > 0 ? $"Behind remote by {BehindOfRemoteBy} action{(BehindOfRemoteBy > 1 ? "s" : string.Empty)}" : string.Empty,
-                    AheadOfRemoteBy > 0 ? $"Ahead of remote by {AheadOfRemoteBy} action{(AheadOfRemoteBy > 1 ? "s" : string.Empty)}" : string.Empty,
+                    BehindOfRemoteBy > 0 ? $"Behind remote by {BehindOfRemoteBy} change{(BehindOfRemoteBy > 1 ? "s" : string.Empty)}" : string.Empty,
+                    AheadOfRemoteBy > 0 ? $"Ahead of remote by {AheadOfRemoteBy} change{(AheadOfRemoteBy > 1 ? "s" : string.Empty)}" : string.Empty,
                 }.Where(s => !string.IsNullOrEmpty(s))
                 .ToList();
             return !messages.Any() ? "The store is up to date" : string.Join(" and ", messages);
