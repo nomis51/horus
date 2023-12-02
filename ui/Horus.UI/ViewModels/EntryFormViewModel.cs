@@ -140,7 +140,7 @@ public class EntryFormViewModel : ViewModelBase
     public string NewEntryName
     {
         get => _newEntryName;
-        set { this.RaiseAndSetIfChanged(ref _newEntryName, value); }
+        set => this.RaiseAndSetIfChanged(ref _newEntryName, value);
     }
 
     #endregion
@@ -149,6 +149,7 @@ public class EntryFormViewModel : ViewModelBase
 
     public EntryFormViewModel()
     {
+        RetrieveSettingsValues();
         ResetPassword();
     }
 
@@ -345,6 +346,19 @@ public class EntryFormViewModel : ViewModelBase
 
     #region Private methods
 
+    private void RetrieveSettingsValues()
+    {
+        var (settings, error) = AppService.Instance.GetSettings();
+        if (error is not null)
+        {
+            SnackbarService.Instance.Show("Failed to retrieve settings", SnackbarSeverity.Warning);
+            return;
+        }
+
+        CustomPasswordAlphabet = settings!.DefaultCustomAlphabet;
+        PasswordLength = settings.DefaultLength;
+    }
+    
     private void ClearPassword()
     {
         Password = string.Empty;
