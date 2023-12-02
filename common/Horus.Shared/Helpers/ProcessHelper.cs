@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using Horus.Shared.Models.Terminal;
 
 namespace Horus.Shared.Helpers;
 
@@ -6,36 +6,14 @@ public static class ProcessHelper
 {
     #region Public methods
 
-    public static void Fork(string[] args, string workingDirectory = "")
+    public static void Fork(IEnumerable<string> args, string workingDirectory = "")
     {
-        _ = Exec(nameof(Horus) + ".exe", args, workingDirectory, false);
-    }
-
-    public static Tuple<bool, string, string> Exec(string program, string[] args, string workingDirectory = "",
-        bool waitForExit = true)
-    {
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
+        new TerminalSession(workingDirectory, false)
+            .Command(new[]
             {
-                FileName = program,
-                WorkingDirectory = workingDirectory,
-                Arguments = string.Join(" ", args),
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardError = waitForExit,
-                RedirectStandardOutput = waitForExit,
-            },
-        };
-
-        process.Start();
-        if (!waitForExit) return new Tuple<bool, string, string>(false, string.Empty, string.Empty);
-
-        var stderr = process.StandardError.ReadToEnd();
-        var stdout = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-
-        return Tuple.Create(process.ExitCode == 0, stdout, stderr);
+                nameof(Horus) + ".exe",
+            }.Concat(args))
+            .Execute();
     }
 
     #endregion

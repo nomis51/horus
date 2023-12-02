@@ -195,7 +195,16 @@ public class EntryFormViewModel : ViewModelBase
         var (_, error) = AppService.Instance.GetPassword(EntryName);
         IsLoading = false;
 
-        if (error is null) return;
+        var (settings, settingsError) = AppService.Instance.GetSettings();
+
+        if (error is null)
+        {
+            SnackbarService.Instance.Show(
+                settingsError is null ? $"Password copied for {settings!.ClearTimeout}s" : "Password copied",
+                SnackbarSeverity.Success
+            );
+            return;
+        }
 
         SnackbarService.Instance.Show("Unable to copy password", SnackbarSeverity.Warning);
     }
@@ -358,7 +367,7 @@ public class EntryFormViewModel : ViewModelBase
         CustomPasswordAlphabet = settings!.DefaultCustomAlphabet;
         PasswordLength = settings.DefaultLength;
     }
-    
+
     private void ClearPassword()
     {
         Password = string.Empty;

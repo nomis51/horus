@@ -1,10 +1,9 @@
-﻿using System.Management.Automation;
-using Horus.Core.Services.Abstractions;
+﻿using Horus.Core.Services.Abstractions;
 using Horus.Shared.Extensions;
 using Horus.Shared.Models.Abstractions;
 using Horus.Shared.Models.Data;
 using Horus.Shared.Models.Errors.Gpg;
-using Newtonsoft.Json;
+using Horus.Shared.Models.Terminal;
 using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -24,17 +23,24 @@ public class GpgService : IGpgService
     {
         try
         {
-            var lines = GetPowerShellInstance()
-                .AddArgument("--version")
-                .Invoke<string>();
-            var ok = lines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GpgProcessName,
+                    "--version"
+                })
+                .Execute();
+            var ok = result.OutputLines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
             if (!ok) return false;
 
-            PowerShell.Create()
-                .AddCommand("gpg-connect-agent")
-                .AddArgument("reloadagent")
-                .AddArgument("/bye")
-                .Invoke();
+           new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    "gpg-connect-agent",
+                    "reloadagent",
+                    "/bye"
+                })
+                .Execute();
 
             if (ok)
             {
@@ -134,13 +140,17 @@ public class GpgService : IGpgService
     {
         try
         {
-            var lines = GetPowerShellInstance()
-                .AddArgument("--list-keys")
-                .Invoke<string>();
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GpgProcessName,
+                    "--list-keys"
+                })
+                .Execute();
 
-            if (lines.FirstOrDefault()?.StartsWith("gpg: error reading key: No public key") ?? true)
+            if (result.OutputLines.FirstOrDefault()?.StartsWith("gpg: error reading key: No public key") ?? true)
                 return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
-            if (!lines.Any(e => e.StartsWith("pub")))
+            if (!result.OutputLines.Any(e => e.StartsWith("pub")))
                 return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
 
             if (string.IsNullOrEmpty(id))
@@ -153,7 +163,7 @@ public class GpgService : IGpgService
             // TODO: fix this to validdate the actual ID, not the first line coming out of GPG
             const string expireTag = "[E]";
             const string expireLabel = "[expires: ";
-            var expireLine = lines.FirstOrDefault(l => l.Contains(expireTag));
+            var expireLine = result.OutputLines.FirstOrDefault(l => l.Contains(expireTag));
             if (string.IsNullOrEmpty(expireLine)) return new ResultStruct<bool, Error?>(new GpgInvalidKeyError());
 
             if (!expireLine.Contains(expireLabel)) return new ResultStruct<bool, Error?>(true);
@@ -194,13 +204,16 @@ public class GpgService : IGpgService
     {
         try
         {
-            var lines = PowerShell.Create()
-                .AddCommand("gpg-connect-agent")
-                .AddArgument("reloadagent")
-                .AddArgument("/bye")
-                .Invoke<string>();
-            return lines.FirstOrDefault(l => l.StartsWith("OK")) is not null
-                ? new Result<string, Error?>(string.Join(", ", lines))
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    "gpg-connect-agent",
+                    "reloadagent",
+                    "/bye"
+                })
+                .Execute();
+            return result.OutputLines.FirstOrDefault(l => l.StartsWith("OK")) is not null
+                ? new Result<string, Error?>(string.Join(", ", result.OutputLines))
                 : new Result<string, Error?>(new GpgDecryptError("Unable to start GPG agent"));
         }
         catch (Exception e)
@@ -213,11 +226,14 @@ public class GpgService : IGpgService
     {
         try
         {
-            PowerShell.Create()
-                .AddCommand("gpgconf")
-                .AddArgument("--kill")
-                .AddArgument("gpg-agent")
-                .Invoke();
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    "gpgconf",
+                    "--kill",
+                    "gpg-agent"
+                })
+                .Execute();
             return new Result<string, Error?>("");
         }
         catch (Exception e)
@@ -234,54 +250,28 @@ public class GpgService : IGpgService
 
     #region Private methods
 
-    private Result<List<string>, Error?> DecryptMany(IEnumerable<string> filePaths)
-    {
-        try
-        {
-            var scriptBlock = ScriptBlock.Create(
-                "@(" + string.Join(",", filePaths.Select(f => $"\"{f}\"")) +
-                ") | ForEach-Object -Parallel { gpg --quiet --yes --compress-algo=none --no-encrypt-to --decrypt $_; echo \"\"}"
-            );
-            var pwsh = GetPowerShellInstance(noSetup: true);
-            pwsh.AddCommand("Invoke-Command")
-                .AddArgument(scriptBlock);
-            var lines = pwsh.Invoke<string>()
-                .Where(l => !string.IsNullOrEmpty(l))
-                .ToList();
-
-            if (!lines.Any())
-            {
-                return new Result<List<string>, Error?>(new GpgDecryptError(string.Join("\n",
-                    pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message))));
-            }
-
-            return new Result<List<string>, Error?>(lines);
-        }
-        catch (Exception e)
-        {
-            Log.Error("Unable to decrypt many: {Message}", e.Message);
-            return new Result<List<string>, Error?>(new GpgDecryptError(e.Message));
-        }
-    }
-
     private Result<string, Error?> DecryptOne(string filePath)
     {
         try
         {
-            var pwsh = GetPowerShellInstance()
-                .AddArgument("--quiet")
-                .AddArgument("--yes")
-                .AddArgument("--compress-algo=none")
-                .AddArgument("--no-encrypt-to")
-                .AddArgument("--decrypt")
-                .AddArgument(filePath);
-            var lines = pwsh.Invoke<string>().ToList();
-            lines.AddRange(pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message));
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                  GpgProcessName,
+                  "--quiet",
+                  "--yes",
+                  "--compress-algo=none",
+                  "--no-encrypt-to",
+                  "--decrypt",
+                  filePath
+                })
+                .Execute();
+            result.OutputLines.AddRange(result.ErrorLines);
 
             return new Result<string, Error?>(
                 string.Join(
                     string.Empty,
-                    lines
+                    result.OutputLines
                 ).FromBase64()
             );
         }
@@ -310,27 +300,30 @@ public class GpgService : IGpgService
 
         try
         {
-            var pwsh = GetPowerShellInstance(true)
-                .AddArgument("-Command")
-                .AddArgument("Write-Output")
-                .AddArgument(value.ToBase64())
-                .AddArgument("|")
-                .AddArgument(GpgProcessName)
-                .AddArgument("--quiet")
-                .AddArgument("--yes")
-                .AddArgument("--compress-algo=none")
-                .AddArgument("--no-encrypt-to")
-                .AddArgument("--encrypt")
-                .AddArgument("--recipient")
-                .AddArgument(id)
-                .AddArgument("--output")
-                .AddArgument(filePath);
-            pwsh.Invoke<string>();
-            var errors = pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message).ToList();
-
-            if (errors.FirstOrDefault(e => e.Contains("encryption failed")) is not null)
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                   "echo",
+                   value.ToBase64()
+                })
+                .Command(new[]
+                {
+                    GpgProcessName,
+                    "--quiet",
+                    "--yes",
+                    "--compress-algo=none",
+                    "--no-encrypt-to",
+                    "--encrypt",
+                    "--recipient",
+                    id,
+                    "--output",
+                    filePath
+                })
+                .Execute();
+          
+            if (result.ErrorLines.FirstOrDefault(e => e.Contains("encryption failed")) is not null)
             {
-                return new EmptyResult(new GpgEncryptError(string.Join("\n", errors)));
+                return new EmptyResult(new GpgEncryptError(string.Join("\n", result.ErrorLines)));
             }
 
             return new EmptyResult();
@@ -340,16 +333,6 @@ public class GpgService : IGpgService
             Log.Error("Unable to encrypt: {Message}", e.Message);
             return new EmptyResult(new GpgEncryptError(e.Message));
         }
-    }
-
-    private PowerShell GetPowerShellInstance(bool usePwshDirectly = false, bool noSetup = false)
-    {
-        var pwsh = PowerShell.Create();
-        if (noSetup) return pwsh;
-
-        pwsh.Runspace.SessionStateProxy.Path.SetLocation(AppService.Instance.GetStoreLocation());
-        pwsh.AddCommand(usePwshDirectly ? "pwsh" : GpgProcessName);
-        return pwsh;
     }
 
     #endregion

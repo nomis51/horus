@@ -132,5 +132,11 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
         ViewModel?.EditName();
     }
 
+    private void TextBox_OnCopyingToClipboard(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        Dispatch(vm => vm?.CopyOldPassword());
+    }
+
     #endregion
 }

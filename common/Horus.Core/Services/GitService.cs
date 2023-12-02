@@ -1,8 +1,8 @@
-﻿using System.Management.Automation;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Horus.Core.Services.Abstractions;
 using Horus.Shared.Models.Abstractions;
 using Horus.Shared.Models.Errors.Git;
+using Horus.Shared.Models.Terminal;
 using Serilog;
 
 namespace Horus.Core.Services;
@@ -45,9 +45,13 @@ public class GitService : IGitService
     {
         try
         {
-            GetPowerShellInstance()
-                .AddArgument("push")
-                .Invoke<string>();
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "push"
+                })
+                .Execute();
             return new EmptyResult();
         }
         catch (Exception e)
@@ -61,9 +65,13 @@ public class GitService : IGitService
     {
         try
         {
-            GetPowerShellInstance()
-                .AddArgument("pull")
-                .Invoke<string>();
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "pull"
+                })
+                .Execute();
             return new EmptyResult();
         }
         catch (Exception e)
@@ -77,18 +85,24 @@ public class GitService : IGitService
     {
         try
         {
-            var lines = GetPowerShellInstance()
-                .AddArgument("fetch")
-                .AddStatement()
-                .AddCommand(GitProcessName)
-                .AddArgument("status")
-                .Invoke<string>();
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "fetch"
+                })
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "status"
+                })
+                .Execute();
 
             var aheadBy = 0;
             var behindBy = 0;
 
             const string aheadLabel = "Your branch is ahead of '";
-            var aheadLine = lines.FirstOrDefault(l => l.Contains(aheadLabel));
+            var aheadLine = result.OutputLines.FirstOrDefault(l => l.Contains(aheadLabel));
             if (!string.IsNullOrEmpty(aheadLine))
             {
                 var index = aheadLine.IndexOf(aheadLabel, StringComparison.OrdinalIgnoreCase);
@@ -110,7 +124,7 @@ public class GitService : IGitService
             }
 
             const string behindByLabel = "Your branch is behind of '";
-            var behindLine = lines.FirstOrDefault(l => l.Contains(behindByLabel));
+            var behindLine = result.OutputLines.FirstOrDefault(l => l.Contains(behindByLabel));
             if (!string.IsNullOrEmpty(behindLine))
             {
                 var index = behindLine.IndexOf(behindByLabel, StringComparison.OrdinalIgnoreCase);
@@ -144,14 +158,21 @@ public class GitService : IGitService
     {
         try
         {
-            var lines = GetPowerShellInstance()
-                .AddArgument("fetch")
-                .AddStatement()
-                .AddCommand(GitProcessName)
-                .AddArgument("status")
-                .Invoke<string>();
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "fetch"
+                })
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "status"
+                })
+                .Execute();
+
             return new ResultStruct<bool, Error?>(
-                lines.FirstOrDefault()?.Contains("Your branch is ahead of 'origin/master'") ?? true);
+                result.OutputLines.FirstOrDefault()?.Contains("Your branch is ahead of 'origin/master'") ?? true);
         }
         catch (Exception e)
         {
@@ -180,10 +201,14 @@ public class GitService : IGitService
     {
         try
         {
-            var lines = GetPowerShellInstance()
-                .AddArgument("--version")
-                .Invoke<string>();
-            return lines.FirstOrDefault()?.StartsWith("git version") ?? false;
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "--version"
+                })
+                .Execute();
+            return result.OutputLines.FirstOrDefault()?.StartsWith("git version") ?? false;
         }
         catch (Exception e)
         {
@@ -219,15 +244,17 @@ public class GitService : IGitService
 
         try
         {
-            var pwsh = GetPowerShellInstance()
-                .AddArgument("clone")
-                .AddArgument(url)
-                .AddArgument($"{dirPath}");
-            pwsh.Invoke<string>();
-            // For some reason, git clone output to stderr even thought there is no error
-            var lines = pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message);
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "clone",
+                    dirPath
+                })
+                .Execute();
 
-            if (!lines.FirstOrDefault()?.Contains("Cloning into") ?? true)
+            // For some reason, git clone output to stderr even thought there is no error
+            if (!result.ErrorLines.FirstOrDefault()?.Contains("Cloning into") ?? true)
             {
                 if (Directory.Exists(dirPath)) Directory.Delete(dirPath, true);
             }
@@ -256,19 +283,16 @@ public class GitService : IGitService
 
     public string Execute(string[] args)
     {
-        var pwsh = GetPowerShellInstance();
-        foreach (var arg in args)
-        {
-            pwsh.AddArgument(arg);
-        }
-
         var output = string.Empty;
         try
         {
-            output = string.Join("\n", pwsh.Invoke<string>());
-            if (pwsh.HadErrors)
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(args)
+                .Execute();
+            output = string.Join("\n", result.OutputLines);
+            if (result.ErrorLines.Count != 0)
             {
-                output += $"\n\n{string.Join("\n", pwsh.Streams.Error.ReadAll())}";
+                output += $"\n\n{string.Join("\n", result.ErrorLines)}";
             }
         }
         catch (Exception e)
@@ -283,13 +307,19 @@ public class GitService : IGitService
     {
         try
         {
-            var pwsh = GetPowerShellInstance()
-                .AddArgument("add")
-                .AddArgument("--all")
-                .AddArgument("--")
-                .AddArgument(":!.lock");
-            var lines = pwsh.Invoke<string>().ToList();
-            lines.AddRange(pwsh.Streams.Error.ReadAll().Select(e => e.Exception.Message));
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "add",
+                    "--all",
+                    "--",
+                    ":!.lock"
+                })
+                .Execute();
+            if (!result.Successful && result.ErrorLines.Count != 0 &
+                result.ErrorLines.FirstOrDefault(l => l.Contains("The following paths are ignored by one of your .gitignore files:")) is null)
+                throw new Exception(string.Join("\n", result.ErrorLines));
         }
         catch (Exception e)
         {
@@ -299,11 +329,16 @@ public class GitService : IGitService
 
         try
         {
-            var pwsh = GetPowerShellInstance()
-                .AddArgument("commit")
-                .AddArgument("-m")
-                .AddArgument($"\"{message}\"");
-            pwsh.Invoke<string>();
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "commit",
+                    "-m",
+                    $"\"{message}\"",
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
         }
         catch (Exception e)
         {
@@ -340,18 +375,6 @@ public class GitService : IGitService
 
     public void Initialize()
     {
-    }
-
-    #endregion
-
-    #region Private methods
-
-    private PowerShell GetPowerShellInstance()
-    {
-        var pwsh = PowerShell.Create();
-        pwsh.Runspace.SessionStateProxy.Path.SetLocation(AppService.Instance.GetStoreLocation());
-        pwsh.AddCommand(GitProcessName);
-        return pwsh;
     }
 
     #endregion

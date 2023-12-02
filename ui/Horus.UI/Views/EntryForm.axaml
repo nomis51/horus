@@ -204,11 +204,14 @@
                          MinHeight="48"
                          Text="{Binding Password, Mode=TwoWay}"
                          IsReadOnly="{Binding !IsEditingPassword}"
-                         Classes="revealPasswordButtonAndClearButtonAndCopyButton"
+                         Classes.revealPasswordButtonAndClearButtonAndCopyButton="{Binding IsEditingPassword}"
+                         Classes.copyButtonSafe="{Binding !IsEditingPassword}"
                          Classes.errored="{Binding !IsPasswordValid}"
                          PasswordChar="•"
-                         RevealPassword="{Binding IsPasswordVisible, Mode=TwoWay}" />
+                         RevealPassword="{Binding IsPasswordVisible, Mode=TwoWay}"
+                         CopyingToClipboard="TextBox_OnCopyingToClipboard" />
                 <TextBox Watermark="Confirm password"
+                         IsVisible="{Binding IsEditingPassword}"
                          IsEnabled="{Binding !IsLoading}"
                          UseFloatingWatermark="True"
                          MinHeight="48"

@@ -2,7 +2,6 @@
 using Horus.Shared.Models.Abstractions;
 using Horus.Shared.Models.Data;
 using Horus.Shared.Models.Errors.Settings;
-using Newtonsoft.Json;
 using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 

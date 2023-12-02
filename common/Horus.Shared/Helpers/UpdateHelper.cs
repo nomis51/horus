@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Horus.Shared.Models.GitHub;
 using Serilog;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -10,7 +9,7 @@ public static class UpdateHelper
 {
     #region Constants
 
-    private const string ReleaseUrl = "https://api.github.com/repos/nomis51/winpass/releases/latest";
+    private const string ReleaseUrl = "https://api.github.com/repos/nomis51/horus/releases/latest";
 
     #endregion
 
@@ -80,13 +79,13 @@ public static class UpdateHelper
                 releaseVersion.Build > version.Build);
     }
 
-    private static async Task<Tuple<JObject?, Version?, Version?>> GetVersions()
+    private static async Task<Tuple<Release?, Version?, Version?>> GetVersions()
     {
         var release = await GetRelease();
-        if (release is null) return new Tuple<JObject?, Version?, Version?>(default, default, default);
+        if (release is null) return new Tuple<Release?, Version?, Version?>(default, default, default);
 
         var version = VersionHelper.GetVersion();
-        var releaseVersion = VersionHelper.Parse(release.Value<string>("tag_name")!);
+        var releaseVersion = VersionHelper.Parse(release.TagName);
         return Tuple.Create(
             release,
             version,
@@ -94,7 +93,7 @@ public static class UpdateHelper
         )!;
     }
 
-    private static async Task<JObject?> GetRelease()
+    private static async Task<Release?> GetRelease()
     {
         HttpClient client = new();
         client.BaseAddress = new Uri(ReleaseUrl);
@@ -102,7 +101,7 @@ public static class UpdateHelper
         var response = await client.GetAsync(string.Empty);
         if (!response.IsSuccessStatusCode) return default;
         var data = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<JObject>(data);
+        return JsonSerializer.Deserialize<Release>(data);
     }
 
     #endregion
