@@ -164,6 +164,16 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 break;
         }
     }
+    private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (e.CloseReason == WindowCloseReason.WindowClosing)
+        {
+            e.Cancel = true;
+            ShowInTaskbar = false;
+            TitleBar_OnWindowMinimize();
+        }
+    }
 
     #endregion
+
 }

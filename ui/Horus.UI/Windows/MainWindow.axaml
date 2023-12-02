@@ -18,7 +18,8 @@
         Icon="/Assets/logo.ico"
         SystemDecorations="BorderOnly"
         ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaToDecorationsHint="True">
+        ExtendClientAreaToDecorationsHint="True"
+        Closing="Window_OnClosing">
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -65,17 +66,21 @@
                 <TextBlock Text="Select an entry" />
             </Border>
         </Grid>
-        <StackPanel Spacing="4" Grid.Row="1"
+        <StackPanel Spacing="4"
+                    Grid.Row="1"
                     Grid.Column="0"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center">
             <avaloniaProgressRing:ProgressRing Width="50"
                                                Height="50"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
                                                IsActive="True"
                                                IsVisible="{Binding IsLoading}"
                                                Foreground="{StaticResource AccentColor}" />
-            <TextBlock Text="{Binding LoadingMessage}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding LoadingMessage}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
         </StackPanel>
         <views:DialogManager x:Name="DialogManager"
                              Grid.Row="1"

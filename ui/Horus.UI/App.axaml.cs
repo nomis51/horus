@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Horus.Core.Services;
@@ -76,6 +77,14 @@ public partial class App : Application
     private void MenuItemQuit_OnClick(object? sender, EventArgs e)
     {
         Environment.Exit(0);
+    }
+
+    private void TrayIcon_OnClicked(object? sender, EventArgs e)
+    {
+        if (Current!.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) return;
+
+        desktop.MainWindow!.ShowInTaskbar = true;
+        desktop.MainWindow!.WindowState = WindowState.Normal;
     }
 
     #endregion

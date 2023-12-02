@@ -23,7 +23,8 @@
     <TrayIcon.Icons>
         <TrayIcons>
             <TrayIcon Icon="/Assets/logo.ico"
-                      ToolTipText="Horus">
+                      ToolTipText="Horus"
+                      Clicked="TrayIcon_OnClicked">
                 <TrayIcon.Menu>
                     <NativeMenu>
                         <NativeMenuItem Header="About">
