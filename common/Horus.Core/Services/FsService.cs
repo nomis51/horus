@@ -46,6 +46,9 @@ public class FsService : IFsService
 
         _appFolderPath = Environment.ExpandEnvironmentVariables(
             $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_appFolder}/");
+
+        _appFolder = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? _appFolderPath.Replace("/", "\\") : _appFolderPath.Replace("\\", "/");
+
         _storeFolderPath = Path.Join(_appFolderPath, StoreFolderName);
         _migrationStoreFolderPath = Path.Join(_appFolderPath, MigrationStoreFolderName);
         _logsFolderPath = Path.Join(_appFolderPath, LogsFolderName);
