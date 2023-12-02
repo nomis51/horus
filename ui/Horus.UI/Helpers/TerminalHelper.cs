@@ -12,6 +12,7 @@ public class TerminalHelper
     private const string PowerShell7Name = "pwsh.exe";
     private const string PowerShellName = "powershell.exe";
     private const string CmdName = "cmd.exe";
+    private const string ShName = "sh";
 
     #endregion
 
@@ -27,6 +28,10 @@ public class TerminalHelper
 
             Spawn(CmdName, workingDirectory);
         }
+        else
+        {
+            Spawn(ShName, workingDirectory);
+        }
     }
 
     #endregion
@@ -40,7 +45,9 @@ public class TerminalHelper
             var process = Process.Start(new ProcessStartInfo
             {
                 FileName = exe,
-                Arguments = string.Join(" ", GetExeArguments(exe, wd)),
+                Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? string.Join(" ", GetExeArguments(exe, wd))
+                    : string.Join(" ", $"-c 'cd {wd}; exec \"" + "${SHELL:-sh}" + "\"'")
             });
             return process is not null && (!process.HasExited || process.ExitCode == 0);
         }

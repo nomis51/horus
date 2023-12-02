@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Horus.Shared.Models.Terminal;
 
@@ -10,7 +11,7 @@ public class TerminalSession
     {
         StartInfo = new ProcessStartInfo
         {
-            FileName = "cmd",
+            FileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "cmd" : "sh",
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,
@@ -45,7 +46,10 @@ public class TerminalSession
 
     public TerminalSessionResult Execute()
     {
-        _process.StartInfo.Arguments = $"/C {string.Join(" | ", _arguments.Select(args => string.Join(" ", args)))}";
+        var pipedCommands = string.Join(" | ", _arguments.Select(args => string.Join(" ", args)));
+        _process.StartInfo.Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? $"/C {pipedCommands}"
+            : $"-c '{pipedCommands}'";
         _process.Start();
         if (!_waitForExit) return new TerminalSessionResult();
 
