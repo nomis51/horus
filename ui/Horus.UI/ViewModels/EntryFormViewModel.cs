@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using DynamicData;
 using Horus.Core.Services;
 using Horus.Shared.Enums;
@@ -11,6 +9,7 @@ using Horus.UI.Enums;
 using Horus.UI.Models;
 using Horus.UI.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
@@ -165,6 +164,7 @@ public class EntryFormViewModel : ViewModelBase
 
         if (result.HasError)
         {
+            Log.Error("Failed to rename entry '{Name}' to '{NewName}': {Message}", EntryName, NewEntryName, result.Error!.Message);
             SnackbarService.Instance.Show("Failed to rename entry", SnackbarSeverity.Error, 5000);
             return false;
         }
@@ -199,14 +199,21 @@ public class EntryFormViewModel : ViewModelBase
 
         if (error is null)
         {
-            SnackbarService.Instance.Show(
-                settingsError is null ? $"Password copied for {settings!.ClearTimeout}s" : "Password copied",
-                SnackbarSeverity.Success
-            );
+            if (settingsError is not null)
+            {
+                Log.Warning("Failed to retrieve settings: {Message}", settingsError.Message);
+                SnackbarService.Instance.Show("Password copied", SnackbarSeverity.Success);
+            }
+            else
+            {
+                SnackbarService.Instance.Show($"Password copied for {settings!.ClearTimeout}s", SnackbarSeverity.Success);
+            }
+
             return;
         }
 
-        SnackbarService.Instance.Show("Unable to copy password", SnackbarSeverity.Warning);
+        Log.Warning("Failed to copy password '{Name}': {Message}", EntryName, error.Message);
+        SnackbarService.Instance.Show("Failed to copy password", SnackbarSeverity.Warning);
     }
 
     public void GeneratePassword()
@@ -221,7 +228,8 @@ public class EntryFormViewModel : ViewModelBase
         var (password, error) = AppService.Instance.GenerateNewPassword(Convert.ToInt32(PasswordLength), CustomPasswordAlphabet);
         if (error is not null)
         {
-            SnackbarService.Instance.Show("Unable generate password", SnackbarSeverity.Warning);
+            Log.Warning("Failed to generate new password for '{Name}': {Messages}", EntryName, error.Message);
+            SnackbarService.Instance.Show("Failed to generate new password", SnackbarSeverity.Warning);
             return;
         }
 
@@ -239,7 +247,8 @@ public class EntryFormViewModel : ViewModelBase
 
         if (result.HasError)
         {
-            SnackbarService.Instance.Show("Unable to save password", SnackbarSeverity.Error, 5000);
+            Log.Error("Failed to save the password '{Name}'}': {Message}", EntryName, result.Error!.Message);
+            SnackbarService.Instance.Show("Failed to save the password", SnackbarSeverity.Error, 5000);
             return;
         }
 
@@ -279,7 +288,8 @@ public class EntryFormViewModel : ViewModelBase
 
         if (result.HasError)
         {
-            SnackbarService.Instance.Show("Unable to save metadata", SnackbarSeverity.Error, 5000);
+            Log.Error("Failed to save the metadata for '{Name}': {Message}", EntryName, result.Error!.Message);
+            SnackbarService.Instance.Show("Failed to save the metadata", SnackbarSeverity.Error, 5000);
             return;
         }
 
@@ -311,7 +321,8 @@ public class EntryFormViewModel : ViewModelBase
 
         if (error is not null)
         {
-            SnackbarService.Instance.Show("Failed to decrypt metadata", SnackbarSeverity.Error, 5000);
+            Log.Error("Failed to read metadata for '{Name}': {Message}", EntryName, error.Message);
+            SnackbarService.Instance.Show("Failed to read metadata", SnackbarSeverity.Error, 5000);
             return;
         }
 
@@ -326,13 +337,19 @@ public class EntryFormViewModel : ViewModelBase
                     Type = metadata.Type,
                 };
 
-                if (metadata.Type == MetadataType.Internal)
+                switch (metadata.Type)
                 {
-                    InternalMetadatas.Add(item);
-                }
-                else if (metadata.Type == MetadataType.Normal)
-                {
-                    Metadatas.Add(item);
+                    case MetadataType.Internal:
+                        InternalMetadatas.Add(item);
+                        break;
+
+                    case MetadataType.Normal:
+                        Metadatas.Add(item);
+                        break;
+
+                    default:
+                        Log.Warning("Unknown metadata type: {Type}", metadata.Type);
+                        break;
                 }
             }
         });
@@ -364,6 +381,7 @@ public class EntryFormViewModel : ViewModelBase
         var (settings, error) = AppService.Instance.GetSettings();
         if (error is not null)
         {
+            Log.Warning("Failed to retrieve settings: {Message}", error.Message);
             SnackbarService.Instance.Show("Failed to retrieve settings", SnackbarSeverity.Warning);
             return;
         }

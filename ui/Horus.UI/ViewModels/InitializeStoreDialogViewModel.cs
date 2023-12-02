@@ -3,6 +3,7 @@ using Horus.Core.Services;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
@@ -60,7 +61,8 @@ public class InitializeStoreDialogViewModel : ViewModelBase
             return true;
         }
 
-        SnackbarService.Instance.Show($"Failed to initialize store: {result.Error!.Message}", SnackbarSeverity.Error, 5000);
+        Log.Error("Failed to initialize the store: {Message}", result.Error!.Message);
+        SnackbarService.Instance.Show($"Failed to initialize the store", SnackbarSeverity.Error, 5000);
         return false;
     }
 
@@ -69,12 +71,14 @@ public class InitializeStoreDialogViewModel : ViewModelBase
         var (isValidGpgId, errorVerifyGpgId) = AppService.Instance.IsGpgIdValid(GpgId);
         if (errorVerifyGpgId is not null)
         {
+            Log.Error("Failed to verify GPG ID '{ID}': {Message}", GpgId, errorVerifyGpgId.Message);
             SnackbarService.Instance.Show("Failed to verify GPG ID", SnackbarSeverity.Error, 5000);
             return false;
         }
 
         if (!isValidGpgId)
         {
+            Log.Error("GPG ID '{ID}' is not valid", GpgId);
             SnackbarService.Instance.Show("GPG ID is not valid", SnackbarSeverity.Error, 5000);
             return false;
         }

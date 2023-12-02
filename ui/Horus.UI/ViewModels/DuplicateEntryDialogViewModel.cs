@@ -2,12 +2,13 @@ using Horus.Core.Services;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
 public class DuplicateEntryDialogViewModel : ViewModelBase
 {
-    #region Public  methods
+    #region Props
 
     private string _name = string.Empty;
 
@@ -61,6 +62,7 @@ public class DuplicateEntryDialogViewModel : ViewModelBase
             return true;
         }
 
+        Log.Warning("Failed to duplicate the entry '{Name}' to '{NewName}': {Message}", Name, NewName, result.Error!.Message);
         SnackbarService.Instance.Show("Failed to duplicate the entry", SnackbarSeverity.Warning);
         return false;
     }

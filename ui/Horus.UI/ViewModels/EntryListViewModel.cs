@@ -5,7 +5,9 @@ using System.Linq;
 using DynamicData;
 using Horus.Core.Services;
 using Horus.Shared.Models.Display;
+using Horus.UI.Enums;
 using Horus.UI.Models;
+using Horus.UI.Services;
 using ReactiveUI;
 using Serilog;
 
@@ -53,7 +55,8 @@ public class EntryListViewModel : ViewModelBase
 
         if (error is not null)
         {
-            Log.Error("Unable to search store entries: {Message}", error.Message);
+            Log.Error("Failed to search store entries '{Text}': {Message}", SearchText, error.Message);
+            SnackbarService.Instance.Show("Failed to search store entries", SnackbarSeverity.Warning, 5000);
             return;
         }
 
@@ -72,7 +75,8 @@ public class EntryListViewModel : ViewModelBase
 
         if (error is not null)
         {
-            Log.Error("Unable to retrieve store entries: {Message}", error.Message);
+            Log.Error("Failed to retrieve store entries: {Message}", error.Message);
+            SnackbarService.Instance.Show("Failed to retrieve store entries", SnackbarSeverity.Error, 5000);
             return;
         }
 

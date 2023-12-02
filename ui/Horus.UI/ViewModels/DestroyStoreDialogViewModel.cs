@@ -3,6 +3,7 @@ using Horus.Core.Services;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
@@ -83,9 +84,10 @@ public class DestroyStoreDialogViewModel : ViewModelBase
         SpinnerOverlayService.Instance.Show();
         var result = AppService.Instance.DestroyStore();
         IsLoading = false;
-        
+
         if (result.HasError)
         {
+            Log.Error("Failed to destroy the store: {Message}", result.Error!.Message);
             SpinnerOverlayService.Instance.Hide();
             SnackbarService.Instance.Show("Failed to destroy the store", SnackbarSeverity.Error, 5000);
             return false;
@@ -114,6 +116,7 @@ public class DestroyStoreDialogViewModel : ViewModelBase
         var (name, error) = AppService.Instance.GitGetRemoteRepositoryName();
         if (error is not null)
         {
+            Log.Error("Failed to retrieve repository name: {Message}", error.Message);
             SnackbarService.Instance.Show("Failed to retrieve repository name", SnackbarSeverity.Error, 5000);
             return;
         }

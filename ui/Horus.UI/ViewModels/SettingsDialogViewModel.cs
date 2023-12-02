@@ -4,6 +4,7 @@ using Horus.Shared.Models.Data;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
@@ -66,6 +67,7 @@ public class SettingsDialogViewModel : ViewModelBase
 
         if (result.HasError)
         {
+            Log.Error("Failed to save settings: {Message}", result.Error!.Message);
             SnackbarService.Instance.Show("Failed to save settings", SnackbarSeverity.Error, 5000);
             return false;
         }
@@ -83,6 +85,7 @@ public class SettingsDialogViewModel : ViewModelBase
         var (settings, error) = AppService.Instance.GetSettings();
         if (error is not null)
         {
+            Log.Error("Failed to retrieve settings: {Message}", error.Message);
             SnackbarService.Instance.Show("Failed to retrieve settings", SnackbarSeverity.Error, 5000);
             return;
         }

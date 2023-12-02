@@ -8,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using Horus.Core.Services;
 using Horus.UI.Helpers;
 using Horus.UI.ViewModels;
+using Serilog;
 using MainWindow = Horus.UI.Windows.MainWindow;
 
 namespace Horus.UI;
@@ -48,25 +49,39 @@ public partial class App : Application
 
     private void MenuItemOpenGitHub_OnClick(object? sender, EventArgs e)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        try
         {
-            Process.Start("explorer.exe", GitHubPageUrl);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start("explorer.exe", GitHubPageUrl);
+            }
+            else
+            {
+                Process.Start(GitHubPageUrl);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Process.Start(GitHubPageUrl);
+            Log.Error("Failed to open '{Url}': {Message}", GitHubPageUrl, ex.Message);
         }
     }
 
     private void MenuItemOpenGitHubIssue_OnClick(object? sender, EventArgs e)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        try
         {
-            Process.Start("explorer.exe", GitHubIssuePageUrl);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start("explorer.exe", GitHubIssuePageUrl);
+            }
+            else
+            {
+                Process.Start(GitHubIssuePageUrl);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Process.Start(GitHubIssuePageUrl);
+            Log.Error("Failed to open '{Url}': {Message}", GitHubIssuePageUrl, ex.Message);
         }
     }
 
@@ -77,9 +92,18 @@ public partial class App : Application
 
     private void MenuItemOpenLogs_OnClick(object? sender, EventArgs e)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        var folder = AppService.Instance.GetLogsLocation().Replace("/", "\\");
+
+        try
         {
-            Process.Start("explorer.exe", AppService.Instance.GetLogsLocation().Replace("/", "\\"));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start("explorer.exe", folder);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error("Failed to open '{Folder}': {Message}", folder, ex.Message);
         }
     }
 

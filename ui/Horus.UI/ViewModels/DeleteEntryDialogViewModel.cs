@@ -1,7 +1,9 @@
-﻿using Horus.Core.Services;
+﻿using Avalonia.LogicalTree;
+using Horus.Core.Services;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
@@ -33,6 +35,7 @@ public class DeleteEntryDialogViewModel : ViewModelBase
 
         if (result.HasError)
         {
+            Log.Error("Failed to delete entry '{Name}': {Message}", Name, result.Error!.Message);
             SnackbarService.Instance.Show("Failed to delete entry", SnackbarSeverity.Error, 5000);
             return false;
         }

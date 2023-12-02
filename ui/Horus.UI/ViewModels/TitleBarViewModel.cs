@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Horus.Core.Services;
 using Horus.UI.Helpers;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
@@ -23,13 +25,20 @@ public class TitleBarViewModel : ViewModelBase
 
     public void OpenGitHubPage()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        try
         {
-            Process.Start("explorer.exe", App.GitHubPageUrl);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start("explorer.exe", App.GitHubPageUrl);
+            }
+            else
+            {
+                Process.Start(App.GitHubPageUrl);
+            }
         }
-        else
+        catch (Exception e)
         {
-            Process.Start(App.GitHubPageUrl);
+            Log.Error("Failed to open '{Url}': {Message}", App.GitHubPageUrl, e.Message);
         }
     }
 

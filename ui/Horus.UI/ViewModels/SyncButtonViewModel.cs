@@ -6,6 +6,7 @@ using Horus.Core.Services;
 using Horus.UI.Enums;
 using Horus.UI.Services;
 using ReactiveUI;
+using Serilog;
 
 namespace Horus.UI.ViewModels;
 
@@ -18,7 +19,7 @@ public class SyncButtonViewModel : ViewModelBase
     public bool IsSyncPossible
     {
         get => _isSyncPossible;
-        set { this.RaiseAndSetIfChanged(ref _isSyncPossible, value); }
+        set => this.RaiseAndSetIfChanged(ref _isSyncPossible, value);
     }
 
     private bool _isSyncBadgeVisible;
@@ -82,16 +83,18 @@ public class SyncButtonViewModel : ViewModelBase
         var result = AppService.Instance.GitPull();
         if (result.HasError)
         {
+            Log.Error("Failed to synchronize the store (pull): {Message}", result.Error!.Message);
             SpinnerOverlayService.Instance.Hide();
-            SnackbarService.Instance.Show("Fail to synchronize the store", SnackbarSeverity.Error, 5000);
+            SnackbarService.Instance.Show("Failed to synchronize the store", SnackbarSeverity.Error, 5000);
             return;
         }
 
         result = AppService.Instance.GitPush();
         if (result.HasError)
         {
+            Log.Error("Failed to synchronize the store (push): {Message}", result.Error!.Message);
             SpinnerOverlayService.Instance.Hide();
-            SnackbarService.Instance.Show("Fail to synchronize the store", SnackbarSeverity.Error, 5000);
+            SnackbarService.Instance.Show("Failed to synchronize the store", SnackbarSeverity.Error, 5000);
             return;
         }
 
@@ -107,26 +110,33 @@ public class SyncButtonViewModel : ViewModelBase
 
     private void DialogService_OnClose(DialogType dialogtype, object? data)
     {
-        if (dialogtype == DialogType.DestroyStore && data is true)
+        switch (dialogtype)
         {
-            StopAutoFetchStore();
-            IsSyncPossible = false;
-            IsSyncBadgeVisible = false;
-        }
-        else if (dialogtype == DialogType.InitializeStore)
-        {
-            AutoFetchStore();
-            IsSyncPossible = true;
-            IsSyncBadgeVisible = true;
+            case DialogType.DestroyStore when data is true:
+                StopAutoFetchStore();
+                IsSyncPossible = false;
+                IsSyncBadgeVisible = false;
+                break;
+
+            case DialogType.InitializeStore:
+                AutoFetchStore();
+                IsSyncPossible = true;
+                IsSyncBadgeVisible = true;
+                break;
         }
     }
 
     private void CheckStoreSync()
     {
         var (result, error) = AppService.Instance.GitFetch();
-        if (error is not null) return;
+        if (error is not null)
+        {
+            Log.Warning("Failed to fetch store: {Message}", error.Message);
+            return;
+        }
 
         var (aheadBy, behindBy) = result;
+        Log.Information("Checking remote store repository status: {Ahead} ahead / {Behind} behind", aheadBy, behindBy);
         AheadOfRemoteBy = aheadBy;
         BehindOfRemoteBy = behindBy;
         IsSyncBadgeVisible = AheadOfRemoteBy > 0 || BehindOfRemoteBy > 0;
@@ -134,20 +144,28 @@ public class SyncButtonViewModel : ViewModelBase
 
     private void StopAutoFetchStore()
     {
+        Log.Information("Stopping auto fetch store");
         _isAutoFetchRunning = false;
     }
 
     private void AutoFetchStore()
     {
         if (_isAutoFetchRunning || _autoFetchThread is { IsAlive: true }) return;
-        
+
+        Log.Information("Starting auto fetch store");
         _autoFetchThread = new Thread(() =>
         {
             while (_isAutoFetchRunning)
             {
                 CheckStoreSync();
 
-                Thread.Sleep(1000 * 60 * 5);
+                var (settings, error) = AppService.Instance.GetSettings();
+                if (error is not null)
+                {
+                    Log.Warning("Failed to retrieve settings: {Message}", error.Message);
+                }
+
+                Thread.Sleep(1000 * 60 * (error is null ? settings!.FetchInterval : 5));
             }
             // ReSharper disable once FunctionNeverReturns
         })
