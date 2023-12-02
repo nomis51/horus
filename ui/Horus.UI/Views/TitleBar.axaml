@@ -64,27 +64,42 @@
         <DockPanel Grid.Column="2"
                    HorizontalAlignment="Right"
                    VerticalAlignment="Center">
-            <Button x:Name="ButtonOpenGitHubPage"
-                    Classes="transparent titlebar"
-                    Click="ButtonOpenGitHubPage_OnClick">
-                <Button.Content>
-                    <icons:MaterialIcon Kind="Github" />
-                </Button.Content>
-            </Button>
-            <Button x:Name="ButtonOpenSettings"
-                    Classes="transparent titlebar"
-                    Click="ButtonOpenSettings_OnClick">
-                <Button.Content>
-                    <icons:MaterialIcon Kind="Settings" />
-                </Button.Content>
-            </Button>
-            <Button x:Name="ButtonOpenTerminal"
-                    Classes="transparent titlebar"
-                    Click="ButtonOpenTerminal_OnClick">
-                <Button.Content>
-                    <icons:MaterialIcon Kind="Terminal" />
-                </Button.Content>
-            </Button>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open the GitHub page"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOpenGitHubPage"
+                        Classes="transparent titlebar"
+                        Click="ButtonOpenGitHubPage_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Github" />
+                    </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open the settings"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOpenSettings"
+                        Classes="transparent titlebar"
+                        Click="ButtonOpenSettings_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Settings" />
+                    </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open a terminal in the store folder"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOpenTerminal"
+                        Classes="transparent titlebar"
+                        Click="ButtonOpenTerminal_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Terminal" />
+                    </Button.Content>
+                </Button>
+            </Border>
 
             <Border Height="20"
                     Width="2"

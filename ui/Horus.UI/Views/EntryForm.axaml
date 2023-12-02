@@ -22,28 +22,34 @@
         <StackPanel Spacing="5">
             <!-- Title -->
             <Grid ColumnDefinitions="Auto,Auto">
-                <Button Grid.Column="0"
-                        x:Name="ButtonEntryName"
-                        Classes="transparent"
+                <Border Grid.Column="0"
                         VerticalAlignment="Center"
-                        Click="ButtonEntryName_OnClick"
-                        IsVisible="{Binding !IsEditingName}"
-                        FontSize="36"
-                        MinHeight="48"
-                        Padding="0">
-                    <Button.Content>
-                        <DockPanel>
-                            <TextBlock Text="{Binding EntryName}"
-                                       VerticalAlignment="Center" />
-                            <icons:MaterialIcon VerticalAlignment="Center"
-                                                IsVisible="{Binding HasEntryNameAndNotEditingIt}"
-                                                Kind="Key"
-                                                Height="36"
-                                                Width="36"
-                                                Margin="5,0,0,0" />
-                        </DockPanel>
-                    </Button.Content>
-                </Button>
+                        Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="Click to edit"
+                        ToolTip.VerticalOffset="-5">
+                    <Button x:Name="ButtonEntryName"
+                            Classes="transparent"
+                            VerticalAlignment="Center"
+                            Click="ButtonEntryName_OnClick"
+                            IsVisible="{Binding !IsEditingName}"
+                            FontSize="36"
+                            MinHeight="48"
+                            Padding="0">
+                        <Button.Content>
+                            <DockPanel>
+                                <TextBlock Text="{Binding EntryName}"
+                                           VerticalAlignment="Center" />
+                                <icons:MaterialIcon VerticalAlignment="Center"
+                                                    IsVisible="{Binding HasEntryNameAndNotEditingIt}"
+                                                    Kind="Key"
+                                                    Height="36"
+                                                    Width="36"
+                                                    Margin="5,0,0,0" />
+                            </DockPanel>
+                        </Button.Content>
+                    </Button>
+                </Border>
                 <DockPanel Grid.Column="0"
                            VerticalAlignment="Center"
                            IsVisible="{Binding IsEditingName}">

@@ -1,4 +1,7 @@
-﻿using Horus.UI.ViewModels;
+﻿using Avalonia.Animation;
+using Horus.UI.Enums;
+using Horus.UI.Services;
+using Horus.UI.ViewModels;
 using Horus.UI.Views;
 
 namespace Horus.UI.Abstractions;
@@ -14,11 +17,27 @@ public class DialogView<T> : ViewBase<T>
 
     #endregion
 
+    #region Members
+
+    private readonly DialogType _type;
+
+    #endregion
+
+    #region Constructors
+
+    protected DialogView(DialogType type)
+    {
+        _type = type;
+    }
+
+    #endregion
+
     #region Protected methods
-    
+
     protected void OnClose(object? data = null)
     {
         Close?.Invoke(data);
+        DialogService.Instance.NotifyClose(_type);
     }
 
     #endregion

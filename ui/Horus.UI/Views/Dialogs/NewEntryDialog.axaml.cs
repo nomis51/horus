@@ -1,6 +1,7 @@
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Horus.UI.Abstractions;
+using Horus.UI.Enums;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
@@ -10,6 +11,7 @@ public partial class NewEntryDialog : DialogView<NewEntryDialogViewModel>
     #region Constructors
 
     public NewEntryDialog()
+        : base(DialogType.NewEntry)
     {
         InitializeComponent();
         Loaded += OnLoaded;

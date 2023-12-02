@@ -13,6 +13,14 @@ public class SyncButtonViewModel : ViewModelBase
 {
     #region Props
 
+    private bool _isSyncPossible;
+
+    public bool IsSyncPossible
+    {
+        get => _isSyncPossible;
+        set { this.RaiseAndSetIfChanged(ref _isSyncPossible, value); }
+    }
+
     private bool _isSyncBadgeVisible;
 
     public bool IsSyncBadgeVisible
@@ -48,10 +56,18 @@ public class SyncButtonViewModel : ViewModelBase
 
     #endregion
 
+    #region Members
+
+    private Thread? _autoFetchThread;
+    private bool _isAutoFetchRunning;
+
+    #endregion
+
     #region Constructors
 
     public SyncButtonViewModel()
     {
+        DialogService.Instance.OnClose += DialogService_OnClose;
         AutoFetchStore();
     }
 
@@ -89,6 +105,22 @@ public class SyncButtonViewModel : ViewModelBase
 
     #region Private methods
 
+    private void DialogService_OnClose(DialogType dialogtype, object? data)
+    {
+        if (dialogtype == DialogType.DestroyStore && data is true)
+        {
+            StopAutoFetchStore();
+            IsSyncPossible = false;
+            IsSyncBadgeVisible = false;
+        }
+        else if (dialogtype == DialogType.InitializeStore)
+        {
+            AutoFetchStore();
+            IsSyncPossible = true;
+            IsSyncBadgeVisible = true;
+        }
+    }
+
     private void CheckStoreSync()
     {
         var (result, error) = AppService.Instance.GitFetch();
@@ -100,11 +132,18 @@ public class SyncButtonViewModel : ViewModelBase
         IsSyncBadgeVisible = AheadOfRemoteBy > 0 || BehindOfRemoteBy > 0;
     }
 
+    private void StopAutoFetchStore()
+    {
+        _isAutoFetchRunning = false;
+    }
+
     private void AutoFetchStore()
     {
-        new Thread(() =>
+        if (_isAutoFetchRunning || _autoFetchThread is { IsAlive: true }) return;
+        
+        _autoFetchThread = new Thread(() =>
         {
-            while (true)
+            while (_isAutoFetchRunning)
             {
                 CheckStoreSync();
 
@@ -114,7 +153,10 @@ public class SyncButtonViewModel : ViewModelBase
         })
         {
             IsBackground = true
-        }.Start();
+        };
+        _isAutoFetchRunning = true;
+        IsSyncPossible = true;
+        _autoFetchThread.Start();
     }
 
     #endregion

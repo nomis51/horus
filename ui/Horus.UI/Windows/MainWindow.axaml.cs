@@ -61,6 +61,8 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             return;
         }
 
+        // TODO: titlebar
+        
         DialogService.Instance.Show(DialogType.InitializeStore);
     }
 

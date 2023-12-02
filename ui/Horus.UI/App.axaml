@@ -3,7 +3,9 @@
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="Horus.UI.App"
              xmlns:ui="clr-namespace:Horus.UI"
-             RequestedThemeVariant="Default">
+             xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
+             RequestedThemeVariant="Default"
+             x:DataType="viewModels:AppViewModel">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Resources>
@@ -29,7 +31,7 @@
                     <NativeMenu>
                         <NativeMenuItem Header="About">
                             <NativeMenu>
-                                <NativeMenuItem Header="Version 1.2.3" />
+                                <NativeMenuItem Header="{Binding VersionText}" />
                                 <NativeMenuItemSeparator />
                                 <NativeMenuItem Header="Open application website"
                                                 Click="MenuItemOpenGitHub_OnClick" />

@@ -17,7 +17,7 @@ public partial class App : Application
     #region Constants
 
     public const string GitHubPageUrl = "https://github.com/nomis51/horus";
-    public const string GitHubIssuePageUrl = $"{GitHubPageUrl}/issues";
+    private const string GitHubIssuePageUrl = $"{GitHubPageUrl}/issues";
 
     #endregion
 
@@ -26,6 +26,7 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+        DataContext = new AppViewModel();
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -51,6 +52,10 @@ public partial class App : Application
         {
             Process.Start("explorer.exe", GitHubPageUrl);
         }
+        else
+        {
+            Process.Start(GitHubPageUrl);
+        }
     }
 
     private void MenuItemOpenGitHubIssue_OnClick(object? sender, EventArgs e)
@@ -58,6 +63,10 @@ public partial class App : Application
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             Process.Start("explorer.exe", GitHubIssuePageUrl);
+        }
+        else
+        {
+            Process.Start(GitHubIssuePageUrl);
         }
     }
 

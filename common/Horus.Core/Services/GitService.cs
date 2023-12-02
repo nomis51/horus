@@ -249,6 +249,7 @@ public class GitService : IGitService
                 {
                     GitProcessName,
                     "clone",
+                    url,
                     dirPath
                 })
                 .Execute();
@@ -338,7 +339,8 @@ public class GitService : IGitService
                     $"\"{message}\"",
                 })
                 .Execute();
-            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+            if (!result.Successful && result.OutputLines.FirstOrDefault(l => l.Contains("nothing to commit, working tree clean")) is null)
+                throw new Exception(string.Join("\n", result.ErrorLines));
         }
         catch (Exception e)
         {

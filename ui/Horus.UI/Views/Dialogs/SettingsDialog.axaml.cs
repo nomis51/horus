@@ -2,7 +2,6 @@
 using Avalonia.Interactivity;
 using Horus.UI.Abstractions;
 using Horus.UI.Enums;
-using Horus.UI.Services;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
@@ -12,6 +11,7 @@ public partial class SettingsDialog : DialogView<SettingsDialogViewModel>
     #region Constructors
 
     public SettingsDialog()
+        : base(DialogType.Settings)
     {
         InitializeComponent();
     }

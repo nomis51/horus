@@ -1,5 +1,6 @@
 ﻿using Avalonia.Interactivity;
 using Horus.UI.Abstractions;
+using Horus.UI.Enums;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
@@ -9,6 +10,7 @@ public partial class DeleteEntryDialog : DialogView<DeleteEntryDialogViewModel>
     #region Constructors
 
     public DeleteEntryDialog()
+        : base(DialogType.DeleteEntry)
     {
         InitializeComponent();
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Avalonia.Interactivity;
 using Horus.UI.Abstractions;
+using Horus.UI.Enums;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
@@ -10,6 +11,7 @@ public partial class InitializeStoreDialog : DialogView<InitializeStoreDialogVie
     #region Constructors
 
     public InitializeStoreDialog()
+        : base(DialogType.InitializeStore)
     {
         InitializeComponent();
     }

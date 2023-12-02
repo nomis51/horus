@@ -1,6 +1,7 @@
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Horus.UI.Abstractions;
+using Horus.UI.Enums;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
@@ -10,6 +11,7 @@ public partial class DuplicateEntryDialog : DialogView<DuplicateEntryDialogViewM
     #region Constructors
 
     public DuplicateEntryDialog()
+        : base(DialogType.DuplicateEntry)
     {
         InitializeComponent();
         Loaded += OnLoaded;

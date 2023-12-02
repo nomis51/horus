@@ -10,7 +10,7 @@ public class TitleBarViewModel : ViewModelBase
     #region Props
 
     public SyncButtonViewModel SyncButtonViewModel { get; set; } = new();
-    
+
     public string Title => nameof(Horus);
     public int TitleSize => 18;
     public int LogoSize => 20;
@@ -18,7 +18,7 @@ public class TitleBarViewModel : ViewModelBase
     public int SystemButtonsWidth => 38;
 
     #endregion
-    
+
     #region Public methods
 
     public void OpenGitHubPage()
@@ -26,6 +26,10 @@ public class TitleBarViewModel : ViewModelBase
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             Process.Start("explorer.exe", App.GitHubPageUrl);
+        }
+        else
+        {
+            Process.Start(App.GitHubPageUrl);
         }
     }
 

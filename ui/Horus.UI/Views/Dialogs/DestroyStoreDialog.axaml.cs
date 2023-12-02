@@ -1,5 +1,6 @@
 ﻿using Avalonia.Interactivity;
 using Horus.UI.Abstractions;
+using Horus.UI.Enums;
 using Horus.UI.ViewModels;
 
 namespace Horus.UI.Views.Dialogs;
@@ -9,6 +10,7 @@ public partial class DestroyStoreDialog : DialogView<DestroyStoreDialogViewModel
     #region Constructors
 
     public DestroyStoreDialog()
+        : base(DialogType.DestroyStore)
     {
         InitializeComponent();
     }

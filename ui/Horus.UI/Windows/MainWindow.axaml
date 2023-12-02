@@ -5,6 +5,7 @@
         xmlns:viewModels="clr-namespace:Horus.UI.ViewModels"
         xmlns:views="clr-namespace:Horus.UI.Views"
         xmlns:avaloniaProgressRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+        xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d"
         d:DesignWidth="800"
         d:DesignHeight="450"
@@ -26,6 +27,7 @@
         <viewModels:MainWindowViewModel />
     </Design.DataContext>
 
+    
     <Grid RowDefinitions="Auto,*">
         <views:TitleBar DataContext="{Binding TitleBarViewModel}"
                         Grid.Row="0"
@@ -63,25 +65,29 @@
                     Classes="paper"
                     Margin="3.5, 0, 7, 7"
                     IsVisible="{Binding !EntrySelected}">
-                <TextBlock Text="Select an entry" />
+                <views:HomeScreen />
             </Border>
         </Grid>
-        <StackPanel Spacing="4"
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Center">
-            <avaloniaProgressRing:ProgressRing Width="50"
-                                               Height="50"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               IsActive="True"
-                                               IsVisible="{Binding IsLoading}"
-                                               Foreground="{StaticResource AccentColor}" />
-            <TextBlock Text="{Binding LoadingMessage}"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center" />
-        </StackPanel>
+        <Grid Grid.Row="1"
+              Grid.Column="0"
+              VerticalAlignment="Center"
+              HorizontalAlignment="Center">
+            <StackPanel Spacing="4"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <avaloniaProgressRing:ProgressRing Width="50"
+                                                   Height="50"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsActive="True"
+                                                   IsVisible="{Binding IsLoading}"
+                                                   Foreground="{StaticResource AccentColor}" />
+                <TextBlock Text="{Binding LoadingMessage}"
+                           IsVisible="{Binding IsLoading}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
         <views:DialogManager x:Name="DialogManager"
                              Grid.Row="1"
                              Grid.Column="0"
