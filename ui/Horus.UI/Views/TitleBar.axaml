@@ -57,7 +57,8 @@
                     BorderBrush="DarkGray"
                     BorderThickness="1,0,0,0" />
 
-            <views:SyncButton DataContext="{Binding SyncButtonViewModel}" Classes="titlebar" />
+            <views:SyncButton DataContext="{Binding SyncButtonViewModel}"
+                              Classes="titlebar" />
         </DockPanel>
 
         <DockPanel Grid.Column="2"

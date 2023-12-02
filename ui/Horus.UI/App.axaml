@@ -20,21 +20,54 @@
         <ui:ViewLocator />
     </Application.DataTemplates>
 
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/logo.ico"
+                      ToolTipText="Horus">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="About">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Version 1.2.3" />
+                                <NativeMenuItemSeparator />
+                                <NativeMenuItem Header="Open application website"
+                                                Click="MenuItemOpenGitHub_OnClick" />
+                                <NativeMenuItem Header="Report a bug"
+                                                Click="MenuItemOpenGitHubIssue_OnClick" />
+                            </NativeMenu>
+                        </NativeMenuItem>
+                        <NativeMenuItem Header="Resources">
+                            <NativeMenu>
+                                <NativeMenuItem Header="Open application terminal"
+                                                Click="MenuItemOpenTerminal_OnClick" />
+                                <NativeMenuItem Header="Open logs folder"
+                                                Click="MenuItemOpenLogs_OnClick" />
+                            </NativeMenu>
+                        </NativeMenuItem>
+                        <NativeMenuItemSeparator />
+                        <NativeMenuItem Header="Quit"
+                                        Click="MenuItemQuit_OnClick" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
+
     <Application.Styles>
         <materialIcons:MaterialIconStyles />
-        
+
         <FluentTheme>
             <FluentTheme.Palettes>
                 <ColorPaletteResources x:Key="Dark"
-                                      Accent="{StaticResource AccentColor}" />
+                                       Accent="{StaticResource AccentColor}" />
             </FluentTheme.Palettes>
         </FluentTheme>
-        
-        <StyleInclude Source="avares://AvaloniaProgressRing/Styles/ProgressRing.xaml"/>
-        
-        <StyleInclude Source="Styles/TextBox.axaml"/>
-        <StyleInclude Source="Styles/Button.axaml"/>
-        <StyleInclude Source="Styles/DockPanel.axaml"/>
-        <StyleInclude Source="Styles/Border.axaml"/>
+
+        <StyleInclude Source="avares://AvaloniaProgressRing/Styles/ProgressRing.xaml" />
+
+        <StyleInclude Source="Styles/TextBox.axaml" />
+        <StyleInclude Source="Styles/Button.axaml" />
+        <StyleInclude Source="Styles/DockPanel.axaml" />
+        <StyleInclude Source="Styles/Border.axaml" />
     </Application.Styles>
 </Application>

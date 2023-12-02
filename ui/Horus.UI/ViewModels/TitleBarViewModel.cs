@@ -7,12 +7,6 @@ namespace Horus.UI.ViewModels;
 
 public class TitleBarViewModel : ViewModelBase
 {
-    #region Constants
-
-    private const string GitHubPageUrl = "https://github.com/nomis51/horus";
-
-    #endregion
-
     #region Props
 
     public SyncButtonViewModel SyncButtonViewModel { get; set; } = new();
@@ -24,15 +18,14 @@ public class TitleBarViewModel : ViewModelBase
     public int SystemButtonsWidth => 38;
 
     #endregion
-
-
+    
     #region Public methods
 
     public void OpenGitHubPage()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            Process.Start("explorer.exe", GitHubPageUrl);
+            Process.Start("explorer.exe", App.GitHubPageUrl);
         }
     }
 
