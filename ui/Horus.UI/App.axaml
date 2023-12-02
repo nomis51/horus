@@ -61,6 +61,8 @@
             <FluentTheme.Palettes>
                 <ColorPaletteResources x:Key="Dark"
                                        Accent="{StaticResource AccentColor}" />
+                <ColorPaletteResources x:Key="Light"
+                                       Accent="{StaticResource AccentColor}" />
             </FluentTheme.Palettes>
         </FluentTheme>
 
