@@ -22,6 +22,11 @@ foreach ($csprojFilePath in $csprojFilePaths) {
     $xmlDoc.Save($path)
 }
 
+$path = resolve-path "./nuget-template.nuspec"
+    [xml]$xmlDoc = Get-Content $path
+    $xmlDoc.package.metadata.version = $version
+    $xmlDoc.Save($path)
+
 cd ../..
 git add .
 $msg = "Version update $version"
