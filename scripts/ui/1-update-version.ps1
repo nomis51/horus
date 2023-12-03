@@ -9,16 +9,16 @@ $version = "$major.$minor.$patch"
 $csprojFilePaths = @(
     '../../ui/Horus/Horus.csproj',
     '../../common/Horus.Shared/Horus.Shared.csproj',
-    '../../common/Horus.Data/Horus.Data.csproj',
+    '../../common/Horus.Core/Horus.Core.csproj'
 )
 
-Write-Output "Updating version"
 foreach ($csprojFilePath in $csprojFilePaths) {
+
     $path = resolve-path $csprojFilePath
     [xml]$xmlDoc = Get-Content $path
-    $xmlDoc.Project.PropertyGroup.PackageVersion = $version
-    $xmlDoc.Project.PropertyGroup.AssemblyVersion = $version
-    $xmlDoc.Project.PropertyGroup.FileVersion = $version
+    $xmlDoc.Project.PropertyGroup[0].PackageVersion = $version
+    $xmlDoc.Project.PropertyGroup[0].AssemblyVersion = $version
+    $xmlDoc.Project.PropertyGroup[0].FileVersion = $version
     $xmlDoc.Save($path)
 }
 
