@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horus", "Horus\Horus.csproj", "{DE03F34C-17A4-435D-B41E-C3294C97CB32}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{49CECB64-3528-42B0-B8AA-E2CD8EE60A63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horus.Shared", "..\common\Horus.Shared\Horus.Shared.csproj", "{207D0CE2-2832-4D02-B853-9C96C9CE9738}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horus.Core", "..\common\Horus.Core\Horus.Core.csproj", "{8DC4C227-0981-419E-B757-0399EDAC9914}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE03F34C-17A4-435D-B41E-C3294C97CB32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE03F34C-17A4-435D-B41E-C3294C97CB32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE03F34C-17A4-435D-B41E-C3294C97CB32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE03F34C-17A4-435D-B41E-C3294C97CB32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{207D0CE2-2832-4D02-B853-9C96C9CE9738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{207D0CE2-2832-4D02-B853-9C96C9CE9738}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{207D0CE2-2832-4D02-B853-9C96C9CE9738}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{207D0CE2-2832-4D02-B853-9C96C9CE9738}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DC4C227-0981-419E-B757-0399EDAC9914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DC4C227-0981-419E-B757-0399EDAC9914}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DC4C227-0981-419E-B757-0399EDAC9914}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DC4C227-0981-419E-B757-0399EDAC9914}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{207D0CE2-2832-4D02-B853-9C96C9CE9738} = {49CECB64-3528-42B0-B8AA-E2CD8EE60A63}
+		{8DC4C227-0981-419E-B757-0399EDAC9914} = {49CECB64-3528-42B0-B8AA-E2CD8EE60A63}
+	EndGlobalSection
+EndGlobal

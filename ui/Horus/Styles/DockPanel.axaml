@@ -1,0 +1,24 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+    <Style Selector="DockPanel.success">
+        <Setter Property="Background"
+                Value="{StaticResource SuccessColor}" />
+    </Style>
+    <Style Selector="DockPanel.error">
+        <Setter Property="Background"
+                Value="{StaticResource ErrorColor}" />
+    </Style>
+    <Style Selector="DockPanel.accent">
+        <Setter Property="Background"
+                Value="{DynamicResource SystemAccentColor}" />
+    </Style>
+    <Style Selector="DockPanel.warning">
+        <Setter Property="Background"
+                Value="Orange" />
+    </Style>
+</Styles>

@@ -1,0 +1,102 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="Button.accent">
+        <Setter Property="Background"
+                Value="{DynamicResource AccentButtonBackground}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+    <Style Selector="Button.accent:pointerover /template/ ContentPresenter">
+        <Setter Property="Background"
+                Value="{DynamicResource AccentButtonBackgroundPressed}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.error">
+        <Setter Property="Background"
+                Value="{StaticResource ErrorColor}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+    <Style Selector="Button.error:pointerover /template/ ContentPresenter">
+        <Setter Property="Background"
+                Value="{StaticResource ErrorLowColor}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.warning">
+        <Setter Property="Background"
+                Value="Orange" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+    <Style Selector="Button.warning:pointerover /template/ ContentPresenter">
+        <Setter Property="Background"
+                Value="DarkOrange" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.success">
+        <Setter Property="Background"
+                Value="{StaticResource SuccessColor}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+    <Style Selector="Button.success:pointerover /template/ ContentPresenter">
+        <Setter Property="Background"
+                Value="{StaticResource SuccessLowColor}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.transparent">
+        <Setter Property="Background"
+                Value="Transparent" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+    <Style Selector="Button.transparent:pointerover /template/ ContentPresenter">
+        <Setter Property="Background"
+                Value="{DynamicResource SystemBaseLowColor}" />
+        <Setter Property="Foreground"
+                Value="{DynamicResource AccentButtonForeground}" />
+        <Setter Property="Cursor"
+                Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.text">
+        <Setter Property="Background"
+                Value="Transparent" />
+    </Style>
+    <Style Selector="Button.fab">
+        <Setter Property="CornerRadius"
+                Value="100" />
+    </Style>
+</Styles>
