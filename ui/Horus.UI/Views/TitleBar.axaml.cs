@@ -49,6 +49,15 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
 
     #endregion
 
+    #region Public methods
+
+    public void UpdateAvailable(string version)
+    {
+        ViewModel?.ShowUpdateIcon(version);
+    }
+
+    #endregion
+
     #region Private methods
 
     private void TitleBar_OnPointerMoved(object? sender, PointerEventArgs e)

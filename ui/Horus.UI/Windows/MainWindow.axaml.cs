@@ -32,6 +32,15 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
     #endregion
 
+    #region Public methods
+
+    public void UpdateAvailable(string version)
+    {
+        TitleBar.UpdateAvailable(version);
+    }
+
+    #endregion
+
     #region Private methods
 
     private void SpinnerOverlay_OnHide()

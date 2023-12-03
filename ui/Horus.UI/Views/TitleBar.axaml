@@ -59,6 +59,25 @@
 
             <views:SyncButton DataContext="{Binding SyncButtonViewModel}"
                               Classes="titlebar" />
+
+            <Grid IsVisible="{Binding IsUpdateIconVisible}">
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="{Binding UpdateMessage}"
+                        ToolTip.VerticalOffset="-5">
+                    <Button Classes="transparent titlebar">
+                        <Button.Content>
+                            <icons:MaterialIcon Kind="Update" />
+                        </Button.Content>
+                    </Button>
+                </Border>
+                <Ellipse Fill="{StaticResource AccentColor}"
+                         Height="8"
+                         Width="8"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Top"
+                         Margin="0,3,3,0" />
+            </Grid>
         </DockPanel>
 
         <DockPanel Grid.Column="2"

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Horus.Core.Services;
 using Horus.UI.Helpers;
+using ReactiveUI;
 using Serilog;
 
 namespace Horus.UI.ViewModels;
@@ -19,9 +20,29 @@ public class TitleBarViewModel : ViewModelBase
     public int ButtonsSize => 30;
     public int SystemButtonsWidth => 38;
 
+    private bool _isUpdateIconVisible;
+
+    public bool IsUpdateIconVisible
+    {
+        get => _isUpdateIconVisible;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _isUpdateIconVisible, value);
+            this.RaisePropertyChanged(nameof(UpdateMessage));
+        }
+    }
+
+    public string UpdateMessage { get; private set; } = string.Empty;
+
     #endregion
 
     #region Public methods
+
+    public void ShowUpdateIcon(string version)
+    {
+        UpdateMessage = $"New version {version} ready to be installed after a restart";
+        IsUpdateIconVisible = true;
+    }
 
     public void OpenGitHubPage()
     {
