@@ -59,6 +59,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
 
     private void OnLoaded(object? sender, RoutedEventArgs e)
     {
+        Height += 1;
         VerifyStoreInitialized();
     }
 
@@ -173,6 +174,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
                 break;
         }
     }
+
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
         if (e.CloseReason == WindowCloseReason.WindowClosing)
@@ -183,6 +185,10 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         }
     }
 
-    #endregion
+    private void WindowBase_OnResized(object? sender, WindowResizedEventArgs e)
+    {
+        EntryList.WindowResized(Height);
+    }
 
+    #endregion
 }

@@ -1,4 +1,5 @@
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -32,11 +33,18 @@ public partial class EntryList : ViewBase<EntryListViewModel>
 
     #region Public methods
 
+    public void WindowResized(double height)
+    {
+        TreeView.Height = height - 120;
+    }
+
     public void ReloadList(bool autoSelectFirst = false)
     {
         Dispatch(vm =>
         {
             vm?.RetrieveEntries();
+            if (!autoSelectFirst) return;
+
             InvokeUi(() => { TreeView.SelectedItem = TreeView.Items.FirstOrDefault(); });
         });
     }
