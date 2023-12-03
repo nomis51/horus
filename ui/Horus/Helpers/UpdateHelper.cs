@@ -9,6 +9,12 @@ namespace Horus.Helpers;
 
 public static class UpdateHelper
 {
+    #region Constants
+
+    private const string UpdateUrl = "https://github.com/nomis51/horus/releases/latest";
+
+    #endregion
+    
     #region Public methods
 
     public static async Task<string> CheckForUpdates()
@@ -18,7 +24,7 @@ public static class UpdateHelper
             try
             {
                 Log.Information("Checking for updates");
-                using var updateManager = new UpdateManager(App.GitHubPageUrl);
+                using var updateManager = new UpdateManager(UpdateUrl);
                 var info = await updateManager.CheckForUpdate();
 
                 if (info.ReleasesToApply.Count == 0) return string.Empty;
