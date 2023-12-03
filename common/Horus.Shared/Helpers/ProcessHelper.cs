@@ -1,4 +1,5 @@
 ﻿using Horus.Shared.Models.Terminal;
+using Serilog;
 
 namespace Horus.Shared.Helpers;
 

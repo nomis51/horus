@@ -6,8 +6,6 @@
              xmlns:horus="clr-namespace:Horus"
              RequestedThemeVariant="Dark"
              x:DataType="viewModels:AppViewModel">
-    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-
     <Application.Resources>
         <ResourceDictionary>
             <Color x:Key="AccentColor">#097fbf</Color>

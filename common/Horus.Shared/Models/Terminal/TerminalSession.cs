@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Serilog;
 
 namespace Horus.Shared.Models.Terminal;
 
@@ -47,21 +48,30 @@ public class TerminalSession
     public TerminalSessionResult Execute()
     {
         var pipedCommands = string.Join(" | ", _arguments.Select(args => string.Join(" ", args)));
-        _process.StartInfo.Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-            ? $"/C {pipedCommands}"
-            : $"-c '{pipedCommands}'";
-        _process.Start();
-        if (!_waitForExit) return new TerminalSessionResult();
+        try
+        {
+            _process.StartInfo.Arguments = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? $"/C {pipedCommands}"
+                : $"-c '{pipedCommands}'";
+            _process.Start();
+            if (!_waitForExit) return new TerminalSessionResult();
 
-        _process.WaitForExit();
-        var stderr = _process.StandardError.ReadToEnd();
-        var stdout = _process.StandardOutput.ReadToEnd();
+            _process.WaitForExit();
+            var stderr = _process.StandardError.ReadToEnd();
+            var stdout = _process.StandardOutput.ReadToEnd();
 
-        return new TerminalSessionResult(
-            _process.ExitCode == 0,
-            stderr.Split(Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries),
-            stdout.Split(Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-        );
+            return new TerminalSessionResult(
+                _process.ExitCode == 0,
+                stderr.Split(Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries),
+                stdout.Split(Environment.NewLine, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            );
+        }
+        catch (Exception e)
+        {
+            Log.Error("Failed to execute process '{Command} {Args}': {Message}", _process.StartInfo.FileName, pipedCommands, e.Message);
+        }
+
+        return new TerminalSessionResult();
     }
 
     #endregion
