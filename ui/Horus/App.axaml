@@ -31,6 +31,8 @@
                             <NativeMenu>
                                 <NativeMenuItem Header="{Binding VersionText}" />
                                 <NativeMenuItemSeparator />
+                                <NativeMenuItem Header="Check for updates"
+                                                Click="MenuItemCheckForUpdates_OnClick" />
                                 <NativeMenuItem Header="Open application website"
                                                 Click="MenuItemOpenGitHub_OnClick" />
                                 <NativeMenuItem Header="Report a bug"

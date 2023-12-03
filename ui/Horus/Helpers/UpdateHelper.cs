@@ -26,6 +26,8 @@ public static class UpdateHelper
             {
                 Log.Information("Checking for updates");
                 using var updateManager = new UpdateManager(new GithubSource(UpdateUrl, string.Empty, true));
+                if (!updateManager.IsInstalledApp) return string.Empty;
+                
                 var info = await updateManager.CheckForUpdate();
 
                 if (info.ReleasesToApply.Count == 0) return string.Empty;
@@ -40,9 +42,7 @@ public static class UpdateHelper
             }
             catch (Exception e)
             {
-                if (e.Message.Contains("Update.exe not found, not a Squirrel-installed app?")) return string.Empty;
-
-                Log.Warning("Failed to check / download updates: {Message}", e.Message);
+                Log.Warning("Failed to check / install updates: {Message}", e.Message);
             }
         }
 

@@ -121,4 +121,9 @@ public partial class App : Application
     }
 
     #endregion
+
+    private void MenuItemCheckForUpdates_OnClick(object? sender, EventArgs e)
+    {
+        ((AppViewModel)DataContext!).CheckForUpdates();
+    }
 }
