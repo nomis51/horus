@@ -19,11 +19,12 @@ sealed class Program
             SquirrelAwareApp.HandleEvents(
                 onInitialInstall: OnAppInstall,
                 onAppUninstall: OnAppUninstall,
-                onEveryRun: OnAppRun);
+                onEveryRun: OnAppRun
+            );
         }
 
         AppService.Instance.Initialize(new AppServiceDependenciesProvider(
-            new FsService(".horus-tests"),
+            new FsService(),
             new GitService(),
             new GpgService(),
             new SettingsService()
