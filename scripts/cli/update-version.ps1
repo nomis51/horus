@@ -1,29 +1,30 @@
 param(
-	[Parameter(Mandatory=$true)][string]$major,
-	[Parameter(Mandatory=$true)][string]$minor,
-	[Parameter(Mandatory=$true)][string]$patch
+	[Parameter(Mandatory=$true)][string]$version
 )
-
-$version = "$major.$minor.$patch"
 
 $csprojFilePaths = @(
-    '../cli/WinPass/WinPass.csproj',
-    '../common/WinPass.Shared/WinPass.Shared.csproj',
-    '../common/WinPass.Core/WinPass.Core.csproj'
+    '../../cli/Horus.CLI/Horus.CLI.csproj',
+    '../../common/Horus.Shared/Horus.Shared.csproj',
+    '../../common/Horus.Core/Horus.Core.csproj'
 )
 
-Write-Output "Updating version"
 foreach ($csprojFilePath in $csprojFilePaths) {
+
     $path = resolve-path $csprojFilePath
     [xml]$xmlDoc = Get-Content $path
-    $xmlDoc.Project.PropertyGroup.PackageVersion = $version
-    $xmlDoc.Project.PropertyGroup.AssemblyVersion = $version
-    $xmlDoc.Project.PropertyGroup.FileVersion = $version
+    $xmlDoc.Project.PropertyGroup[0].PackageVersion = $version
+    $xmlDoc.Project.PropertyGroup[0].AssemblyVersion = $version
+    $xmlDoc.Project.PropertyGroup[0].FileVersion = $version
     $xmlDoc.Save($path)
 }
 
-cd ..
+$path = resolve-path "./nuget-template.nuspec"
+    [xml]$xmlDoc = Get-Content $path
+    $xmlDoc.package.metadata.version = $version
+    $xmlDoc.Save($path)
+
+cd ../..
 git add .
-$msg = "Version update $version"
+$msg = "CLI version update $version"
 git commit -m $msg
-cd scripts
+cd ./scripts/ui
