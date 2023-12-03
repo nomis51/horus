@@ -11,11 +11,11 @@ Bring the great ideas of [zx2c4 password-store](https://www.passwordstore.org/) 
 ### Windows
 
 - Have [Git](https://git-scm.com/download/win) installed
-- Have [GnuPG for Windows](https://gnupg.org/download/) or GPG (linux) installed
+- Have [GnuPG for Windows](https://gnupg.org/download/) installed
 - Have [.NET 8](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) installed
 - Go to the [Release](https://github.com/nomis51/horus/releases/latest) section
 
-### Linux
+### Linux (Work in progress)
 
 - Have [.NET 8](https://learn.microsoft.com/en-us/dotnet/core/install/linux) installed (Check AUR on Arch)
 - Go to the [Release](https://github.com/nomis51/horus/releases/latest) section
