@@ -3,8 +3,8 @@
 public class TerminalSessionResult
 {
     public bool Successful { get; }
-    public List<string> ErrorLines { get; }
-    public List<string> OutputLines { get; }
+    public List<string> ErrorLines { get; } = new();
+    public List<string> OutputLines { get; }= new();
 
     public TerminalSessionResult()
     {
