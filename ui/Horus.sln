@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horus.UI", "Horus.UI\Horus.UI.csproj", "{DE03F34C-17A4-435D-B41E-C3294C97CB32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horus", "Horus\Horus.csproj", "{DE03F34C-17A4-435D-B41E-C3294C97CB32}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{49CECB64-3528-42B0-B8AA-E2CD8EE60A63}"
 EndProject

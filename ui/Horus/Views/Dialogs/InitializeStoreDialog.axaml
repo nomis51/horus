@@ -1,0 +1,97 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:avaloniaProgressRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+             xmlns:viewModels="clr-namespace:Horus.ViewModels"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             MinWidth="650"
+             x:Class="Horus.Views.Dialogs.InitializeStoreDialog"
+             x:DataType="viewModels:InitializeStoreDialogViewModel">
+    <Border Background="#333"
+            CornerRadius="4"
+            BorderThickness="2"
+            BorderBrush="{DynamicResource AccentButtonBackground}">
+        <Grid RowDefinitions="Auto,*,Auto">
+            <Grid Grid.Column="0"
+                  ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Margin="10,5,0,0"
+                           FontWeight="Bold"
+                           FontSize="18"
+                           Grid.Column="0"
+                           Text="Create a password store" />
+                <Button Grid.Column="2"
+                        x:Name="ButtonClose"
+                        IsEnabled="{Binding !IsLoading}"
+                        Classes="transparent"
+                        Click="ButtonClose_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="WindowClose" />
+                    </Button.Content>
+                </Button>
+            </Grid>
+            <StackPanel Grid.Row="1"
+                        Spacing="5"
+                        Margin="5,5">
+                <TextBox x:Name="TextBoxGpgId"
+                         IsEnabled="{Binding !IsLoading}"
+                         Watermark="GPG ID"
+                         UseFloatingWatermark="True"
+                         MinHeight="48"
+                         MaxHeight="48"
+                         Text="{Binding GpgId, Mode=TwoWay}"
+                         Classes="clearButton" />
+                <TextBox x:Name="TextBoxGitUrl"
+                         IsEnabled="{Binding !IsLoading}"
+                         Watermark="Remote Git URL (private)"
+                         UseFloatingWatermark="True"
+                         MinHeight="48"
+                         MaxHeight="48"
+                         Text="{Binding GitUrl, Mode=TwoWay}"
+                         Classes="clearButton" />
+            </StackPanel>
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*,Auto"
+                  Margin="5,10,5,5">
+                <avaloniaProgressRing:ProgressRing Grid.Column="0"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Bottom"
+                                                   Width="25"
+                                                   Height="25"
+                                                   IsActive="True"
+                                                   IsVisible="{Binding IsLoading}"
+                                                   Foreground="{StaticResource AccentColor}" />
+                <DockPanel Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom">
+                    <Button Classes="text"
+                            IsEnabled="{Binding !IsLoading}"
+                            x:Name="ButtonQuit"
+                            Click="ButtonQuit_OnClick">
+                        <Button.Content>
+                            <TextBlock Text="Quit" />
+                        </Button.Content>
+                    </Button>
+                    <Button Classes="accent"
+                            IsEnabled="{Binding !IsLoading}"
+                            Margin="5,0,0,0"
+                            x:Name="ButtonCreate"
+                            Click="ButtonCreate_OnClick">
+                        <Button.Content>
+                            <DockPanel>
+                                <TextBlock Text="Create"
+                                           VerticalAlignment="Center" />
+                                <icons:MaterialIcon Margin="5, 2, 0, 0"
+                                                    VerticalAlignment="Center"
+                                                    Kind="Plus" />
+                            </DockPanel>
+                        </Button.Content>
+                    </Button>
+                </DockPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

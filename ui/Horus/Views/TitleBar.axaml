@@ -1,0 +1,153 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:views="clr-namespace:Horus.UI.Views"
+             xmlns:viewModels="clr-namespace:Horus.ViewModels"
+             xmlns:views1="clr-namespace:Horus.Views"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:DataType="viewModels:TitleBarViewModel"
+             x:Class="Horus.Views.TitleBar">
+    <UserControl.Styles>
+        <Style Selector="Button.titlebar">
+            <Setter Property="Height"
+                    Value="{Binding ButtonsSize}" />
+            <Setter Property="Width"
+                    Value="{Binding ButtonsSize}" />
+        </Style>
+        <Style Selector="Button.titlebarSystem">
+            <Setter Property="Height"
+                    Value="{Binding ButtonsSize}" />
+            <Setter Property="Width"
+                    Value="{Binding SystemButtonsWidth}" />
+        </Style>
+        <Style Selector="Button.closeButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background"
+                    Value="Red" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid ColumnDefinitions="Auto,*,Auto"
+          HorizontalAlignment="Stretch"
+          Height="{Binding ButtonsSize}"
+          Background="Black"
+          PointerPressed="TitleBar_OnPointerPressed"
+          PointerReleased="TitleBar_OnPointerReleased"
+          PointerMoved="TitleBar_OnPointerMoved">
+        <DockPanel x:Name="DockPanelTitlebar"
+                   PointerPressed="Ignore_OnPointerPressed">
+            <Image Source="/Assets/logo.ico"
+                   Margin="10,0,0,0"
+                   PointerPressed="Ignore_OnPointerPressed"
+                   VerticalAlignment="Center"
+                   Height="{Binding LogoSize}"
+                   Width="{Binding LogoSize}" />
+            <TextBlock Text="{Binding Title}"
+                       PointerPressed="Ignore_OnPointerPressed"
+                       Margin="5,0,0,0"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       FontSize="{Binding TitleSize}" />
+
+            <Border Height="20"
+                    Width="2"
+                    Margin="8,0,0,0"
+                    BorderBrush="DarkGray"
+                    BorderThickness="1,0,0,0" />
+
+            <views1:SyncButton DataContext="{Binding SyncButtonViewModel}"
+                              Classes="titlebar" />
+
+            <Grid IsVisible="{Binding IsUpdateIconVisible}">
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="{Binding UpdateMessage}"
+                        ToolTip.VerticalOffset="-5">
+                    <Button Classes="transparent titlebar">
+                        <Button.Content>
+                            <icons:MaterialIcon Kind="Update" />
+                        </Button.Content>
+                    </Button>
+                </Border>
+                <Ellipse Fill="{StaticResource AccentColor}"
+                         Height="8"
+                         Width="8"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Top"
+                         Margin="0,3,3,0" />
+            </Grid>
+        </DockPanel>
+
+        <DockPanel Grid.Column="2"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center">
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open the GitHub page"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOpenGitHubPage"
+                        Classes="transparent titlebar"
+                        Click="ButtonOpenGitHubPage_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Github" />
+                    </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open the settings"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOpenSettings"
+                        Classes="transparent titlebar"
+                        Click="ButtonOpenSettings_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Settings" />
+                    </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open a terminal in the store folder"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOpenTerminal"
+                        Classes="transparent titlebar"
+                        Click="ButtonOpenTerminal_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Terminal" />
+                    </Button.Content>
+                </Button>
+            </Border>
+
+            <Border Height="20"
+                    Width="2"
+                    BorderBrush="DarkGray"
+                    BorderThickness="1,0,0,0">
+            </Border>
+
+            <Button x:Name="ButtonMinimize"
+                    Classes="transparent titlebarSystem"
+                    Click="ButtonMinimize_OnClick">
+                <Button.Content>
+                    <icons:MaterialIcon Kind="WindowMinimize" />
+                </Button.Content>
+            </Button>
+            <Button x:Name="ButtonMaximize"
+                    Classes="transparent titlebarSystem"
+                    Click="ButtonMaximize_OnClick">
+                <Button.Content>
+                    <icons:MaterialIcon Kind="WindowMaximize" />
+                </Button.Content>
+            </Button>
+            <Button x:Name="ButtonClose"
+                    Classes="transparent titlebarSystem closeButton"
+                    Click="ButtonClose_OnClick">
+                <Button.Content>
+                    <icons:MaterialIcon Kind="WindowClose" />
+                </Button.Content>
+            </Button>
+        </DockPanel>
+    </Grid>
+</UserControl>

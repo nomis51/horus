@@ -1,0 +1,66 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dialogs="clr-namespace:Horus.UI.Views.Dialogs"
+             xmlns:viewModels="clr-namespace:Horus.ViewModels"
+             xmlns:dialogs1="clr-namespace:Horus.Views.Dialogs"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="Horus.Views.DialogManager"
+             x:DataType="viewModels:DialogManagerViewModel">
+    <Panel Background="#6B000000"
+           HorizontalAlignment="Stretch"
+           VerticalAlignment="Stretch"
+           IsVisible="{Binding IsVisible}">
+        <Panel IsVisible="{Binding IsDuplicateEntryDialogVisible}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+            <dialogs1:DuplicateEntryDialog HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              DataContext="{Binding DuplicateEntryDialogViewModel}"
+                                              Close="Dialog_OnClose" />
+        </Panel>
+        <Panel IsVisible="{Binding IsNewEntryDialogVisible}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+            <dialogs1:NewEntryDialog HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        DataContext="{Binding NewEntryDialogViewModel}"
+                                        Close="Dialog_OnClose" />
+        </Panel>
+        <Panel IsVisible="{Binding IsDeleteEntryDialogVisible}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+            <dialogs1:DeleteEntryDialog HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           DataContext="{Binding DeleteEntryDialogViewModel}"
+                                           Close="Dialog_OnClose" />
+        </Panel>
+        <Panel IsVisible="{Binding IsInitializeStoreDialogVisible}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+            <dialogs1:InitializeStoreDialog HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               DataContext="{Binding InitializeStoreDialogViewModel}"
+                                               Close="Dialog_OnClose" />
+        </Panel>
+        <Panel IsVisible="{Binding IsSettingsDialogVisible}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+            <dialogs1:SettingsDialog HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  DataContext="{Binding SettingsDialogViewModel}"
+                                  Close="Dialog_OnClose" />
+        </Panel>
+        <Panel IsVisible="{Binding IsDestroyStoreDialogVisible}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center">
+            <dialogs1:DestroyStoreDialog HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    DataContext="{Binding DestroyStoreDialogViewModel}"
+                                    Close="Dialog_OnClose" />
+        </Panel>
+    </Panel>
+</UserControl>

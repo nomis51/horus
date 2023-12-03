@@ -11,6 +11,9 @@
     <PackageVersion>2.0.1</PackageVersion>
     <LangVersion>12</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Horus.Shared\Horus.Shared.csproj" />
   </ItemGroup>

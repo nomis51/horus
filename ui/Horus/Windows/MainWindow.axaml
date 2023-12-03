@@ -1,0 +1,104 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:Horus.UI.Views"
+        xmlns:avaloniaProgressRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
+        xmlns:viewModels="clr-namespace:Horus.ViewModels"
+        xmlns:views1="clr-namespace:Horus.Views"
+        mc:Ignorable="d"
+        d:DesignWidth="800"
+        d:DesignHeight="450"
+        Width="1050"
+        Height="600"
+        MinWidth="1050"
+        MinHeight="600"
+        x:Class="Horus.Windows.MainWindow"
+        x:DataType="viewModels:MainWindowViewModel"
+        WindowStartupLocation="CenterScreen"
+        Icon="/Assets/logo.ico"
+        SystemDecorations="BorderOnly"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaToDecorationsHint="True"
+        Closing="Window_OnClosing">
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <viewModels:MainWindowViewModel />
+    </Design.DataContext>
+    
+    <Grid RowDefinitions="Auto,*">
+        <views1:TitleBar DataContext="{Binding TitleBarViewModel}"
+                        Grid.Row="0"
+                        x:Name="TitleBar"
+                        WindowTitleBarPressed="TitleBar_OnWindowTitleBarPressed"
+                        WindowTitleBarReleased="TitleBar_OnWindowTitleBarReleased"
+                        WindowTitleBarMove="TitleBar_OnWindowTitleBarMove"
+                        WindowClose="TitleBar_OnWindowClose"
+                        WindowMaximize="TitleBar_OnWindowMaximize"
+                        WindowMinimize="TitleBar_OnWindowMinimize"
+                        OpenSettings="TitleBarView_OnOpenSettings" />
+        <Grid Grid.Row="1"
+              IsVisible="{Binding !IsLoading}"
+              ColumnDefinitions="*,3*"
+              RowDefinitions="*">
+            <Border Grid.Row="0"
+                    Grid.Column="0"
+                    Classes="paper"
+                    Margin="7, 0, 3.5, 7">
+                <views1:EntryList x:Name="EntryList"
+                                 DataContext="{Binding EntryListViewModel}"
+                                 EntrySelected="EntryList_OnEntrySelected" />
+            </Border>
+            <Border Grid.Row="0"
+                    Grid.Column="1"
+                    Classes="paper"
+                    Margin="3.5, 0, 7, 7"
+                    IsVisible="{Binding EntrySelected}">
+                <views1:EntryForm x:Name="EntryForm"
+                                 DataContext="{Binding EntryFormViewModel}"
+                                 EntryRenamedEntry="EntryForm_OnEntryRenamedEntry" />
+            </Border>
+            <Border Grid.Row="0"
+                    Grid.Column="1"
+                    Classes="paper"
+                    Margin="3.5, 0, 7, 7"
+                    IsVisible="{Binding !EntrySelected}">
+                <views1:HomeScreen />
+            </Border>
+        </Grid>
+        <Grid Grid.Row="1"
+              Grid.Column="0"
+              VerticalAlignment="Center"
+              HorizontalAlignment="Center">
+            <StackPanel Spacing="4"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <avaloniaProgressRing:ProgressRing Width="50"
+                                                   Height="50"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsActive="True"
+                                                   IsVisible="{Binding IsLoading}"
+                                                   Foreground="{StaticResource AccentColor}" />
+                <TextBlock Text="{Binding LoadingMessage}"
+                           IsVisible="{Binding IsLoading}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+        <views1:DialogManager x:Name="DialogManager"
+                             Grid.Row="1"
+                             Grid.Column="0"
+                             DataContext="{Binding DialogManagerViewModel}"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"
+                             Close="DialogManager_OnClose" />
+        <views1:SnackbarManager x:Name="SnackbarManager"
+                               Grid.Row="1"
+                               Grid.Column="0"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Bottom"
+                               DataContext="{Binding SnackbarManagerViewModel}" />
+    </Grid>
+</Window>
