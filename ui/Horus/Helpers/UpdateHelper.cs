@@ -15,8 +15,20 @@ public static class UpdateHelper
     private const string UpdateUrl = "https://github.com/nomis51/horus";
 
     #endregion
-    
+
     #region Public methods
+
+    public static void HookSquirrel()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            SquirrelAwareApp.HandleEvents(
+                onInitialInstall: OnAppInstall,
+                onAppUninstall: OnAppUninstall,
+                onEveryRun: OnAppRun
+            );
+        }
+    }
 
     public static async Task<string> CheckForUpdates()
     {
@@ -27,7 +39,7 @@ public static class UpdateHelper
                 Log.Information("Checking for updates");
                 using var updateManager = new UpdateManager(new GithubSource(UpdateUrl, string.Empty, true));
                 if (!updateManager.IsInstalledApp) return string.Empty;
-                
+
                 var info = await updateManager.CheckForUpdate();
 
                 if (info.ReleasesToApply.Count == 0) return string.Empty;
@@ -47,6 +59,31 @@ public static class UpdateHelper
         }
 
         return string.Empty;
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private static void OnAppInstall(SemanticVersion version, IAppTools tools)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            tools.CreateShortcutForThisExe();
+        }
+    }
+
+    private static void OnAppUninstall(SemanticVersion version, IAppTools tools)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            tools.RemoveShortcutForThisExe();
+        }
+    }
+
+    private static void OnAppRun(SemanticVersion version, IAppTools tools, bool firstRun)
+    {
+        tools.SetProcessAppUserModelId();
     }
 
     #endregion

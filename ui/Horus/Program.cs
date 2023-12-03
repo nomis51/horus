@@ -1,35 +1,23 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using Horus.Core;
 using Horus.Core.Services;
+using Horus.Helpers;
 using Serilog;
-using Squirrel;
 
 namespace Horus;
 
 sealed class Program
 {
+    #region Public methods
+
     [STAThread]
     public static void Main(string[] args)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            SquirrelAwareApp.HandleEvents(
-                onInitialInstall: OnAppInstall,
-                onAppUninstall: OnAppUninstall,
-                onEveryRun: OnAppRun
-            );
-        }
-
-        AppService.Instance.Initialize(new AppServiceDependenciesProvider(
-            new FsService(),
-            new GitService(),
-            new GpgService(),
-            new SettingsService()
-        ));
-        AppService.Instance.AcquireLock();
+        HandleCommands(args);
+        UpdateHelper.HookSquirrel();
+        InitializeServices();
 
         try
         {
@@ -42,31 +30,37 @@ sealed class Program
         }
     }
 
+    #endregion
+
+    #region Private methods
+
+    private static void InitializeServices()
+    {
+        AppService.Instance.Initialize(new AppServiceDependenciesProvider(
+            new FsService(),
+            new GitService(),
+            new GpgService(),
+            new SettingsService()
+        ));
+        AppService.Instance.AcquireLock();
+    }
+
+    private static void HandleCommands(string[] args)
+    {
+        if (args is not ["cc", _] || !int.TryParse(args[1], out var delay)) return;
+
+        ClipboardHelper.SafeClear(delay);
+        Environment.Exit(0);
+    }
+
     private static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    {
+        return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
             .UseReactiveUI();
-
-    private static void OnAppInstall(SemanticVersion version, IAppTools tools)
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            tools.CreateShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
-        }
     }
 
-    private static void OnAppUninstall(SemanticVersion version, IAppTools tools)
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            tools.RemoveShortcutForThisExe(ShortcutLocation.StartMenu | ShortcutLocation.Desktop);
-        }
-    }
-
-    private static void OnAppRun(SemanticVersion version, IAppTools tools, bool firstRun)
-    {
-        tools.SetProcessAppUserModelId();
-    }
+    #endregion
 }
