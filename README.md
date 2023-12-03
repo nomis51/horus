@@ -25,7 +25,7 @@ Bring the great ideas of [zx2c4 password-store](https://www.passwordstore.org/) 
 - Make sure you've created or imported your GPG keypair
 - Make sure you have a **private** remote git repository created (e.g. GitHub, GitLab, etc.)
 - Make sure you have authenticated to that remote git repository (SSH, GPG, [GitHub CLI](https://cli.github.com/manual/installation), etc.)
-- Follow the instruction upon starting the application (GUI) or run `winpass init` and follow the instructions (CLI)
+- Follow the instruction upon starting the application (GUI) or run `horus init` and follow the instructions (CLI)
 
 ## Update
 
@@ -33,7 +33,7 @@ The application will tell you if there's a new update available.
 
 ## Usage
 
-You can execute the command `winpass help` or navigate to the [commands' page]() to have all the information about how the application works and what commands are available (CLI)
+You can execute the command `horus help` or navigate to the [commands' page]() to have all the information about how the application works and what commands are available (CLI)
 
 # Support
 
