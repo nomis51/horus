@@ -1,10 +1,6 @@
 param(
-	[Parameter(Mandatory=$true)][string]$major,
-	[Parameter(Mandatory=$true)][string]$minor,
-	[Parameter(Mandatory=$true)][string]$patch
+	[Parameter(Mandatory=$true)][string]$version
 )
-
-$version = "$major.$minor.$patch"
 
 $csprojFilePaths = @(
     '../../ui/Horus/Horus.csproj',
