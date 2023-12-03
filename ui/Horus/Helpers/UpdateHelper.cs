@@ -4,11 +4,18 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Serilog;
 using Squirrel;
+using Squirrel.Sources;
 
 namespace Horus.Helpers;
 
 public static class UpdateHelper
 {
+    #region Constants
+
+    private const string UpdateUrl = "https://github.com/nomis51/horus";
+
+    #endregion
+    
     #region Public methods
 
     public static async Task<string> CheckForUpdates()
@@ -18,7 +25,9 @@ public static class UpdateHelper
             try
             {
                 Log.Information("Checking for updates");
-                using var updateManager = new UpdateManager(App.GitHubPageUrl);
+                using var updateManager = new UpdateManager(new GithubSource(UpdateUrl, string.Empty, true));
+                if (!updateManager.IsInstalledApp) return string.Empty;
+                
                 var info = await updateManager.CheckForUpdate();
 
                 if (info.ReleasesToApply.Count == 0) return string.Empty;
@@ -33,9 +42,7 @@ public static class UpdateHelper
             }
             catch (Exception e)
             {
-                if (e.Message.Contains("Update.exe not found, not a Squirrel-installed app?")) return string.Empty;
-
-                Log.Warning("Failed to check / download updates: {Message}", e.Message);
+                Log.Warning("Failed to check / install updates: {Message}", e.Message);
             }
         }
 
