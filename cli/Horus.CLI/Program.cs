@@ -84,8 +84,6 @@ public static class Program
                 _exitMessage = Locale.Get("newVersionAvailable",
                     new object[] { newVersion!.ToString(), ReleasesUrl });
             }
-
-            UpdateHelper.EnsureAppLinked();
         });
     }
 
