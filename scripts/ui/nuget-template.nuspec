@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Horus</id>
+    <version>3.0.0</version>
+    <title>Horus</title>
+    <authors>nomis51</authors>
+    <owners>nomis51</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/nomis51/horus</projectUrl>
+    <!-- <icon>lib\net45\assets\logo.png</icon> -->
+    <description>A Windows / Linux password manager greatly inspired by zx2c4 password-store</description>
+  </metadata>
+  <files>
+    <file src="..\..\ui\Horus\bin\Release\net8.0\**" target="lib\net45" />
+    <!-- <file src="..\ui\Horus\bin\Release\net8.0\assets\**" target="lib\net45\assets" />
+    <file src="..\ui\Horus\bin\Release\net8.0\data\**" target="lib\net45\data" />
+    <file src="..\ui\Horus\bin\Release\net8.0\tools\**" target="lib\net45\tools" />
+    <file src="..\ui\Horus\bin\Release\net8.0\runtimes\win\lib\**" target="lib\net45\runtimes\win\lib" />
+    <file src="..\ui\Horus\bin\Release\net8.0\winook.support\**" target="lib\net45\winook.support" /> -->
+  </files>
+</package>
