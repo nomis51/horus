@@ -25,11 +25,13 @@ public static class UpdateHelper
 
             await updateManager.UpdateApp();
             Log.Information("Update {Version} downloaded", version);
-            
+
             return version;
         }
         catch (Exception e)
         {
+            if (e.Message.Contains("Update.exe not found, not a Squirrel-installed app?")) return string.Empty;
+
             Log.Warning("Failed to check / download updates: {Message}", e.Message);
         }
 
