@@ -3,7 +3,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:views="clr-namespace:Horus.UI.Views"
              xmlns:viewModels="clr-namespace:Horus.ViewModels"
              xmlns:views1="clr-namespace:Horus.Views"
              mc:Ignorable="d"

@@ -2,10 +2,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="Horus.App"
-             xmlns:ui="clr-namespace:Horus.UI"
              xmlns:viewModels="clr-namespace:Horus.ViewModels"
              xmlns:horus="clr-namespace:Horus"
-             RequestedThemeVariant="Default"
+             RequestedThemeVariant="Dark"
              x:DataType="viewModels:AppViewModel">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
