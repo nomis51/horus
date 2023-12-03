@@ -26,4 +26,4 @@ cd ../..
 git add .
 $msg = "Version update $version"
 git commit -m $msg
-cd scripts
+cd ui
