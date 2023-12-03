@@ -28,48 +28,9 @@ public static class UpdateHelper
         )!;
     }
 
-    public static void EnsureAppLinked()
-    {
-#if (!DEBUG)
-        var assembly = Assembly.GetEntryAssembly()!;
-        var filePath = assembly.Location.Replace(".dll", ".exe");
-
-        var dirName = Path.GetDirectoryName(filePath)!;
-        AddToPath(dirName);
-#endif
-    }
-
     #endregion
 
     #region Private methods
-
-    private static void AddToPath(string path)
-    {
-        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-            !RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
-
-        var name = "PATH";
-        var scope = EnvironmentVariableTarget.User;
-        var oldValue = Environment.GetEnvironmentVariable(name, scope);
-        if (string.IsNullOrEmpty(oldValue))
-        {
-            oldValue = string.Empty;
-        }
-
-        if (oldValue.Contains(path)) return;
-
-        var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        var separator = isWindows ? ";" : ":";
-
-        oldValue = string.Join(separator,
-            oldValue.Split(separator, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-                .Where(v => !v.Contains(isWindows ? "Horus" : "horus")));
-
-        var newValue = oldValue + $"{separator}{path}";
-
-        Environment.SetEnvironmentVariable(name, newValue, scope);
-        Log.Information("Application added to PATH");
-    }
 
     private static bool IsNewVersion(Version version, Version releaseVersion)
     {
