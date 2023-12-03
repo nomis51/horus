@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Serilog;
 using Squirrel;
+using Squirrel.Sources;
 
 namespace Horus.Helpers;
 
@@ -11,7 +12,7 @@ public static class UpdateHelper
 {
     #region Constants
 
-    private const string UpdateUrl = "https://github.com/nomis51/horus/releases/latest";
+    private const string UpdateUrl = "https://github.com/nomis51/horus";
 
     #endregion
     
@@ -24,7 +25,7 @@ public static class UpdateHelper
             try
             {
                 Log.Information("Checking for updates");
-                using var updateManager = new UpdateManager(UpdateUrl);
+                using var updateManager = new UpdateManager(new GithubSource(UpdateUrl, string.Empty, true));
                 var info = await updateManager.CheckForUpdate();
 
                 if (info.ReleasesToApply.Count == 0) return string.Empty;
