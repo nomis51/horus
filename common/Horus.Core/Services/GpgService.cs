@@ -33,7 +33,7 @@ public class GpgService : IGpgService
             var ok = result.OutputLines.FirstOrDefault()?.StartsWith("gpg (GnuPG)") ?? false;
             if (!ok) return false;
 
-           new TerminalSession(AppService.Instance.GetStoreLocation())
+            new TerminalSession(AppService.Instance.GetStoreLocation())
                 .Command(new[]
                 {
                     "gpg-connect-agent",
@@ -103,7 +103,9 @@ public class GpgService : IGpgService
         foreach (var filePath in filePaths)
         {
             var (line, error) = DecryptOne(filePath);
-            lines.Add(error is not null ? string.Empty : line);
+            if (error is not null || string.IsNullOrEmpty(line)) continue;
+
+            lines.Add(line);
         }
 
         List<MetadataCollection?> results = new();
@@ -257,13 +259,13 @@ public class GpgService : IGpgService
             var result = new TerminalSession(AppService.Instance.GetStoreLocation())
                 .Command(new[]
                 {
-                  GpgProcessName,
-                  "--quiet",
-                  "--yes",
-                  "--compress-algo=none",
-                  "--no-encrypt-to",
-                  "--decrypt",
-                  filePath
+                    GpgProcessName,
+                    "--quiet",
+                    "--yes",
+                    "--compress-algo=none",
+                    "--no-encrypt-to",
+                    "--decrypt",
+                    filePath
                 })
                 .Execute();
             result.OutputLines.AddRange(result.ErrorLines);
@@ -303,8 +305,8 @@ public class GpgService : IGpgService
             var result = new TerminalSession(AppService.Instance.GetStoreLocation())
                 .Command(new[]
                 {
-                   "echo",
-                   value.ToBase64()
+                    "echo",
+                    value.ToBase64()
                 })
                 .Command(new[]
                 {
@@ -320,7 +322,7 @@ public class GpgService : IGpgService
                     filePath
                 })
                 .Execute();
-          
+
             if (result.ErrorLines.FirstOrDefault(e => e.Contains("encryption failed")) is not null)
             {
                 return new EmptyResult(new GpgEncryptError(string.Join("\n", result.ErrorLines)));

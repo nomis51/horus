@@ -656,7 +656,9 @@ public class FsService : IFsService
 
             filePaths.Add(
                 Tuple.Create(
-                    filePath.Replace(GetStoreLocation(), string.Empty),
+                    filePath.Replace(GetStoreLocation(), string.Empty)
+                        .Trim('\\')
+                        .Trim('/'),
                     filePath
                 )
             );
