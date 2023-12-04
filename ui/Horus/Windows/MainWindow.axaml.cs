@@ -181,7 +181,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         {
             e.Cancel = true;
             ShowInTaskbar = false;
-            TitleBar_OnWindowMinimize();
+            Hide();
         }
     }
 

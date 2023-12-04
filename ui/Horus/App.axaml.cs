@@ -116,8 +116,20 @@ public partial class App : Application
     {
         if (Current!.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop) return;
 
-        desktop.MainWindow!.ShowInTaskbar = true;
-        desktop.MainWindow!.WindowState = WindowState.Normal;
+        if (!desktop.MainWindow!.ShowInTaskbar)
+        {
+            desktop.MainWindow!.ShowInTaskbar = true;
+        }
+
+        if (desktop.MainWindow!.WindowState == WindowState.Minimized)
+        {
+            desktop.MainWindow!.WindowState = WindowState.Normal;
+        }
+
+        if (!desktop.MainWindow!.IsVisible)
+        {
+            desktop.MainWindow!.Show();
+        }
     }
 
     #endregion
