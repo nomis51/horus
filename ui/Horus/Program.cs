@@ -37,7 +37,9 @@ sealed class Program
     private static void InitializeServices()
     {
         AppService.Instance.Initialize(new AppServiceDependenciesProvider(
-            new FsService(),
+            Environment.GetEnvironmentVariable("LOCAL_DEBUG") == "1" ? 
+                new FsService(".horus-tests") : 
+                new FsService(),
             new GitService(),
             new GpgService(),
             new SettingsService()
