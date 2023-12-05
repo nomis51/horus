@@ -36,6 +36,28 @@ public class EntryFormViewModel : ViewModelBase
 
     public ObservableCollection<MetadataModel> Metadatas { get; } = new();
     public ObservableCollection<MetadataModel> InternalMetadatas { get; } = new();
+
+    private MetadataModel CreatedMetadata => InternalMetadatas.First(m => m is { Type: MetadataType.Internal, Key: "created" });
+    public string CreatedMetadataDisplay => CreatedMetadata.DisplayValue;
+    private MetadataModel ModifiedMetadata => InternalMetadatas.First(m => m is { Type: MetadataType.Internal, Key: "modified" });
+    public string ModifiedMetadataDisplay => ModifiedMetadata.DisplayValue;
+
+    private string _username = string.Empty;
+
+    public string Username
+    {
+        get => _username;
+        set => this.RaiseAndSetIfChanged(ref _username, value);
+    }
+
+    private string _url = string.Empty;
+
+    public string Url
+    {
+        get => _url;
+        set => this.RaiseAndSetIfChanged(ref _url, value);
+    }
+
     private bool _areMetadatasRevealed;
 
     public bool AreMetadatasRevealed
@@ -278,6 +300,11 @@ public class EntryFormViewModel : ViewModelBase
             new MetadataCollection(
                 EntryName,
                 InternalMetadatas.ToList()
+                    .Concat(new[]
+                    {
+                        new MetadataModel("username", Username, MetadataType.Username),
+                        new MetadataModel("url", Url, MetadataType.Url),
+                    })
                     .Concat(Metadatas.ToList())
                     .Select(e => new Metadata(e.Key, e.Value, e.Type))
                     .Where(m => !string.IsNullOrWhiteSpace(m.Key) || !string.IsNullOrWhiteSpace(m.Value))
@@ -347,6 +374,14 @@ public class EntryFormViewModel : ViewModelBase
                         Metadatas.Add(item);
                         break;
 
+                    case MetadataType.Username:
+                        Username = item.Value;
+                        break;
+
+                    case MetadataType.Url:
+                        Url = item.Value;
+                        break;
+
                     default:
                         Log.Warning("Unknown metadata type: {Type}", metadata.Type);
                         break;
@@ -368,6 +403,8 @@ public class EntryFormViewModel : ViewModelBase
     {
         Metadatas.Clear();
         InternalMetadatas.Clear();
+        Username = string.Empty;
+        Url = string.Empty;
         AreMetadatasRevealed = false;
         this.RaisePropertyChanged(nameof(HasNormalMetadatas));
     }

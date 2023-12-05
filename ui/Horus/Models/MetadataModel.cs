@@ -10,6 +10,17 @@ public class MetadataModel
     public string Value { get; set; } = string.Empty;
     public MetadataType Type { get; init; } = MetadataType.Normal;
 
+    public MetadataModel()
+    {
+    }
+
+    public MetadataModel(string key, string value, MetadataType type)
+    {
+        Key = key;
+        Value = value;
+        Type = type;
+    }
+
     public string DisplayValue
     {
         get
@@ -21,5 +32,10 @@ public class MetadataModel
 
             return Value;
         }
+    }
+
+    public void Clear()
+    {
+        Value = string.Empty;
     }
 }
