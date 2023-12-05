@@ -20,6 +20,8 @@ public static class UpdateHelper
 
     public static void HookSquirrel()
     {
+        if (!IsInstalledApp()) return;
+        
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             SquirrelAwareApp.HandleEvents(
@@ -32,30 +34,30 @@ public static class UpdateHelper
 
     public static async Task<string> CheckForUpdates()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (!IsInstalledApp()) return string.Empty;
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return string.Empty;
+        
+        try
         {
-            try
-            {
-                Log.Information("Checking for updates");
-                using var updateManager = new UpdateManager(new GithubSource(UpdateUrl, string.Empty, true));
-                if (!updateManager.IsInstalledApp) return string.Empty;
+            Log.Information("Checking for updates");
+            using var updateManager = new UpdateManager(new GithubSource(UpdateUrl, string.Empty, true));
+            if (!updateManager.IsInstalledApp) return string.Empty;
 
-                var info = await updateManager.CheckForUpdate();
+            var info = await updateManager.CheckForUpdate();
 
-                if (info.ReleasesToApply.Count == 0) return string.Empty;
+            if (info.ReleasesToApply.Count == 0) return string.Empty;
 
-                var version = info.ReleasesToApply.Last().Version.ToString();
-                Log.Information("Downloading update {Version}", version);
+            var version = info.ReleasesToApply.Last().Version.ToString();
+            Log.Information("Downloading update {Version}", version);
 
-                await updateManager.UpdateApp();
-                Log.Information("Update {Version} downloaded", version);
+            await updateManager.UpdateApp();
+            Log.Information("Update {Version} downloaded", version);
 
-                return version ?? string.Empty;
-            }
-            catch (Exception e)
-            {
-                Log.Warning("Failed to check / install updates: {Message}", e.Message);
-            }
+            return version ?? string.Empty;
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Failed to check / install updates: {Message}", e.Message);
         }
 
         return string.Empty;
@@ -65,6 +67,14 @@ public static class UpdateHelper
 
     #region Private methods
 
+    private static bool IsInstalledApp()
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return false;
+        
+        using var updateManager = new UpdateManager(new GithubSource(UpdateUrl, string.Empty, true));
+        return updateManager.IsInstalledApp;
+    }
+    
     private static void OnAppInstall(SemanticVersion version, IAppTools tools)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
