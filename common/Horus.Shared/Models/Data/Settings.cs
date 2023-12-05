@@ -9,7 +9,6 @@ public class Settings
     public int ClearTimeout { get; set; }
     public string Language { get; set; } = Locale.English;
     public int FetchInterval { get; set; }
-    public string AppDataLocation { get; set; } = string.Empty;
 
     public override string ToString()
     {
