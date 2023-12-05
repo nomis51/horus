@@ -39,6 +39,12 @@
                         <Button.Content>
                             <DockPanel>
                                 <!-- TODO: add icon when name can be detected (e.g. github icon if the entry is "github" something -->
+                                <icons:MaterialIcon VerticalAlignment="Center"
+                                                    IsVisible="{Binding HasEntryIcon}"
+                                                    Kind="{Binding EntryIcon }"
+                                                    Height="36"
+                                                    Width="36"
+                                                    Margin="0,0,5,0" />
                                 <TextBlock Text="{Binding EntryName}"
                                            VerticalAlignment="Center" />
                                 <icons:MaterialIcon VerticalAlignment="Center"
