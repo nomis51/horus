@@ -93,15 +93,19 @@ public class EntryListViewModel : ViewModelBase
 
     private List<EntryItemModel> MapToEntryItemModels(IEnumerable<StoreEntry> entries, string folder = "")
     {
-        return entries.Select(entry => new EntryItemModel
+        return entries.Select(entry =>
             {
-                Name = entry.Name,
-                FullName = string.Join(
+                var fullName = string.Join(
                     "/",
                     new[] { folder, entry.Name }
                         .Where(s => !string.IsNullOrEmpty(s))
-                ),
-                Items = MapToEntryItemModels(entry.Entries, entry.Name),
+                );
+                return new EntryItemModel
+                {
+                    Name = entry.Name,
+                    FullName = fullName,
+                    Items = MapToEntryItemModels(entry.Entries, fullName),
+                };
             })
             .ToList();
     }
