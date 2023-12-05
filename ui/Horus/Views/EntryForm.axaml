@@ -213,6 +213,7 @@
                          Classes.revealPasswordButtonAndClearButtonAndCopyButton="{Binding IsEditingPassword}"
                          Classes.copyButtonSafe="{Binding !IsEditingPassword}"
                          Classes.errored="{Binding !IsPasswordValid}"
+                         Classes="password"
                          PasswordChar="•"
                          RevealPassword="{Binding IsPasswordVisible, Mode=TwoWay}"
                          CopyingToClipboard="TextBox_OnCopyingToClipboard" />
@@ -223,7 +224,7 @@
                          MinHeight="48"
                          Text="{Binding ConfirmPassword, Mode=TwoWay}"
                          IsReadOnly="{Binding !IsEditingPassword}"
-                         Classes="revealPasswordButtonAndClearButtonAndCopyButton"
+                         Classes="revealPasswordButtonAndClearButtonAndCopyButton password"
                          Classes.errored="{Binding !IsPasswordValid}"
                          PasswordChar="•"
                          RevealPassword="{Binding IsPasswordVisible, Mode=TwoWay}" />
@@ -328,10 +329,12 @@
             <StackPanel Spacing="8"
                         IsVisible="{Binding AreMetadatasRevealed}">
                 <TextBox MinHeight="48"
+                         Classes="username"
                          Watermark="Username"
                          UseFloatingWatermark="True"
                          Text="{Binding Username, Mode=TwoWay}" />
                 <TextBox MinHeight="48"
+                         Classes="url"
                          Watermark="URL"
                          UseFloatingWatermark="True"
                          Text="{Binding Url, Mode=TwoWay}" />
@@ -395,12 +398,14 @@
             <StackPanel Spacing="8"
                         IsVisible="{Binding !AreMetadatasRevealed}">
                 <TextBox IsReadOnly="True"
+                         Classes="username"
                          MinHeight="48"
                          Watermark="Username"
                          UseFloatingWatermark="True"
                          PasswordChar="•"
                          Text="*********" />
                 <TextBox IsReadOnly="True"
+                         Classes="url"
                          MinHeight="48"
                          Watermark="URL"
                          UseFloatingWatermark="True"

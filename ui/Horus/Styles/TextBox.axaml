@@ -12,6 +12,42 @@
                 Value="{StaticResource ErrorColor}" />
     </Style>
 
+    <Style Selector="TextBox.username">
+        <Setter Property="InnerLeftContent">
+            <Template>
+                <icons:MaterialIcon VerticalAlignment="Center"
+                                    Kind="AccountCircle"
+                                    Height="32"
+                                    Width="32"
+                                    Margin="5,0,0,0" />
+            </Template>
+        </Setter>
+    </Style>
+    
+    <Style Selector="TextBox.url">
+        <Setter Property="InnerLeftContent">
+            <Template>
+                <icons:MaterialIcon VerticalAlignment="Center"
+                                    Kind="Web"
+                                    Height="32"
+                                    Width="32"
+                                    Margin="5,0,0,0" />
+            </Template>
+        </Setter>
+    </Style>
+    
+    <Style Selector="TextBox.password">
+        <Setter Property="InnerLeftContent">
+            <Template>
+                <icons:MaterialIcon VerticalAlignment="Center"
+                                    Kind="Lock"
+                                    Height="32"
+                                    Width="32"
+                                    Margin="5,0,0,0" />
+            </Template>
+        </Setter>
+    </Style>
+
     <Style Selector="TextBox.copyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
         <Setter Property="InnerRightContent">
             <Template>
@@ -35,7 +71,7 @@
             </Template>
         </Setter>
     </Style>
-    
+
     <Style Selector="TextBox.copyButtonSafe[AcceptsReturn=False]">
         <Setter Property="InnerRightContent">
             <Template>
