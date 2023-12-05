@@ -17,8 +17,8 @@
             <Template>
                 <icons:MaterialIcon VerticalAlignment="Center"
                                     Kind="AccountCircle"
-                                    Height="32"
-                                    Width="32"
+                                    Height="28"
+                                    Width="28"
                                     Margin="5,0,0,0" />
             </Template>
         </Setter>
@@ -29,8 +29,8 @@
             <Template>
                 <icons:MaterialIcon VerticalAlignment="Center"
                                     Kind="Web"
-                                    Height="32"
-                                    Width="32"
+                                    Height="28"
+                                    Width="28"
                                     Margin="5,0,0,0" />
             </Template>
         </Setter>
@@ -41,8 +41,8 @@
             <Template>
                 <icons:MaterialIcon VerticalAlignment="Center"
                                     Kind="Lock"
-                                    Height="32"
-                                    Width="32"
+                                    Height="28"
+                                    Width="28"
                                     Margin="5,0,0,0" />
             </Template>
         </Setter>
