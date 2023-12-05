@@ -17,7 +17,7 @@ public class FsService : IFsService
 {
     #region Constants
 
-    private readonly string _appFolder;
+    private const string DefaultAppDataFolderName = ".horus";
     public const string GpgIdFileName = ".gpg-id";
     private const string AppLockFileName = ".lock";
 
@@ -25,10 +25,7 @@ public class FsService : IFsService
     private const string MigrationStoreFolderName = "migration-store";
     private const string LogsFolderName = "logs";
 
-    private readonly string _storeFolderPath;
-    private readonly string _migrationStoreFolderPath;
-    private readonly string _appFolderPath;
-    private readonly string _logsFolderPath;
+    private readonly string _customAppDataFolder;
 
     #endregion
 
@@ -40,18 +37,9 @@ public class FsService : IFsService
 
     #region Constructors
 
-    public FsService(string appFolder = ".horus")
+    public FsService(string appFolder = "")
     {
-        _appFolder = appFolder;
-
-        _appFolderPath = Environment.ExpandEnvironmentVariables(
-            $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/{_appFolder}/");
-
-        _appFolder = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? _appFolderPath.Replace("/", "\\") : _appFolderPath.Replace("\\", "/");
-
-        _storeFolderPath = Path.Join(_appFolderPath, StoreFolderName);
-        _migrationStoreFolderPath = Path.Join(_appFolderPath, MigrationStoreFolderName);
-        _logsFolderPath = Path.Join(_appFolderPath, LogsFolderName);
+        _customAppDataFolder = appFolder;
     }
 
     #endregion
@@ -75,59 +63,60 @@ public class FsService : IFsService
         List<Tuple<string, string>> storeFilePaths = new();
         EnumerateFilePaths(GetStoreLocation(), storeFilePaths);
 
-        if (Directory.Exists(_migrationStoreFolderPath)) Directory.Delete(_migrationStoreFolderPath, true);
-        Directory.CreateDirectory(_migrationStoreFolderPath);
+        var migrationFolderPath = GetMigrationStoreLocation();
+        if (Directory.Exists(migrationFolderPath)) Directory.Delete(migrationFolderPath, true);
+        Directory.CreateDirectory(migrationFolderPath);
 
         foreach (var (_, filePath) in storeFilePaths)
         {
             if (filePath.EndsWith(".m.gpg")) continue;
 
             var metadataFilePath = filePath.Replace(".gpg", ".m.gpg");
-            var newMetadataFilePath = metadataFilePath.Replace(_appFolder, MigrationStoreFolderName);
+            var newMetadataFilePath = metadataFilePath.Replace(GetStoreLocation(), GetMigrationStoreLocation());
             var (metadatas, errorDecryptMetadatas) = AppService.Instance.DecryptMetadatas(metadataFilePath);
             if (errorDecryptMetadatas is not null)
             {
-                Directory.Delete(_migrationStoreFolderPath);
+                Directory.Delete(migrationFolderPath);
                 return new EmptyResult(new GpgDecryptError(errorDecryptMetadatas.Message));
             }
 
             var encryptMetadatasResult = AppService.Instance.EncryptMetadatas(newMetadataFilePath, metadatas!, gpgId);
             if (encryptMetadatasResult.HasError)
             {
-                Directory.Delete(_migrationStoreFolderPath);
+                Directory.Delete(migrationFolderPath);
                 return new EmptyResult(new GpgDecryptError(encryptMetadatasResult.Error!.Message));
             }
 
-            var newFilePath = filePath.Replace(_appFolder, MigrationStoreFolderName);
+            var newFilePath = filePath.Replace(GetStoreLocation(), GetMigrationStoreLocation());
             var (password, errorDecryptPassword) = AppService.Instance.DecryptPassword(filePath);
             if (errorDecryptPassword is not null)
             {
-                Directory.Delete(_migrationStoreFolderPath);
+                Directory.Delete(migrationFolderPath);
                 return new EmptyResult(new GpgDecryptError(errorDecryptPassword.Message));
             }
 
             var encryptPasswordResult = AppService.Instance.EncryptPassword(newFilePath, password!, gpgId);
             if (encryptPasswordResult.HasError)
             {
-                Directory.Delete(_migrationStoreFolderPath);
+                Directory.Delete(migrationFolderPath);
                 return new EmptyResult(new GpgDecryptError(encryptPasswordResult.Error!.Message));
             }
         }
 
-        var existingFiles = Directory.GetFiles(_storeFolderPath, "*.gpg", SearchOption.AllDirectories);
+        var existingFiles = Directory.GetFiles(GetStoreLocation(), "*.gpg", SearchOption.AllDirectories);
         foreach (var existingFile in existingFiles)
         {
             File.Delete(existingFile);
         }
 
-        foreach (var newFile in Directory.GetFiles(_migrationStoreFolderPath, "*.gpg", SearchOption.AllDirectories))
+        foreach (var newFile in Directory.GetFiles(migrationFolderPath, "*.gpg", SearchOption.AllDirectories))
         {
-            File.Move(newFile, newFile.Replace(MigrationStoreFolderName, _appFolder));
+            File.Move(newFile, newFile.Replace(GetMigrationStoreLocation(), GetStoreLocation()));
         }
 
-        File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
+        File.WriteAllText(Path.Join(GetStoreLocation(), GpgIdFileName), gpgId);
 
-        if (Directory.Exists(_migrationStoreFolderPath)) Directory.Delete(_migrationStoreFolderPath, true);
+        if (Directory.Exists(migrationFolderPath)) Directory.Delete(migrationFolderPath, true);
 
         var resultGitCommit = AppService.Instance.GitCommit($"Migrate store to new GPG keypair '{gpgId}'");
         return resultGitCommit.HasError ? new EmptyResult(resultGitCommit.Error!) : new EmptyResult();
@@ -474,18 +463,78 @@ public class FsService : IFsService
 
     public string GetStoreLocation()
     {
-        if (!Directory.Exists(_storeFolderPath)) Directory.CreateDirectory(_storeFolderPath);
-        return _storeFolderPath;
+        var (settings, error) = AppService.Instance.GetSettings();
+        var path = Path.GetFullPath(
+            error is not null || string.IsNullOrWhiteSpace(settings!.AppDataLocation)
+                ? Path.Join(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    string.IsNullOrWhiteSpace(_customAppDataFolder) ?  DefaultAppDataFolderName : _customAppDataFolder,
+                    StoreFolderName
+                )
+                : Path.Join(
+                    settings.AppDataLocation,
+                    StoreFolderName
+                )
+        );
+
+        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+        return path;
+    }
+
+    public string GetMigrationStoreLocation()
+    {
+        var (settings, error) = AppService.Instance.GetSettings();
+        var path = Path.GetFullPath(
+            error is not null || string.IsNullOrWhiteSpace(settings!.AppDataLocation)
+                ? Path.Join(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    string.IsNullOrWhiteSpace(_customAppDataFolder) ?  DefaultAppDataFolderName : _customAppDataFolder,
+                    MigrationStoreFolderName
+                )
+                : Path.Join(
+                    settings.AppDataLocation,
+                    MigrationStoreFolderName
+                )
+        );
+
+        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+        return path;
     }
 
     public string GetAppLocation()
     {
-        return _appFolderPath;
+        var (settings, error) = AppService.Instance.GetSettings();
+        var path = Path.GetFullPath(
+            error is not null || string.IsNullOrWhiteSpace(settings!.AppDataLocation)
+                ? Path.Join(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    string.IsNullOrWhiteSpace(_customAppDataFolder) ?  DefaultAppDataFolderName : _customAppDataFolder
+                )
+                : settings.AppDataLocation
+        );
+
+        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+        return path;
     }
 
     public string GetLogsLocation()
     {
-        return _logsFolderPath;
+        var (settings, error) = AppService.Instance.GetSettings();
+        var path = Path.GetFullPath(
+            error is not null || string.IsNullOrWhiteSpace(settings!.AppDataLocation)
+                ? Path.Join(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    string.IsNullOrWhiteSpace(_customAppDataFolder) ?  DefaultAppDataFolderName : _customAppDataFolder,
+                    LogsFolderName
+                )
+                : Path.Join(
+                    settings.AppDataLocation,
+                    LogsFolderName
+                )
+        );
+
+        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+        return path;
     }
 
     public virtual Result<string, Error?> GetStoreId()
@@ -526,7 +575,7 @@ public class FsService : IFsService
             return new EmptyResult(new GpgInvalidKeyError());
         }
 
-        File.WriteAllText(Path.Join(_storeFolderPath, GpgIdFileName), gpgId);
+        File.WriteAllText(Path.Join(GetStoreLocation(), GpgIdFileName), gpgId);
 
         var gitCommitResult = AppService.Instance.GitCommit("Add '.gpg-id' file");
         if (gitCommitResult.HasError)
@@ -547,9 +596,10 @@ public class FsService : IFsService
 
     public bool IsStoreInitialized()
     {
-        if (!Directory.Exists(_storeFolderPath)) return false;
+        var storePath = GetStoreLocation();
+        if (!Directory.Exists(storePath)) return false;
 
-        var gpgIdFilePath = Path.Join(_storeFolderPath, GpgIdFileName);
+        var gpgIdFilePath = Path.Join(storePath, GpgIdFileName);
         return File.Exists(gpgIdFilePath) && File.ReadAllText(gpgIdFilePath).Length != 0;
     }
 
@@ -599,7 +649,7 @@ public class FsService : IFsService
     {
         if (_lockFileStream is null) return false;
 
-        var filePath = Path.Join(_storeFolderPath, AppLockFileName);
+        var filePath = Path.Join(GetStoreLocation(), AppLockFileName);
         if (!File.Exists(filePath)) return false;
 
         _lockFileStream.Position = 0;
@@ -700,16 +750,17 @@ public class FsService : IFsService
 
     private EmptyResult CreateStoreFolder(string gpgId)
     {
-        if (Directory.Exists(_storeFolderPath))
+        var storePath = GetStoreLocation();
+        if (Directory.Exists(storePath))
         {
-            var files = Directory.EnumerateFileSystemEntries(_storeFolderPath).ToList();
+            var files = Directory.EnumerateFileSystemEntries(storePath).ToList();
             if (files.Contains(GpgIdFileName)) return new EmptyResult(new FsStoreFolderAlreadyExistsError());
             if (files.Contains(AppLockFileName)) return new EmptyResult();
 
             return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName, gpgId);
         }
 
-        Directory.CreateDirectory(_storeFolderPath);
+        Directory.CreateDirectory(storePath);
         return AppService.Instance.Encrypt(Path.Join(GetStoreLocation(), AppLockFileName), AppLockFileName, gpgId);
     }
 
