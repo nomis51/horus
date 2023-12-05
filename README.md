@@ -2,6 +2,8 @@
 
 A Windows / Linux password manager greatly inspired by [zx2c4 password-store](https://www.passwordstore.org/) available in a GUI and CLI version.
 
+![image](https://github.com/nomis51/horus/assets/25111613/4f70f616-86e9-4796-a2ba-4840abbb5bb0)
+
 ## Why?
 
 Bring the great ideas of [zx2c4 password-store](https://www.passwordstore.org/) to Windows and improve the recipe.
