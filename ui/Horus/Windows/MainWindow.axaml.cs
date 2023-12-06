@@ -188,6 +188,7 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     private void WindowBase_OnResized(object? sender, WindowResizedEventArgs e)
     {
         EntryList.WindowResized(Height);
+        EntryForm.WindowResized(Height);
     }
 
     #endregion

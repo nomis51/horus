@@ -35,6 +35,11 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
         ViewModel?.SetEntryItem(name);
     }
 
+    public void WindowResized(double height)
+    {
+        PanelMetadata.Height = .4d * height;
+    }
+
     #endregion
 
     #region Private methods
@@ -149,13 +154,13 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
     private void TextBoxFile_OnCopyingToClipboard(object? sender, RoutedEventArgs e)
     {
         e.Handled = true;
-        
+
         var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel is null) return;
 
         var key = sender!.GetTag<string>();
-        
-        Dispatch(vm=>vm?.SaveFile(topLevel, key));
+
+        Dispatch(vm => vm?.SaveFile(topLevel, key));
     }
 
     #endregion

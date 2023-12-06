@@ -373,7 +373,8 @@
 
             <!-- metadata / files inputs -->
             <Panel HorizontalAlignment="Stretch"
-                   Height="300">
+                   Height="300"
+                   x:Name="PanelMetadata">
                 <ScrollViewer HorizontalAlignment="Stretch"
                               VerticalScrollBarVisibility="Auto"
                               AllowAutoHide="True"
@@ -421,40 +422,40 @@
                         </ItemsRepeater>
 
                         <!-- Files -->
-                        <ItemsRepeater ItemsSource="{Binding FileMetadatas}">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Spacing="8" />
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="*, Auto">
-                                        <TextBox Grid.Column="0"
-                                                 x:DataType="models:MetadataModel"
-                                                 x:Name="TextBoxFile"
-                                                 Classes="attachment download"
-                                                 MinHeight="48"
-                                                 Watermark="File"
-                                                 IsReadOnly="True"
-                                                 UseFloatingWatermark="True"
-                                                 Tag="{Binding Key}"
-                                                 Text="{Binding Key}"
-                                                 CopyingToClipboard="TextBoxFile_OnCopyingToClipboard" />
-                                        <Button x:DataType="models:MetadataModel"
-                                                Classes="transparent"
-                                                Grid.Column="1"
-                                                Margin="5, 0,0,0"
-                                                VerticalAlignment="Center"
-                                                Tag="{Binding Id}"
-                                                x:Name="ButtonRemoveMetadata"
-                                                Click="ButtonRemoveMetadata_OnClick">
-                                            <Button.Content>
-                                                <icons:MaterialIcon Kind="Delete" />
-                                            </Button.Content>
-                                        </Button>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
+                        <!-- <ItemsRepeater ItemsSource="{Binding FileMetadatas}"> -->
+                        <!--     <ItemsRepeater.Layout> -->
+                        <!--         <StackLayout Spacing="8" /> -->
+                        <!--     </ItemsRepeater.Layout> -->
+                        <!--     <ItemsRepeater.ItemTemplate> -->
+                        <!--         <DataTemplate> -->
+                        <!--             <Grid ColumnDefinitions="*, Auto"> -->
+                        <!--                 <TextBox Grid.Column="0" -->
+                        <!--                          x:DataType="models:MetadataModel" -->
+                        <!--                          x:Name="TextBoxFile" -->
+                        <!--                          Classes="attachment download" -->
+                        <!--                          MinHeight="48" -->
+                        <!--                          Watermark="File" -->
+                        <!--                          IsReadOnly="True" -->
+                        <!--                          UseFloatingWatermark="True" -->
+                        <!--                          Tag="{Binding Key}" -->
+                        <!--                          Text="{Binding Key}" -->
+                        <!--                          CopyingToClipboard="TextBoxFile_OnCopyingToClipboard" /> -->
+                        <!--                 <Button x:DataType="models:MetadataModel" -->
+                        <!--                         Classes="transparent" -->
+                        <!--                         Grid.Column="1" -->
+                        <!--                         Margin="5, 0,0,0" -->
+                        <!--                         VerticalAlignment="Center" -->
+                        <!--                         Tag="{Binding Id}" -->
+                        <!--                         x:Name="ButtonRemoveMetadata" -->
+                        <!--                         Click="ButtonRemoveMetadata_OnClick"> -->
+                        <!--                     <Button.Content> -->
+                        <!--                         <icons:MaterialIcon Kind="Delete" /> -->
+                        <!--                     </Button.Content> -->
+                        <!--                 </Button> -->
+                        <!--             </Grid> -->
+                        <!--         </DataTemplate> -->
+                        <!--     </ItemsRepeater.ItemTemplate> -->
+                        <!-- </ItemsRepeater> -->
                     </StackPanel>
                 </ScrollViewer>
             </Panel>
