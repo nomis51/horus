@@ -19,10 +19,9 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="*,Auto">
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+        <StackPanel Spacing="5">
             <!-- Title -->
-            <Grid Grid.Row="0"
-                  ColumnDefinitions="Auto,Auto">
+            <Grid ColumnDefinitions="Auto,Auto">
                 <Border Grid.Column="0"
                         VerticalAlignment="Center"
                         Background="{DynamicResource ThemeAccentBrush}"
@@ -105,8 +104,7 @@
             </Grid>
 
             <!-- Password title -->
-            <Grid Grid.Row="1"
-                  ColumnDefinitions="*,*"
+            <Grid ColumnDefinitions="*,*"
                   HorizontalAlignment="Stretch">
                 <DockPanel Grid.Column="0"
                            HorizontalAlignment="Left"
@@ -211,8 +209,7 @@
             </Grid>
 
             <!-- Password inputs -->
-            <StackPanel Grid.Row="2"
-                        Spacing="8">
+            <StackPanel Spacing="8">
                 <TextBox Watermark="Password"
                          IsEnabled="{Binding !IsLoading}"
                          UseFloatingWatermark="True"
@@ -268,8 +265,7 @@
             </StackPanel>
 
             <!-- Metadata title -->
-            <Grid Grid.Row="3"
-                  ColumnDefinitions="*,Auto"
+            <Grid ColumnDefinitions="*,Auto"
                   HorizontalAlignment="Stretch"
                   Margin="0,10,0,0">
                 <TextBlock Grid.Column="0"
@@ -336,8 +332,7 @@
             </Grid>
 
             <!-- username / url inputs -->
-            <StackPanel Grid.Row="4"
-                        Spacing="8"
+            <StackPanel Spacing="8"
                         IsVisible="{Binding AreMetadatasRevealed}">
                 <TextBox MinHeight="48"
                          Classes="username clearButtonAndCopyButton"
@@ -351,9 +346,101 @@
                          Text="{Binding Url, Mode=TwoWay}" />
             </StackPanel>
 
-            <!-- username / url placeholders -->
-            <StackPanel Grid.Row="4"
-                        Spacing="8"
+            <!-- Divider -->
+            <Panel IsVisible="{Binding AreMetadatasRevealed}">
+                <Separator Margin="0,8"
+                           IsVisible="{Binding HasNormalMetadatas}" />
+            </Panel>
+
+            <!-- Metadata inputs -->
+            <Panel IsVisible="{Binding AreMetadatasRevealed}">
+                <ItemsRepeater ItemsSource="{Binding Metadatas}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*, 3*, Auto">
+                                <TextBox Grid.Column="0"
+                                         x:DataType="models:MetadataModel"
+                                         Classes="clearButton"
+                                         MinHeight="48"
+                                         Watermark="Key"
+                                         UseFloatingWatermark="True"
+                                         Text="{Binding Key, Mode=TwoWay}" />
+                                <TextBox Grid.Column="1"
+                                         x:DataType="models:MetadataModel"
+                                         Classes="clearButtonAndCopyButton"
+                                         Margin="5, 0,0,0"
+                                         MinHeight="48"
+                                         Watermark="Value"
+                                         UseFloatingWatermark="True"
+                                         Text="{Binding Value, Mode=TwoWay}" />
+                                <Button x:DataType="models:MetadataModel"
+                                        Classes="transparent"
+                                        Grid.Column="2"
+                                        Margin="5, 0,0,0"
+                                        VerticalAlignment="Center"
+                                        Tag="{Binding Id}"
+                                        x:Name="ButtonRemoveMetadata"
+                                        Click="ButtonRemoveMetadata_OnClick">
+                                    <Button.Content>
+                                        <icons:MaterialIcon Kind="Delete" />
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </Panel>
+
+            <!-- Files -->
+            <Panel Margin="0,3,0,0"
+                   IsVisible="{Binding AreMetadatasRevealed}">
+                <ItemsRepeater ItemsSource="{Binding FileMetadatas}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*, Auto">
+                                <TextBox Grid.Column="0"
+                                         x:DataType="models:MetadataModel"
+                                         x:Name="TextBoxFile"
+                                         Classes="attachment download"
+                                         MinHeight="48"
+                                         Watermark="File"
+                                         IsReadOnly="True"
+                                         UseFloatingWatermark="True"
+                                         Tag="{Binding Key}"
+                                         Text="{Binding Key}"
+                                         CopyingToClipboard="TextBoxFile_OnCopyingToClipboard" />
+                                <Button x:DataType="models:MetadataModel"
+                                        Classes="transparent"
+                                        Grid.Column="1"
+                                        Margin="5, 0,0,0"
+                                        VerticalAlignment="Center"
+                                        Tag="{Binding Id}"
+                                        x:Name="ButtonRemoveMetadata"
+                                        Click="ButtonRemoveMetadata_OnClick">
+                                    <Button.Content>
+                                        <icons:MaterialIcon Kind="Delete" />
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </Panel>
+
+            <!-- No metadata label -->
+            <Panel IsVisible="{Binding AreMetadatasRevealed}">
+                <TextBlock IsVisible="{Binding !HasMetadatas}"
+                           Text="No metadata" />
+            </Panel>
+
+            <!-- Metadata placeholders -->
+            <StackPanel Spacing="8"
                         IsVisible="{Binding !AreMetadatasRevealed}">
                 <TextBox IsReadOnly="True"
                          Classes="username"
@@ -371,152 +458,25 @@
                          Text="*********" />
             </StackPanel>
 
-            <!-- Divider -->
-            <Panel Grid.Row="5"
-                   IsVisible="{Binding AreMetadatasRevealed}">
-                <Separator Margin="0,8"
-                           IsVisible="{Binding HasNormalMetadatas}" />
-            </Panel>
+            <!-- Metadata action buttons -->
+            <Button x:Name="ButtonAddMetadata"
+                    IsEnabled="{Binding !IsLoading}"
+                    IsVisible="{Binding AreMetadatasRevealed}"
+                    Margin="0, 0,0,0"
+                    Classes="accent"
+                    Click="ButtonAddMetadata_OnClick">
+                <Button.Content>
+                    <DockPanel>
+                        <TextBlock Text="Add metadata"
+                                   VerticalAlignment="Center" />
+                        <icons:MaterialIcon Kind="Plus"
+                                            Margin="5,0,0,0"
+                                            VerticalAlignment="Center" />
+                    </DockPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
 
-            <!-- metadata / files inputs -->
-            <ScrollViewer Grid.Row="6"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Top"
-                          VerticalScrollBarVisibility="Visible"
-                          AllowAutoHide="True"
-                          IsVisible="{Binding AreMetadatasRevealed}">
-                <StackPanel Spacing="8"
-                            Height="200"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top">
-                    <!-- metadata inputs -->
-                    <ItemsControl ItemsSource="{Binding Metadatas}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Spacing="8" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="*, 3*, Auto">
-                                    <TextBox Grid.Column="0"
-                                             x:DataType="models:MetadataModel"
-                                             Classes="clearButton"
-                                             MinHeight="48"
-                                             Watermark="Key"
-                                             UseFloatingWatermark="True"
-                                             Text="{Binding Key, Mode=TwoWay}" />
-                                    <TextBox Grid.Column="1"
-                                             x:DataType="models:MetadataModel"
-                                             Classes="clearButtonAndCopyButton"
-                                             Margin="5, 0,0,0"
-                                             MinHeight="48"
-                                             Watermark="Value"
-                                             UseFloatingWatermark="True"
-                                             Text="{Binding Value, Mode=TwoWay}" />
-                                    <Button x:DataType="models:MetadataModel"
-                                            Classes="transparent"
-                                            Grid.Column="2"
-                                            Margin="5, 0,0,0"
-                                            VerticalAlignment="Center"
-                                            Tag="{Binding Id}"
-                                            x:Name="ButtonRemoveMetadata"
-                                            Click="ButtonRemoveMetadata_OnClick">
-                                        <Button.Content>
-                                            <icons:MaterialIcon Kind="Delete" />
-                                        </Button.Content>
-                                    </Button>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- <ItemsRepeater ItemsSource="{Binding Metadatas}"> -->
-                    <!--     <ItemsRepeater.Layout> -->
-                    <!--         <StackLayout Spacing="8" /> -->
-                    <!--     </ItemsRepeater.Layout> -->
-                    <!--     <ItemsRepeater.ItemTemplate> -->
-                    <!--         <DataTemplate> -->
-                    <!--             <Grid ColumnDefinitions="*, 3*, Auto"> -->
-                    <!--                 <TextBox Grid.Column="0" -->
-                    <!--                          x:DataType="models:MetadataModel" -->
-                    <!--                          Classes="clearButton" -->
-                    <!--                          MinHeight="48" -->
-                    <!--                          Watermark="Key" -->
-                    <!--                          UseFloatingWatermark="True" -->
-                    <!--                          Text="{Binding Key, Mode=TwoWay}" /> -->
-                    <!--                 <TextBox Grid.Column="1" -->
-                    <!--                          x:DataType="models:MetadataModel" -->
-                    <!--                          Classes="clearButtonAndCopyButton" -->
-                    <!--                          Margin="5, 0,0,0" -->
-                    <!--                          MinHeight="48" -->
-                    <!--                          Watermark="Value" -->
-                    <!--                          UseFloatingWatermark="True" -->
-                    <!--                          Text="{Binding Value, Mode=TwoWay}" /> -->
-                    <!--                 <Button x:DataType="models:MetadataModel" -->
-                    <!--                         Classes="transparent" -->
-                    <!--                         Grid.Column="2" -->
-                    <!--                         Margin="5, 0,0,0" -->
-                    <!--                         VerticalAlignment="Center" -->
-                    <!--                         Tag="{Binding Id}" -->
-                    <!--                         x:Name="ButtonRemoveMetadata" -->
-                    <!--                         Click="ButtonRemoveMetadata_OnClick"> -->
-                    <!--                     <Button.Content> -->
-                    <!--                         <icons:MaterialIcon Kind="Delete" /> -->
-                    <!--                     </Button.Content> -->
-                    <!--                 </Button> -->
-                    <!--             </Grid> -->
-                    <!--         </DataTemplate> -->
-                    <!--     </ItemsRepeater.ItemTemplate> -->
-                    <!-- </ItemsRepeater> -->
-
-                    <!-- Files -->
-                    <!-- <ItemsRepeater ItemsSource="{Binding FileMetadatas}"> -->
-                    <!--     <ItemsRepeater.Layout> -->
-                    <!--         <StackLayout Spacing="8" /> -->
-                    <!--     </ItemsRepeater.Layout> -->
-                    <!--     <ItemsRepeater.ItemTemplate> -->
-                    <!--         <DataTemplate> -->
-                    <!--             <Grid ColumnDefinitions="*, Auto"> -->
-                    <!--                 <TextBox Grid.Column="0" -->
-                    <!--                          x:DataType="models:MetadataModel" -->
-                    <!--                          x:Name="TextBoxFile" -->
-                    <!--                          Classes="attachment download" -->
-                    <!--                          MinHeight="48" -->
-                    <!--                          Watermark="File" -->
-                    <!--                          IsReadOnly="True" -->
-                    <!--                          UseFloatingWatermark="True" -->
-                    <!--                          Tag="{Binding Key}" -->
-                    <!--                          Text="{Binding Key}" -->
-                    <!--                          CopyingToClipboard="TextBoxFile_OnCopyingToClipboard" /> -->
-                    <!--                 <Button x:DataType="models:MetadataModel" -->
-                    <!--                         Classes="transparent" -->
-                    <!--                         Grid.Column="1" -->
-                    <!--                         Margin="5, 0,0,0" -->
-                    <!--                         VerticalAlignment="Center" -->
-                    <!--                         Tag="{Binding Id}" -->
-                    <!--                         x:Name="ButtonRemoveMetadata" -->
-                    <!--                         Click="ButtonRemoveMetadata_OnClick"> -->
-                    <!--                     <Button.Content> -->
-                    <!--                         <icons:MaterialIcon Kind="Delete" /> -->
-                    <!--                     </Button.Content> -->
-                    <!--                 </Button> -->
-                    <!--             </Grid> -->
-                    <!--         </DataTemplate> -->
-                    <!--     </ItemsRepeater.ItemTemplate> -->
-                    <!-- </ItemsRepeater> -->
-                </StackPanel>
-            </ScrollViewer>
-
-            <!-- No metadata label -->
-            <Panel Grid.Row="6"
-                   IsVisible="{Binding AreMetadatasRevealed}">
-                <TextBlock IsVisible="{Binding !HasMetadatas}"
-                           Text="No metadata" />
-            </Panel>
-        </Grid>
-
-        <!-- Bottom action buttons -->
         <Grid Grid.Row="1"
               ColumnDefinitions="*,*">
             <DockPanel Grid.Column="0"
@@ -559,22 +519,6 @@
                 <Border Background="{DynamicResource ThemeAccentBrush}"
                         ToolTip.Placement="Top"
                         ToolTip.VerticalOffset="-5"
-                        ToolTip.Tip="Add a new metadata"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom">
-                    <Button Classes="transparent"
-                            IsEnabled="{Binding !IsLoading}"
-                            x:Name="ButtonAddMetadata"
-                            IsVisible="{Binding AreMetadatasRevealed}"
-                            Click="ButtonAddMetadata_OnClick">
-                        <Button.Content>
-                            <icons:MaterialIcon Kind="PlaylistPlus" />
-                        </Button.Content>
-                    </Button>
-                </Border>
-                <Border Background="{DynamicResource ThemeAccentBrush}"
-                        ToolTip.Placement="Top"
-                        ToolTip.VerticalOffset="-5"
                         ToolTip.Tip="Attach a file"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom">
@@ -584,7 +528,7 @@
                             IsVisible="{Binding AreMetadatasRevealed}"
                             Click="ButtonAttachFile_OnClick">
                         <Button.Content>
-                            <icons:MaterialIcon Kind="PaperclipPlus" />
+                            <icons:MaterialIcon Kind="AttachFile" />
                         </Button.Content>
                     </Button>
                 </Border>
