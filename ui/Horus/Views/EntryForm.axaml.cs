@@ -137,5 +137,26 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
         Dispatch(vm => vm?.CopyOldPassword());
     }
 
+    private void ButtonAttachFile_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null) return;
+
+        Dispatch(vm => vm?.SelectFile(topLevel));
+    }
+
+
+    private void TextBoxFile_OnCopyingToClipboard(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null) return;
+
+        var key = sender!.GetTag<string>();
+        
+        Dispatch(vm=>vm?.SaveFile(topLevel, key));
+    }
+
     #endregion
 }

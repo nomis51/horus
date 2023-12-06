@@ -23,7 +23,19 @@
             </Template>
         </Setter>
     </Style>
-    
+
+    <Style Selector="TextBox.attachment">
+        <Setter Property="InnerLeftContent">
+            <Template>
+                <icons:MaterialIcon VerticalAlignment="Center"
+                                    Kind="AttachFile"
+                                    Height="28"
+                                    Width="28"
+                                    Margin="5,0,0,0" />
+            </Template>
+        </Setter>
+    </Style>
+
     <Style Selector="TextBox.url">
         <Setter Property="InnerLeftContent">
             <Template>
@@ -35,7 +47,7 @@
             </Template>
         </Setter>
     </Style>
-    
+
     <Style Selector="TextBox.password">
         <Setter Property="InnerLeftContent">
             <Template>
@@ -104,6 +116,30 @@
                         Cursor="Hand"
                         ClipToBounds="True">
                     <icons:MaterialIcon Kind="Close"
+                                        Height="20"
+                                        Width="20" />
+                </Button>
+            </Template>
+        </Setter>
+    </Style>
+
+    <Style Selector="TextBox.download:not(TextBox:empty)">
+        <Setter Property="InnerRightContent">
+            <Template>
+                <Button Theme="{StaticResource FluentTextBoxButton}"
+                        x:Name="ButtonDownloadContent"
+                        Cursor="Hand"
+                        ClipToBounds="True">
+                    <Interaction.Behaviors>
+                        <EventTriggerBehavior EventName="Click"
+                                              SourceObject="{Binding #ButtonDownloadContent}">
+                            <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                            <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                            <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                        </EventTriggerBehavior>
+                    </Interaction.Behaviors>
+
+                    <icons:MaterialIcon Kind="Download"
                                         Height="20"
                                         Width="20" />
                 </Button>

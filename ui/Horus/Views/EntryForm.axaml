@@ -394,6 +394,45 @@
                 </ItemsRepeater>
             </Panel>
 
+            <!-- Files -->
+            <Panel Margin="0,3,0,0"
+                   IsVisible="{Binding AreMetadatasRevealed}">
+                <ItemsRepeater ItemsSource="{Binding FileMetadatas}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="8" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*, Auto">
+                                <TextBox Grid.Column="0"
+                                         x:DataType="models:MetadataModel"
+                                         x:Name="TextBoxFile"
+                                         Classes="attachment download"
+                                         MinHeight="48"
+                                         Watermark="File"
+                                         IsReadOnly="True"
+                                         UseFloatingWatermark="True"
+                                         Tag="{Binding Key}"
+                                         Text="{Binding Key}"
+                                         CopyingToClipboard="TextBoxFile_OnCopyingToClipboard" />
+                                <Button x:DataType="models:MetadataModel"
+                                        Classes="transparent"
+                                        Grid.Column="1"
+                                        Margin="5, 0,0,0"
+                                        VerticalAlignment="Center"
+                                        Tag="{Binding Id}"
+                                        x:Name="ButtonRemoveMetadata"
+                                        Click="ButtonRemoveMetadata_OnClick">
+                                    <Button.Content>
+                                        <icons:MaterialIcon Kind="Delete" />
+                                    </Button.Content>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </Panel>
+
             <!-- No metadata label -->
             <Panel IsVisible="{Binding AreMetadatasRevealed}">
                 <TextBlock IsVisible="{Binding !HasMetadatas}"
@@ -474,6 +513,22 @@
                         </Button.Flyout>
                         <Button.Content>
                             <icons:MaterialIcon Kind="History" />
+                        </Button.Content>
+                    </Button>
+                </Border>
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.VerticalOffset="-5"
+                        ToolTip.Tip="Attach a file"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom">
+                    <Button Classes="transparent"
+                            IsEnabled="{Binding !IsLoading}"
+                            x:Name="ButtonAttachFile"
+                            IsVisible="{Binding AreMetadatasRevealed}"
+                            Click="ButtonAttachFile_OnClick">
+                        <Button.Content>
+                            <icons:MaterialIcon Kind="AttachFile" />
                         </Button.Content>
                     </Button>
                 </Border>

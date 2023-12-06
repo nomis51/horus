@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using DynamicData;
 using Horus.Core.Services;
 using Horus.Enums;
@@ -44,7 +49,7 @@ public class EntryFormViewModel : ViewModelBase
         get
         {
             var lowerEntryName = EntryName.ToLower();
-            
+
             if (lowerEntryName.Contains("github")) return MaterialIconKind.Github;
             if (lowerEntryName.Contains("facebook")) return MaterialIconKind.Facebook;
             if (lowerEntryName.Contains("microsoft") || lowerEntryName.Contains("windows")) return MaterialIconKind.Microsoft;
@@ -61,6 +66,7 @@ public class EntryFormViewModel : ViewModelBase
 
     public ObservableCollection<MetadataModel> Metadatas { get; } = new();
     public ObservableCollection<MetadataModel> InternalMetadatas { get; } = new();
+    public ObservableCollection<MetadataModel> FileMetadatas { get; } = new();
 
     private MetadataModel CreatedMetadata => InternalMetadatas.First(m => m is { Type: MetadataType.Internal, Key: "created" });
     public string CreatedMetadataDisplay => CreatedMetadata.DisplayValue;
@@ -96,8 +102,7 @@ public class EntryFormViewModel : ViewModelBase
     }
 
     public bool HasMetadatas => Metadatas.Any() || InternalMetadatas.Any();
-    public bool HasNormalMetadatas => Metadatas.Any();
-    public int[] MetadatasPlaceholders { get; private set; } = { 0, 0, 0 };
+    public bool HasNormalMetadatas => Metadatas.Any() || FileMetadatas.Any();
     private string _password = string.Empty;
 
     public string Password
@@ -202,6 +207,84 @@ public class EntryFormViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public async Task SaveFile(TopLevel controlTopLevel, string key)
+    {
+        var metadata = FileMetadatas.FirstOrDefault(f => f.Key == key);
+        if (metadata is null)
+        {
+            SnackbarService.Instance.Show("Failed to retrieve file", SnackbarSeverity.Error, 5000);
+            return;
+        }
+
+        var file = await controlTopLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save file",
+            SuggestedFileName = metadata.Key,
+        });
+
+        if (file is null)
+        {
+            SnackbarService.Instance.Show("No destination file selected", SnackbarSeverity.Warning);
+            return;
+        }
+
+        try
+        {
+            var bytes = Convert.FromBase64String(metadata.Value);
+
+            await using var stream = await file.OpenWriteAsync();
+            using var memoryStream = new MemoryStream(bytes);
+            await memoryStream.CopyToAsync(stream);
+            await stream.FlushAsync();
+
+            SnackbarService.Instance.Show("File saved successfully", SnackbarSeverity.Success);
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Failed to save file: {Message}", e.Message);
+            SnackbarService.Instance.Show("Failed to save file", SnackbarSeverity.Error, 5000);
+        }
+    }
+
+    public async Task SelectFile(TopLevel controlTopLevel)
+    {
+        var files = await controlTopLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open a file",
+            AllowMultiple = false
+        });
+
+        if (files.Count == 0)
+        {
+            SnackbarService.Instance.Show("No file selected", SnackbarSeverity.Warning);
+            return;
+        }
+        
+        try
+        {
+            await using var stream = await files[0].OpenReadAsync();
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
+
+            if (bytes.Length == 0)
+            {
+                SnackbarService.Instance.Show("The file was empty", SnackbarSeverity.Warning);
+                return;
+            }
+            
+            var base64 = Convert.ToBase64String(bytes);
+
+            FileMetadatas.Add(new MetadataModel(files[0].Name, base64, MetadataType.File));
+            SnackbarService.Instance.Show("File added successfully", SnackbarSeverity.Success);
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Failed to select file: {Message}", e.Message);
+            SnackbarService.Instance.Show("Failed to select file", SnackbarSeverity.Error, 5000);
+        }
+    }
 
     public bool SaveNewEntryName()
     {
@@ -331,6 +414,7 @@ public class EntryFormViewModel : ViewModelBase
                         new MetadataModel("url", Url, MetadataType.Url),
                     })
                     .Concat(Metadatas.ToList())
+                    .Concat(FileMetadatas.ToList())
                     .Select(e => new Metadata(e.Key, e.Value, e.Type))
                     .Where(m => !string.IsNullOrWhiteSpace(m.Key) || !string.IsNullOrWhiteSpace(m.Value))
                     .ToList()
@@ -351,11 +435,8 @@ public class EntryFormViewModel : ViewModelBase
 
     public void RemoveMetadata(Guid id)
     {
-        var index = Metadatas.Select(m => m.Id).IndexOf(id);
-        if (index == -1) return;
-
-        Metadatas.RemoveAt(index);
-        this.RaisePropertyChanged(nameof(HasNormalMetadatas));
+        if (TryRemoveMetadata(id, Metadatas)) return;
+        if (TryRemoveMetadata(id, FileMetadatas)) return;
     }
 
     public void SetEntryItem(string name)
@@ -382,14 +463,9 @@ public class EntryFormViewModel : ViewModelBase
         {
             foreach (var metadata in metadatas)
             {
-                var item = new MetadataModel
-                {
-                    Key = metadata.Key,
-                    Value = metadata.Value,
-                    Type = metadata.Type,
-                };
+                var item = new MetadataModel(metadata);
 
-                switch (metadata.Type)
+                switch (item.Type)
                 {
                     case MetadataType.Internal:
                         InternalMetadatas.Add(item);
@@ -407,8 +483,12 @@ public class EntryFormViewModel : ViewModelBase
                         Url = item.Value;
                         break;
 
+                    case MetadataType.File:
+                        FileMetadatas.Add(item);
+                        break;
+
                     default:
-                        Log.Warning("Unknown metadata type: {Type}", metadata.Type);
+                        Log.Warning("Unknown metadata type: {Type}", item.Type);
                         break;
                 }
             }
@@ -428,6 +508,7 @@ public class EntryFormViewModel : ViewModelBase
     {
         Metadatas.Clear();
         InternalMetadatas.Clear();
+        FileMetadatas.Clear();
         Username = string.Empty;
         Url = string.Empty;
         AreMetadatasRevealed = false;
@@ -437,6 +518,17 @@ public class EntryFormViewModel : ViewModelBase
     #endregion
 
     #region Private methods
+
+    private bool TryRemoveMetadata(Guid id, ObservableCollection<MetadataModel> collection)
+    {
+        var index = collection.Select(m => m.Id).IndexOf(id);
+        if (index == -1) return false;
+
+        collection.RemoveAt(index);
+        this.RaisePropertyChanged(nameof(HasNormalMetadatas));
+
+        return true;
+    }
 
     private void RetrieveSettingsValues()
     {

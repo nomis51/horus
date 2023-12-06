@@ -6,4 +6,5 @@ public enum MetadataType
     Internal = 1,
     Username = 2,
     Url = 3,
+    File = 4,
 }
