@@ -38,7 +38,6 @@
                             Padding="0">
                         <Button.Content>
                             <DockPanel>
-                                <!-- TODO: add icon when name can be detected (e.g. github icon if the entry is "github" something -->
                                 <icons:MaterialIcon VerticalAlignment="Center"
                                                     IsVisible="{Binding HasEntryIcon}"
                                                     Kind="{Binding EntryIcon }"
@@ -336,12 +335,12 @@
             <StackPanel Spacing="8"
                         IsVisible="{Binding AreMetadatasRevealed}">
                 <TextBox MinHeight="48"
-                         Classes="username"
+                         Classes="username clearButtonAndCopyButton"
                          Watermark="Username"
                          UseFloatingWatermark="True"
                          Text="{Binding Username, Mode=TwoWay}" />
                 <TextBox MinHeight="48"
-                         Classes="url"
+                         Classes="url clearButtonAndCopyButton"
                          Watermark="URL"
                          UseFloatingWatermark="True"
                          Text="{Binding Url, Mode=TwoWay}" />
