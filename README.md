@@ -1,6 +1,6 @@
 ![Logo](https://github.com/nomis51/horus/blob/master/.assets/logo.png) A Windows / Linux password manager inspired by [zx2c4 password-store](https://www.passwordstore.org/)
 
-![image](https://github.com/nomis51/horus/assets/25111613/4f70f616-86e9-4796-a2ba-4840abbb5bb0)
+![image](https://github.com/nomis51/horus/assets/25111613/de04560c-1044-437f-9875-4bdb448f74c1)
 
 ## Why?
 
