@@ -40,7 +40,7 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
 
     public void WindowResized(double height)
     {
-        PanelMetadata.Height = .4d * height;
+        Dispatch(vm => { vm!.WindowHeight = height; });
     }
 
     #endregion

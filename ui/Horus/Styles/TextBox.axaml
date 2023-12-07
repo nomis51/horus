@@ -63,23 +63,28 @@
     <Style Selector="TextBox.copyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
         <Setter Property="InnerRightContent">
             <Template>
-                <Button Theme="{StaticResource FluentTextBoxButton}"
-                        x:Name="ButtonCopyContent"
-                        Cursor="Hand"
-                        ClipToBounds="True">
-                    <Interaction.Behaviors>
-                        <EventTriggerBehavior EventName="Click"
-                                              SourceObject="{Binding #ButtonCopyContent}">
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                        </EventTriggerBehavior>
-                    </Interaction.Behaviors>
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="Copy to clipboard"
+                        ToolTip.VerticalOffset="-5">
+                    <Button Theme="{StaticResource FluentTextBoxButton}"
+                            x:Name="ButtonCopyContent"
+                            Cursor="Hand"
+                            ClipToBounds="True">
+                        <Interaction.Behaviors>
+                            <EventTriggerBehavior EventName="Click"
+                                                  SourceObject="{Binding #ButtonCopyContent}">
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                            </EventTriggerBehavior>
+                        </Interaction.Behaviors>
 
-                    <icons:MaterialIcon Kind="ContentCopy"
-                                        Height="20"
-                                        Width="20" />
-                </Button>
+                        <icons:MaterialIcon Kind="ContentCopy"
+                                            Height="20"
+                                            Width="20" />
+                    </Button>
+                </Border>
             </Template>
         </Setter>
     </Style>
@@ -87,23 +92,28 @@
     <Style Selector="TextBox.copyButtonSafe[AcceptsReturn=False]">
         <Setter Property="InnerRightContent">
             <Template>
-                <Button Theme="{StaticResource FluentTextBoxButton}"
-                        x:Name="ButtonCopyContent"
-                        Cursor="Hand"
-                        ClipToBounds="True">
-                    <Interaction.Behaviors>
-                        <EventTriggerBehavior EventName="Click"
-                                              SourceObject="{Binding #ButtonCopyContent}">
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                        </EventTriggerBehavior>
-                    </Interaction.Behaviors>
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="Copy to clipboard"
+                        ToolTip.VerticalOffset="-5">
+                    <Button Theme="{StaticResource FluentTextBoxButton}"
+                            x:Name="ButtonCopyContent"
+                            Cursor="Hand"
+                            ClipToBounds="True">
+                        <Interaction.Behaviors>
+                            <EventTriggerBehavior EventName="Click"
+                                                  SourceObject="{Binding #ButtonCopyContent}">
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                            </EventTriggerBehavior>
+                        </Interaction.Behaviors>
 
-                    <icons:MaterialIcon Kind="ContentCopy"
-                                        Height="20"
-                                        Width="20" />
-                </Button>
+                        <icons:MaterialIcon Kind="ContentCopy"
+                                            Height="20"
+                                            Width="20" />
+                    </Button>
+                </Border>
             </Template>
         </Setter>
     </Style>
@@ -111,14 +121,19 @@
     <Style Selector="TextBox.clearButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
         <Setter Property="InnerRightContent">
             <Template>
-                <Button Theme="{StaticResource FluentTextBoxButton}"
-                        Command="{Binding $parent[TextBox].Clear}"
-                        Cursor="Hand"
-                        ClipToBounds="True">
-                    <icons:MaterialIcon Kind="Close"
-                                        Height="20"
-                                        Width="20" />
-                </Button>
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="Clear the field"
+                        ToolTip.VerticalOffset="-5">
+                    <Button Theme="{StaticResource FluentTextBoxButton}"
+                            Command="{Binding $parent[TextBox].Clear}"
+                            Cursor="Hand"
+                            ClipToBounds="True">
+                        <icons:MaterialIcon Kind="Close"
+                                            Height="20"
+                                            Width="20" />
+                    </Button>
+                </Border>
             </Template>
         </Setter>
     </Style>
@@ -126,23 +141,28 @@
     <Style Selector="TextBox.download:not(TextBox:empty)">
         <Setter Property="InnerRightContent">
             <Template>
-                <Button Theme="{StaticResource FluentTextBoxButton}"
-                        x:Name="ButtonDownloadContent"
-                        Cursor="Hand"
-                        ClipToBounds="True">
-                    <Interaction.Behaviors>
-                        <EventTriggerBehavior EventName="Click"
-                                              SourceObject="{Binding #ButtonDownloadContent}">
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
-                            <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                        </EventTriggerBehavior>
-                    </Interaction.Behaviors>
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.Tip="Save the file"
+                        ToolTip.VerticalOffset="-5">
+                    <Button Theme="{StaticResource FluentTextBoxButton}"
+                            x:Name="ButtonDownloadContent"
+                            Cursor="Hand"
+                            ClipToBounds="True">
+                        <Interaction.Behaviors>
+                            <EventTriggerBehavior EventName="Click"
+                                                  SourceObject="{Binding #ButtonDownloadContent}">
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                            </EventTriggerBehavior>
+                        </Interaction.Behaviors>
 
-                    <icons:MaterialIcon Kind="Download"
-                                        Height="20"
-                                        Width="20" />
-                </Button>
+                        <icons:MaterialIcon Kind="Download"
+                                            Height="20"
+                                            Width="20" />
+                    </Button>
+                </Border>
             </Template>
         </Setter>
     </Style>
@@ -151,82 +171,108 @@
         <Setter Property="InnerRightContent">
             <Template>
                 <DockPanel>
-                    <Button Theme="{StaticResource FluentTextBoxButton}"
-                            x:Name="ButtonCopyContent"
-                            Cursor="Hand"
-                            ClipToBounds="True">
-                        <Interaction.Behaviors>
-                            <EventTriggerBehavior EventName="Click"
-                                                  SourceObject="{Binding #ButtonCopyContent}">
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                            </EventTriggerBehavior>
-                        </Interaction.Behaviors>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Copy to clipboard"
+                            ToolTip.VerticalOffset="-5">
+                        <Button Theme="{StaticResource FluentTextBoxButton}"
+                                x:Name="ButtonCopyContent"
+                                Cursor="Hand"
+                                ClipToBounds="True">
+                            <Interaction.Behaviors>
+                                <EventTriggerBehavior EventName="Click"
+                                                      SourceObject="{Binding #ButtonCopyContent}">
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                                </EventTriggerBehavior>
+                            </Interaction.Behaviors>
 
-                        <icons:MaterialIcon Kind="ContentCopy"
-                                            Height="20"
-                                            Width="20" />
-                    </Button>
-                    <Button Theme="{StaticResource FluentTextBoxButton}"
-                            Command="{Binding $parent[TextBox].Clear}"
-                            Cursor="Hand"
-                            ClipToBounds="True">
-                        <icons:MaterialIcon Kind="Close"
-                                            Height="20"
-                                            Width="20" />
-                    </Button>
+                            <icons:MaterialIcon Kind="ContentCopy"
+                                                Height="20"
+                                                Width="20" />
+                        </Button>
+                    </Border>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Clear the field"
+                            ToolTip.VerticalOffset="-5">
+                        <Button Theme="{StaticResource FluentTextBoxButton}"
+                                Command="{Binding $parent[TextBox].Clear}"
+                                Cursor="Hand"
+                                ClipToBounds="True">
+                            <icons:MaterialIcon Kind="Close"
+                                                Height="20"
+                                                Width="20" />
+                        </Button>
+                    </Border>
                 </DockPanel>
             </Template>
         </Setter>
     </Style>
-    
-    <Style Selector="TextBox.clearButtonAndOpenLinkButtonAndCopyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
+
+    <Style
+        Selector="TextBox.clearButtonAndOpenLinkButtonAndCopyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
         <Setter Property="InnerRightContent">
             <Template>
                 <DockPanel>
-                    <Button Theme="{StaticResource FluentTextBoxButton}"
-                            x:Name="ButtonCopyContent"
-                            Cursor="Hand"
-                            ClipToBounds="True">
-                        <Interaction.Behaviors>
-                            <EventTriggerBehavior EventName="Click"
-                                                  SourceObject="{Binding #ButtonCopyContent}">
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                            </EventTriggerBehavior>
-                        </Interaction.Behaviors>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Copy to clipboard"
+                            ToolTip.VerticalOffset="-5">
+                        <Button Theme="{StaticResource FluentTextBoxButton}"
+                                x:Name="ButtonCopyContent"
+                                Cursor="Hand"
+                                ClipToBounds="True">
+                            <Interaction.Behaviors>
+                                <EventTriggerBehavior EventName="Click"
+                                                      SourceObject="{Binding #ButtonCopyContent}">
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                                </EventTriggerBehavior>
+                            </Interaction.Behaviors>
 
-                        <icons:MaterialIcon Kind="ContentCopy"
-                                            Height="20"
-                                            Width="20" />
-                    </Button>
-                    <Button Theme="{StaticResource FluentTextBoxButton}"
-                            x:Name="ButtonOpenLink"
-                            Cursor="Hand"
-                            ClipToBounds="True">
-                        <Interaction.Behaviors>
-                            <EventTriggerBehavior EventName="Click"
-                                                  SourceObject="{Binding #ButtonOpenLink}">
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].Cut}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                            </EventTriggerBehavior>
-                        </Interaction.Behaviors>
+                            <icons:MaterialIcon Kind="ContentCopy"
+                                                Height="20"
+                                                Width="20" />
+                        </Button>
+                    </Border>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Open URL in the web browser"
+                            ToolTip.VerticalOffset="-5">
+                        <Button Theme="{StaticResource FluentTextBoxButton}"
+                                x:Name="ButtonOpenLink"
+                                Cursor="Hand"
+                                ClipToBounds="True">
+                            <Interaction.Behaviors>
+                                <EventTriggerBehavior EventName="Click"
+                                                      SourceObject="{Binding #ButtonOpenLink}">
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].Cut}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                                </EventTriggerBehavior>
+                            </Interaction.Behaviors>
 
-                        <icons:MaterialIcon Kind="OpenInBrowser"
-                                            Height="20"
-                                            Width="20" />
-                    </Button>
-                    <Button Theme="{StaticResource FluentTextBoxButton}"
-                            Command="{Binding $parent[TextBox].Clear}"
-                            Cursor="Hand"
-                            ClipToBounds="True">
-                        <icons:MaterialIcon Kind="Close"
-                                            Height="20"
-                                            Width="20" />
-                    </Button>
+                            <icons:MaterialIcon Kind="OpenInBrowser"
+                                                Height="20"
+                                                Width="20" />
+                        </Button>
+                    </Border>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Clear the field"
+                            ToolTip.VerticalOffset="-5">
+                        <Button Theme="{StaticResource FluentTextBoxButton}"
+                                Command="{Binding $parent[TextBox].Clear}"
+                                Cursor="Hand"
+                                ClipToBounds="True">
+                            <icons:MaterialIcon Kind="Close"
+                                                Height="20"
+                                                Width="20" />
+                        </Button>
+                    </Border>
                 </DockPanel>
             </Template>
         </Setter>
@@ -237,46 +283,61 @@
         <Setter Property="InnerRightContent">
             <Template>
                 <DockPanel>
-                    <Button Theme="{StaticResource FluentTextBoxButton}"
-                            x:Name="ButtonCopyContent"
-                            Cursor="Hand"
-                            ClipToBounds="True">
-                        <Interaction.Behaviors>
-                            <EventTriggerBehavior EventName="Click"
-                                                  SourceObject="{Binding #ButtonCopyContent}">
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
-                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                            </EventTriggerBehavior>
-                        </Interaction.Behaviors>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Copy to clipboard"
+                            ToolTip.VerticalOffset="-5">
+                        <Button Theme="{StaticResource FluentTextBoxButton}"
+                                x:Name="ButtonCopyContent"
+                                Cursor="Hand"
+                                ClipToBounds="True">
+                            <Interaction.Behaviors>
+                                <EventTriggerBehavior EventName="Click"
+                                                      SourceObject="{Binding #ButtonCopyContent}">
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                                    <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                                </EventTriggerBehavior>
+                            </Interaction.Behaviors>
 
-                        <icons:MaterialIcon Kind="ContentCopy"
-                                            Height="20"
-                                            Width="20" />
-                    </Button>
-                    <ToggleButton Theme="{StaticResource FluentTextBoxToggleButton}"
-                                  Cursor="Hand"
-                                  IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}"
-                                  ClipToBounds="True">
-                        <Panel>
-                            <icons:MaterialIcon Kind="Visibility"
+                            <icons:MaterialIcon Kind="ContentCopy"
                                                 Height="20"
-                                                Width="20"
-                                                IsVisible="{Binding !$parent[ToggleButton].IsChecked}" />
-                            <icons:MaterialIcon Kind="VisibilityOff"
+                                                Width="20" />
+                        </Button>
+                    </Border>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Show / hide the password"
+                            ToolTip.VerticalOffset="-5">
+                        <ToggleButton Theme="{StaticResource FluentTextBoxToggleButton}"
+                                      Cursor="Hand"
+                                      IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}"
+                                      ClipToBounds="True">
+                            <Panel>
+                                <icons:MaterialIcon Kind="Visibility"
+                                                    Height="20"
+                                                    Width="20"
+                                                    IsVisible="{Binding !$parent[ToggleButton].IsChecked}" />
+                                <icons:MaterialIcon Kind="VisibilityOff"
+                                                    Height="20"
+                                                    Width="20"
+                                                    IsVisible="{Binding $parent[ToggleButton].IsChecked}" />
+                            </Panel>
+                        </ToggleButton>
+                    </Border>
+                    <Border Background="{DynamicResource ThemeAccentBrush}"
+                            ToolTip.Placement="Top"
+                            ToolTip.Tip="Clear the field"
+                            ToolTip.VerticalOffset="-5">
+                        <Button Theme="{StaticResource FluentTextBoxButton}"
+                                Command="{Binding $parent[TextBox].Clear}"
+                                Cursor="Hand"
+                                ClipToBounds="True">
+                            <icons:MaterialIcon Kind="Close"
                                                 Height="20"
-                                                Width="20"
-                                                IsVisible="{Binding $parent[ToggleButton].IsChecked}" />
-                        </Panel>
-                    </ToggleButton>
-                    <Button Theme="{StaticResource FluentTextBoxButton}"
-                            Command="{Binding $parent[TextBox].Clear}"
-                            Cursor="Hand"
-                            ClipToBounds="True">
-                        <icons:MaterialIcon Kind="Close"
-                                            Height="20"
-                                            Width="20" />
-                    </Button>
+                                                Width="20" />
+                        </Button>
+                    </Border>
                 </DockPanel>
             </Template>
         </Setter>

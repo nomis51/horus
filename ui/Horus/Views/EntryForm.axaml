@@ -332,11 +332,13 @@
                          Watermark="Username / Mail"
                          UseFloatingWatermark="True"
                          Text="{Binding Username, Mode=TwoWay}" />
-                <TextBox x:Name="TextBoxUrl" MinHeight="48"
+                <TextBox x:Name="TextBoxUrl"
+                         MinHeight="48"
                          Classes="url clearButtonAndOpenLinkButtonAndCopyButton"
                          Watermark="URL"
                          UseFloatingWatermark="True"
-                         Text="{Binding Url, Mode=TwoWay}" CuttingToClipboard="TextBoxUrl_OnCuttingToClipboard" />
+                         Text="{Binding Url, Mode=TwoWay}"
+                         CuttingToClipboard="TextBoxUrl_OnCuttingToClipboard" />
             </StackPanel>
 
             <!-- username / url placeholders -->
@@ -366,7 +368,7 @@
 
             <!-- metadata / files inputs -->
             <Panel HorizontalAlignment="Stretch"
-                   Height="300"
+                   Height="{Binding MetadataPanelHeight}"
                    x:Name="PanelMetadata">
                 <ScrollViewer HorizontalAlignment="Stretch"
                               VerticalScrollBarVisibility="Auto"

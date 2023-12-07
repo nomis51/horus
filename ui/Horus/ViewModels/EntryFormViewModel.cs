@@ -120,7 +120,11 @@ public class EntryFormViewModel : ViewModelBase
     public bool IsEditingPassword
     {
         get => _isEditingPassword;
-        private set => this.RaiseAndSetIfChanged(ref _isEditingPassword, value);
+        private set
+        {
+            this.RaiseAndSetIfChanged(ref _isEditingPassword, value);
+            this.RaisePropertyChanged(nameof(MetadataPanelHeight));
+        }
     }
 
     private double _passwordLength = 12;
@@ -136,7 +140,11 @@ public class EntryFormViewModel : ViewModelBase
     public bool IsGeneratingPassword
     {
         get => _isGeneratingPassword;
-        set => this.RaiseAndSetIfChanged(ref _isGeneratingPassword, IsEditingPassword && value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _isGeneratingPassword, IsEditingPassword && value);
+            this.RaisePropertyChanged(nameof(MetadataPanelHeight));
+        }
     }
 
     private bool _isPasswordVisible;
@@ -178,6 +186,20 @@ public class EntryFormViewModel : ViewModelBase
         get => _newEntryName;
         set => this.RaiseAndSetIfChanged(ref _newEntryName, value);
     }
+
+    private double _windowHeight = 300d;
+
+    public double WindowHeight
+    {
+        get => _windowHeight;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _windowHeight, value);
+            this.RaisePropertyChanged(nameof(MetadataPanelHeight));
+        }
+    }
+
+    public double MetadataPanelHeight => WindowHeight - 424 - (IsEditingPassword ? 58 : 0) - (IsGeneratingPassword ? 58 : 0);
 
     #endregion
 
