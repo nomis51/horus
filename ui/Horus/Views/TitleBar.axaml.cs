@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Runtime.InteropServices.ComTypes;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -116,6 +117,21 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
     private void ButtonOpenSettings_OnClick(object? sender, RoutedEventArgs e)
     {
         OpenSettings?.Invoke();
+    }
+
+    private void MenuItemRestartGpg_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Dispatch(vm => vm?.RestartGpg());
+    }
+
+    private void MenuItemStopGpg_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Dispatch(vm => vm?.StopGpg());
+    }
+
+    private void MenuItemStartGpg_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Dispatch(vm => vm?.StartGpg());
     }
 
     #endregion
