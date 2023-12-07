@@ -180,6 +180,57 @@
             </Template>
         </Setter>
     </Style>
+    
+    <Style Selector="TextBox.clearButtonAndOpenLinkButtonAndCopyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
+        <Setter Property="InnerRightContent">
+            <Template>
+                <DockPanel>
+                    <Button Theme="{StaticResource FluentTextBoxButton}"
+                            x:Name="ButtonCopyContent"
+                            Cursor="Hand"
+                            ClipToBounds="True">
+                        <Interaction.Behaviors>
+                            <EventTriggerBehavior EventName="Click"
+                                                  SourceObject="{Binding #ButtonCopyContent}">
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                            </EventTriggerBehavior>
+                        </Interaction.Behaviors>
+
+                        <icons:MaterialIcon Kind="ContentCopy"
+                                            Height="20"
+                                            Width="20" />
+                    </Button>
+                    <Button Theme="{StaticResource FluentTextBoxButton}"
+                            x:Name="ButtonOpenLink"
+                            Cursor="Hand"
+                            ClipToBounds="True">
+                        <Interaction.Behaviors>
+                            <EventTriggerBehavior EventName="Click"
+                                                  SourceObject="{Binding #ButtonOpenLink}">
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].Cut}" />
+                                <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
+                            </EventTriggerBehavior>
+                        </Interaction.Behaviors>
+
+                        <icons:MaterialIcon Kind="OpenInBrowser"
+                                            Height="20"
+                                            Width="20" />
+                    </Button>
+                    <Button Theme="{StaticResource FluentTextBoxButton}"
+                            Command="{Binding $parent[TextBox].Clear}"
+                            Cursor="Hand"
+                            ClipToBounds="True">
+                        <icons:MaterialIcon Kind="Close"
+                                            Height="20"
+                                            Width="20" />
+                    </Button>
+                </DockPanel>
+            </Template>
+        </Setter>
+    </Style>
 
     <Style
         Selector="TextBox.revealPasswordButtonAndClearButtonAndCopyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">

@@ -329,14 +329,14 @@
                         IsVisible="{Binding AreMetadatasRevealed}">
                 <TextBox MinHeight="48"
                          Classes="username clearButtonAndCopyButton"
-                         Watermark="Username"
+                         Watermark="Username / Mail"
                          UseFloatingWatermark="True"
                          Text="{Binding Username, Mode=TwoWay}" />
-                <TextBox MinHeight="48"
-                         Classes="url clearButtonAndCopyButton"
+                <TextBox x:Name="TextBoxUrl" MinHeight="48"
+                         Classes="url clearButtonAndOpenLinkButtonAndCopyButton"
                          Watermark="URL"
                          UseFloatingWatermark="True"
-                         Text="{Binding Url, Mode=TwoWay}" />
+                         Text="{Binding Url, Mode=TwoWay}" CuttingToClipboard="TextBoxUrl_OnCuttingToClipboard" />
             </StackPanel>
 
             <!-- username / url placeholders -->
@@ -345,7 +345,7 @@
                 <TextBox IsReadOnly="True"
                          Classes="username"
                          MinHeight="48"
-                         Watermark="Username"
+                         Watermark="Username / Mail"
                          UseFloatingWatermark="True"
                          PasswordChar="•"
                          Text="*********" />
@@ -415,40 +415,40 @@
                         </ItemsRepeater>
 
                         <!-- Files -->
-                        <!-- <ItemsRepeater ItemsSource="{Binding FileMetadatas}"> -->
-                        <!--     <ItemsRepeater.Layout> -->
-                        <!--         <StackLayout Spacing="8" /> -->
-                        <!--     </ItemsRepeater.Layout> -->
-                        <!--     <ItemsRepeater.ItemTemplate> -->
-                        <!--         <DataTemplate> -->
-                        <!--             <Grid ColumnDefinitions="*, Auto"> -->
-                        <!--                 <TextBox Grid.Column="0" -->
-                        <!--                          x:DataType="models:MetadataModel" -->
-                        <!--                          x:Name="TextBoxFile" -->
-                        <!--                          Classes="attachment download" -->
-                        <!--                          MinHeight="48" -->
-                        <!--                          Watermark="File" -->
-                        <!--                          IsReadOnly="True" -->
-                        <!--                          UseFloatingWatermark="True" -->
-                        <!--                          Tag="{Binding Key}" -->
-                        <!--                          Text="{Binding Key}" -->
-                        <!--                          CopyingToClipboard="TextBoxFile_OnCopyingToClipboard" /> -->
-                        <!--                 <Button x:DataType="models:MetadataModel" -->
-                        <!--                         Classes="transparent" -->
-                        <!--                         Grid.Column="1" -->
-                        <!--                         Margin="5, 0,0,0" -->
-                        <!--                         VerticalAlignment="Center" -->
-                        <!--                         Tag="{Binding Id}" -->
-                        <!--                         x:Name="ButtonRemoveMetadata" -->
-                        <!--                         Click="ButtonRemoveMetadata_OnClick"> -->
-                        <!--                     <Button.Content> -->
-                        <!--                         <icons:MaterialIcon Kind="Delete" /> -->
-                        <!--                     </Button.Content> -->
-                        <!--                 </Button> -->
-                        <!--             </Grid> -->
-                        <!--         </DataTemplate> -->
-                        <!--     </ItemsRepeater.ItemTemplate> -->
-                        <!-- </ItemsRepeater> -->
+                        <ItemsRepeater ItemsSource="{Binding FileMetadatas}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Spacing="8" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*, Auto, 10">
+                                        <TextBox Grid.Column="0"
+                                                 x:DataType="models:MetadataModel"
+                                                 x:Name="TextBoxFile"
+                                                 Classes="attachment download"
+                                                 MinHeight="48"
+                                                 Watermark="File"
+                                                 IsReadOnly="True"
+                                                 UseFloatingWatermark="True"
+                                                 Tag="{Binding Key}"
+                                                 Text="{Binding Key}"
+                                                 CopyingToClipboard="TextBoxFile_OnCopyingToClipboard" />
+                                        <Button x:DataType="models:MetadataModel"
+                                                Classes="transparent"
+                                                Grid.Column="1"
+                                                Margin="5, 0,0,0"
+                                                VerticalAlignment="Center"
+                                                Tag="{Binding Id}"
+                                                x:Name="ButtonRemoveMetadata"
+                                                Click="ButtonRemoveMetadata_OnClick">
+                                            <Button.Content>
+                                                <icons:MaterialIcon Kind="Delete" />
+                                            </Button.Content>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
                     </StackPanel>
                 </ScrollViewer>
             </Panel>

@@ -67,7 +67,7 @@
                                 <icons:MaterialIcon Grid.Column="1"
                                                     Margin="5,0,0,0"
                                                     VerticalAlignment="Center"
-                                                    Kind="Key"
+                                                    Kind="{Binding Icon}"
                                                     IsVisible="{Binding !HasItems}" />
                             </Grid>
                         </TreeDataTemplate>

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -190,6 +192,27 @@ public class EntryFormViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public void OpenUrl()
+    {
+        if (string.IsNullOrWhiteSpace(Url)) return;
+
+        try
+        {
+            _ = new Uri(Url, UriKind.Absolute);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Process.Start("explorer.exe", Url.Replace("&", "^&"));
+                SnackbarService.Instance.Show("URL opened", SnackbarSeverity.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Failed to parse URL '{Url}': {Message}", Url, e.Message);
+            SnackbarService.Instance.Show("Failed to open URL", SnackbarSeverity.Warning, 5000);
+        }
+    }
 
     public async Task SaveFile(TopLevel controlTopLevel, string key)
     {

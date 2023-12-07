@@ -5,6 +5,7 @@ using System.Linq;
 using DynamicData;
 using Horus.Core.Services;
 using Horus.Enums;
+using Horus.Helpers;
 using Horus.Models;
 using Horus.Services;
 using Horus.Shared.Models.Display;
@@ -105,6 +106,7 @@ public class EntryListViewModel : ViewModelBase
                     Name = entry.Name,
                     FullName = fullName,
                     Items = MapToEntryItemModels(entry.Entries, fullName),
+                    Icon = IconHelper.GetIconFromEntryName(fullName),
                 };
             })
             .ToList();
