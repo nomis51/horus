@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Horus.Core.Services;
+using Horus.Enums;
 using Horus.Helpers;
+using Horus.Services;
 using ReactiveUI;
 using Serilog;
 
@@ -37,6 +39,51 @@ public class TitleBarViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public void RestartGpg()
+    {
+        var (result, error) = AppService.Instance.RestartGpgAgent();
+        if (error is not null)
+        {
+            Log.Warning("Failed to restart GPG agent: {Message}. {Output}", error.Message, result);
+            SnackbarService.Instance.Show("Failed to restart GPG agent", SnackbarSeverity.Warning, 5000);
+        }
+        else
+        {
+            Log.Information("GPG agent restarted: {Message}", result);
+            SnackbarService.Instance.Show("GPG agent restarted", SnackbarSeverity.Success);
+        }
+    }
+
+    public void StopGpg()
+    {
+        var (result, error) = AppService.Instance.StopGpgAgent();
+        if (error is not null)
+        {
+            SnackbarService.Instance.Show("Failed to stop GPG agent", SnackbarSeverity.Warning, 5000);
+            Log.Warning("Failed to stop GPG agent: {Message}. {Output}", error.Message, result);
+        }
+        else
+        {
+            Log.Information("GPG agent stopped: {Message}", result);
+            SnackbarService.Instance.Show("GPG agent stopped", SnackbarSeverity.Success);
+        }
+    }
+    
+    public void StartGpg()
+    {
+        var (result, error) = AppService.Instance.StopGpgAgent();
+        if (error is not null)
+        {
+            SnackbarService.Instance.Show("Failed to start GPG agent", SnackbarSeverity.Warning, 5000);
+            Log.Warning("Failed to start GPG agent: {Message}. {Output}", error.Message, result);
+        }
+        else
+        {
+            Log.Information("GPG agent started: {Message}", result);
+            SnackbarService.Instance.Show("GPG agent started", SnackbarSeverity.Success);
+        }
+    }
 
     public void ShowUpdateIcon(string version)
     {

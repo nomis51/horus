@@ -58,7 +58,7 @@
                     BorderThickness="1,0,0,0" />
 
             <views1:SyncButton DataContext="{Binding SyncButtonViewModel}"
-                              Classes="titlebar" />
+                               Classes="titlebar" />
 
             <Grid IsVisible="{Binding IsUpdateIconVisible}">
                 <Border Background="{DynamicResource ThemeAccentBrush}"
@@ -105,6 +105,33 @@
                     <Button.Content>
                         <icons:MaterialIcon Kind="Settings" />
                     </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="GPG actions"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonGpgActions"
+                        Classes="transparent titlebar">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="ShieldKey" />
+                    </Button.Content>
+                    <Button.Flyout>
+                        <Flyout Placement="Bottom"
+                                ShowMode="TransientWithDismissOnPointerMoveAway">
+                            <Menu>
+                                <MenuItem x:Name="MenuItemRestartGpg"
+                                          Header="Restart GPG agent"
+                                          Click="MenuItemRestartGpg_OnClick" />
+                                <MenuItem x:Name="MenuItemStopGpg"
+                                          Header="Stop GPG agent"
+                                          Click="MenuItemStopGpg_OnClick" />
+                                <MenuItem x:Name="MenuItemStartGpg"
+                                          Header="Start GPG agent"
+                                          Click="MenuItemStartGpg_OnClick" />
+                            </Menu>
+                        </Flyout>
+                    </Button.Flyout>
                 </Button>
             </Border>
             <Border Background="{DynamicResource ThemeAccentBrush}"
