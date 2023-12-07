@@ -35,7 +35,7 @@ public partial class EntryList : ViewBase<EntryListViewModel>
 
     public void WindowResized(double height)
     {
-        TreeView.Height = height - 120;
+        TreeView.Height = height - 115;
     }
 
     public void ReloadList(bool autoSelectFirst = false)

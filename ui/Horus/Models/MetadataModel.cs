@@ -1,5 +1,6 @@
 ﻿using System;
 using Horus.Shared.Enums;
+using Horus.Shared.Models.Data;
 
 namespace Horus.Models;
 
@@ -9,6 +10,24 @@ public class MetadataModel
     public string Key { get; set; } = string.Empty;
     public string Value { get; set; } = string.Empty;
     public MetadataType Type { get; init; } = MetadataType.Normal;
+
+    public MetadataModel()
+    {
+    }
+
+    public MetadataModel(Metadata metadata)
+    {
+        Key = metadata.Key;
+        Value = metadata.Value;
+        Type = metadata.Type;
+    }
+
+    public MetadataModel(string key, string value, MetadataType type)
+    {
+        Key = key;
+        Value = value;
+        Type = type;
+    }
 
     public string DisplayValue
     {
@@ -21,5 +40,10 @@ public class MetadataModel
 
             return Value;
         }
+    }
+
+    public void Clear()
+    {
+        Value = string.Empty;
     }
 }

@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avaloniaProgressRing="clr-namespace:AvaloniaProgressRing;assembly=AvaloniaProgressRing"
         xmlns:viewModels="clr-namespace:Horus.ViewModels"
-        xmlns:views1="clr-namespace:Horus.Views"
+        xmlns:views="clr-namespace:Horus.Views"
         mc:Ignorable="d"
         d:DesignWidth="800"
         d:DesignHeight="450"
@@ -28,7 +28,7 @@
     </Design.DataContext>
 
     <Grid RowDefinitions="Auto,*">
-        <views1:TitleBar DataContext="{Binding TitleBarViewModel}"
+        <views:TitleBar DataContext="{Binding TitleBarViewModel}"
                          Grid.Row="0"
                          x:Name="TitleBar"
                          WindowTitleBarPressed="TitleBar_OnWindowTitleBarPressed"
@@ -46,7 +46,7 @@
                     Grid.Column="0"
                     Classes="paper"
                     Margin="7, 0, 3.5, 7">
-                <views1:EntryList x:Name="EntryList"
+                <views:EntryList x:Name="EntryList"
                                   DataContext="{Binding EntryListViewModel}"
                                   EntrySelected="EntryList_OnEntrySelected" />
             </Border>
@@ -55,7 +55,7 @@
                     Classes="paper"
                     Margin="3.5, 0, 7, 7"
                     IsVisible="{Binding EntrySelected}">
-                <views1:EntryForm x:Name="EntryForm"
+                <views:EntryForm x:Name="EntryForm"
                                   DataContext="{Binding EntryFormViewModel}"
                                   EntryRenamedEntry="EntryForm_OnEntryRenamedEntry" />
             </Border>
@@ -64,7 +64,7 @@
                     Classes="paper"
                     Margin="3.5, 0, 7, 7"
                     IsVisible="{Binding !EntrySelected}">
-                <views1:HomeScreen />
+                <views:HomeScreen />
             </Border>
         </Grid>
         <Grid Grid.Row="1"
@@ -87,14 +87,14 @@
                            VerticalAlignment="Center" />
             </StackPanel>
         </Grid>
-        <views1:DialogManager x:Name="DialogManager"
+        <views:DialogManager x:Name="DialogManager"
                               Grid.Row="1"
                               Grid.Column="0"
                               DataContext="{Binding DialogManagerViewModel}"
                               HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch"
                               Close="DialogManager_OnClose" />
-        <views1:SnackbarManager x:Name="SnackbarManager"
+        <views:SnackbarManager x:Name="SnackbarManager"
                                 Grid.Row="1"
                                 Grid.Column="0"
                                 HorizontalAlignment="Left"

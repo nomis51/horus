@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -6,6 +8,7 @@ using Horus.Enums;
 using Horus.Extensions;
 using Horus.Services;
 using Horus.ViewModels;
+using Serilog;
 
 namespace Horus.Views;
 
@@ -33,6 +36,11 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
     public void SetEntryItem(string name, bool isNew = false)
     {
         ViewModel?.SetEntryItem(name);
+    }
+
+    public void WindowResized(double height)
+    {
+        Dispatch(vm => { vm!.WindowHeight = height; });
     }
 
     #endregion
@@ -135,6 +143,34 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
     {
         e.Handled = true;
         Dispatch(vm => vm?.CopyOldPassword());
+    }
+
+    private void ButtonAttachFile_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null) return;
+
+        Dispatch(vm => vm?.SelectFile(topLevel));
+    }
+
+
+    private void TextBoxFile_OnCopyingToClipboard(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null) return;
+
+        var key = sender!.GetTag<string>();
+
+        Dispatch(vm => vm?.SaveFile(topLevel, key));
+    }
+
+    private void TextBoxUrl_OnCuttingToClipboard(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        Dispatch(vm => vm?.OpenUrl());
     }
 
     #endregion
