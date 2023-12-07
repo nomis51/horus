@@ -381,7 +381,7 @@
                             </ItemsRepeater.Layout>
                             <ItemsRepeater.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid ColumnDefinitions="*, 3*, Auto">
+                                    <Grid ColumnDefinitions="*, 3*, Auto, 10">
                                         <TextBox Grid.Column="0"
                                                  x:DataType="models:MetadataModel"
                                                  Classes="clearButton"
