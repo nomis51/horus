@@ -166,7 +166,7 @@ public class FsService : IFsService
         var storePath = GetStoreLocation();
 
         EnumerateFilePaths(storePath, items);
-        if (!items.Any()) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
+        if (items.Count == 0) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
 
         List<MetadataCollection> metadatas = new();
 
@@ -241,11 +241,11 @@ public class FsService : IFsService
         List<StoreEntry> results = new();
         var storePath = GetStoreLocation();
 
-        LocalEnumerateEntries(storePath, results);
+        LocalEnumerateEntries(storePath, ref results);
 
         return new Result<List<StoreEntry>, Error?>(results);
 
-        void LocalEnumerateEntries(string current, ICollection<StoreEntry> entries)
+        void LocalEnumerateEntries(string current, ref List<StoreEntry> entries)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var filePath in Directory.EnumerateFiles(current))
@@ -272,13 +272,17 @@ public class FsService : IFsService
                     )
                 );
 
-                LocalEnumerateEntries(dirPath, entries.Last().Entries);
+                List<StoreEntry> subEntries = new();
+                LocalEnumerateEntries(dirPath, ref subEntries);
+                entries[^1].Entries.AddRange(subEntries);
 
                 if (entries.Last().Entries.Count == 0)
                 {
                     entries.Remove(entries.Last());
                 }
             }
+
+            entries = entries.OrderBy(e => e.Name).ToList();
         }
     }
 
@@ -670,6 +674,9 @@ public class FsService : IFsService
 
             EnumerateFilePaths(dirPath, filePaths);
         }
+
+        filePaths = filePaths.OrderBy(e => e.Item2)
+            .ToList();
     }
 
     private EmptyResult CreateGitIgnore()
