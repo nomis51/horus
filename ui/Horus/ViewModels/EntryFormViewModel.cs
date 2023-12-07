@@ -9,6 +9,7 @@ using Avalonia.Platform.Storage;
 using DynamicData;
 using Horus.Core.Services;
 using Horus.Enums;
+using Horus.Helpers;
 using Horus.Models;
 using Horus.Services;
 using Horus.Shared.Enums;
@@ -44,25 +45,7 @@ public class EntryFormViewModel : ViewModelBase
 
     public bool HasEntryIcon => EntryIcon != MaterialIconKind.Key;
 
-    public MaterialIconKind EntryIcon
-    {
-        get
-        {
-            var lowerEntryName = EntryName.ToLower();
-
-            if (lowerEntryName.Contains("github")) return MaterialIconKind.Github;
-            if (lowerEntryName.Contains("facebook")) return MaterialIconKind.Facebook;
-            if (lowerEntryName.Contains("microsoft") || lowerEntryName.Contains("windows")) return MaterialIconKind.Microsoft;
-            if (lowerEntryName.Contains("outlook") || lowerEntryName.Contains("hotmail")) return MaterialIconKind.MicrosoftOutlook;
-            if (lowerEntryName.Contains("azure") || lowerEntryName.Contains("devops")) return MaterialIconKind.MicrosoftAzureDevops;
-            if (lowerEntryName.Contains("twitter")) return MaterialIconKind.Twitter;
-            if (lowerEntryName.Contains("google") || lowerEntryName.Contains("gmail")) return MaterialIconKind.Google;
-            if (lowerEntryName.Contains("pinterest")) return MaterialIconKind.Pinterest;
-            if (lowerEntryName.Contains("steam")) return MaterialIconKind.Steam;
-
-            return MaterialIconKind.Key;
-        }
-    }
+    public MaterialIconKind EntryIcon => IconHelper.GetIconFromEntryName(EntryName);
 
     public ObservableCollection<MetadataModel> Metadatas { get; } = new();
     public ObservableCollection<MetadataModel> InternalMetadatas { get; } = new();
@@ -260,7 +243,7 @@ public class EntryFormViewModel : ViewModelBase
             SnackbarService.Instance.Show("No file selected", SnackbarSeverity.Warning);
             return;
         }
-        
+
         try
         {
             await using var stream = await files[0].OpenReadAsync();
@@ -273,7 +256,7 @@ public class EntryFormViewModel : ViewModelBase
                 SnackbarService.Instance.Show("The file was empty", SnackbarSeverity.Warning);
                 return;
             }
-            
+
             var base64 = Convert.ToBase64String(bytes);
 
             FileMetadatas.Add(new MetadataModel(files[0].Name, base64, MetadataType.File));
