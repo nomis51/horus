@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:Horus.ViewModels"
-             xmlns:views1="clr-namespace:Horus.Views"
+             xmlns:views="clr-namespace:Horus.Views"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -57,8 +57,8 @@
                     BorderBrush="DarkGray"
                     BorderThickness="1,0,0,0" />
 
-            <views1:SyncButton DataContext="{Binding SyncButtonViewModel}"
-                               Classes="titlebar" />
+            <views:SyncButton DataContext="{Binding SyncButtonViewModel}"
+                              Classes="titlebar" />
 
             <Grid IsVisible="{Binding IsUpdateIconVisible}">
                 <Border Background="{DynamicResource ThemeAccentBrush}"
@@ -143,20 +143,44 @@
                         <icons:MaterialIcon Kind="ShieldKey" />
                     </Button.Content>
                     <Button.Flyout>
-                        <Flyout Placement="Bottom"
-                                ShowMode="TransientWithDismissOnPointerMoveAway">
-                            <Menu>
-                                <MenuItem x:Name="MenuItemRestartGpg"
-                                          Header="Restart GPG agent"
-                                          Click="MenuItemRestartGpg_OnClick" />
-                                <MenuItem x:Name="MenuItemStopGpg"
-                                          Header="Stop GPG agent"
-                                          Click="MenuItemStopGpg_OnClick" />
-                                <MenuItem x:Name="MenuItemStartGpg"
-                                          Header="Start GPG agent"
-                                          Click="MenuItemStartGpg_OnClick" />
-                            </Menu>
-                        </Flyout>
+                        <MenuFlyout>
+                            <MenuItem x:Name="MenuItemRestartGpg"
+                                      Click="MenuItemRestartGpg_OnClick">
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="Refresh" />
+                                            <TextBlock Text="Restart GPG agent"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                            </MenuItem>
+                            <MenuItem x:Name="MenuItemStopGpg"
+                                      Click="MenuItemStopGpg_OnClick">
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="Stop" />
+                                            <TextBlock Text="Stop GPG agent"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                            </MenuItem>
+                            <MenuItem x:Name="MenuItemStartGpg"
+                                      Click="MenuItemStartGpg_OnClick">
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="Play" />
+                                            <TextBlock Text="Start GPG agent"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                            </MenuItem>
+                        </MenuFlyout>
                     </Button.Flyout>
                 </Button>
             </Border>
