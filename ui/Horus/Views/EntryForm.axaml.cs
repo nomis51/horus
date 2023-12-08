@@ -20,6 +20,10 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
 
     public event EntryRenamedEntryEvent? EntryRenamedEntry;
 
+    public delegate void EntryClosedEvent();
+
+    public event EntryClosedEvent? EntryClosed;
+
     #endregion
 
     #region Constructors
@@ -171,6 +175,12 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
         e.Handled = true;
 
         Dispatch(vm => vm?.OpenUrl());
+    }
+
+    private void ButtonClose_OnClick(object? sender, RoutedEventArgs e)
+    {
+        EntryClosed?.Invoke();
+        ViewModel!.EntryName = string.Empty;
     }
 
     #endregion

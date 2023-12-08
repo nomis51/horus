@@ -191,5 +191,13 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         EntryForm.WindowResized(Height);
     }
 
+
+    private void EntryForm_OnEntryClosed()
+    {
+        ViewModel!.EntrySelected = false;
+        EntryForm.SetEntryItem(string.Empty);
+        EntryList.TreeView.SelectedItem = null;
+    }
+
     #endregion
 }
