@@ -500,13 +500,14 @@ public class GitService : IGitService
 
             return new Result<List<string>, Error?>(
                 result.OutputLines
+                    .SelectMany(l => l.Split("\n"))
                     .Select(l => l.Replace("*", string.Empty).Trim())
                     .ToList()
             );
         }
         catch (Exception e)
         {
-            Log.Error("Error while performing git branch: {Message}",  e.Message);
+            Log.Error("Error while performing git branch: {Message}", e.Message);
             return new Result<List<string>, Error?>(new GitCommitFailedError());
         }
     }

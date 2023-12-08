@@ -37,4 +37,5 @@ public interface IFsService : IService
     EmptyResult CreateNewStore(string name);
     EmptyResult ChangeStore(string name);
     EmptyResult DeleteStore(string name);
+    Result<List<string>, Error?> ListStores();
 }

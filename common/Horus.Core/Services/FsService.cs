@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Horus.Core.Services.Abstractions;
 using Horus.Shared.Enums;
+using Horus.Shared.Extensions;
 using Horus.Shared.Helpers;
 using Horus.Shared.Models.Abstractions;
 using Horus.Shared.Models.Data;
@@ -660,6 +661,17 @@ public class FsService : IFsService
     public EmptyResult DeleteStore(string name)
     {
         return AppService.Instance.GitRemoveBranch(name);
+    }
+
+    public Result<List<string>, Error?> ListStores()
+    {
+        var (stores, error) = AppService.Instance.GitListBranches();
+        if (error is not null) return new Result<List<string>, Error?>(error);
+
+        return new Result<List<string>, Error?>(
+            stores.Select(s => s.StartsWith("master") ? "main" : s)
+                .ToList()
+        );
     }
 
     public void Initialize()

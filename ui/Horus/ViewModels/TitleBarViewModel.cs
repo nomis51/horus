@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using DynamicData;
 using Horus.Core.Services;
 using Horus.Enums;
 using Horus.Helpers;
+using Horus.Models;
 using Horus.Services;
 using ReactiveUI;
 using Serilog;
@@ -35,6 +41,23 @@ public class TitleBarViewModel : ViewModelBase
     }
 
     public string UpdateMessage { get; private set; } = string.Empty;
+
+    private ObservableCollection<StoreModel> _stores = new();
+
+    public ObservableCollection<StoreModel> Stores
+    {
+        get => _stores;
+        set => this.RaiseAndSetIfChanged(ref _stores, value);
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public TitleBarViewModel()
+    {
+        RetrieveStores();
+    }
 
     #endregion
 
@@ -69,7 +92,7 @@ public class TitleBarViewModel : ViewModelBase
             SnackbarService.Instance.Show("GPG agent stopped", SnackbarSeverity.Success);
         }
     }
-    
+
     public void StartGpg()
     {
         var (result, error) = AppService.Instance.StopGpgAgent();
@@ -113,6 +136,29 @@ public class TitleBarViewModel : ViewModelBase
     public void OpenTerminal()
     {
         TerminalHelper.SpawnTerminal(AppService.Instance.GetStoreLocation());
+    }
+
+    #endregion
+
+    #region Private methods
+
+    private void RetrieveStores()
+    {
+        Task.Run(() =>
+        {
+            var (stores, error) = AppService.Instance.ListStores();
+            if (error is not null || stores.Count == 0)
+            {
+                Log.Error("Failed to list stores: {Message}", error!.Message);
+                SnackbarService.Instance.Show("Failed to list stores", SnackbarSeverity.Error, 5000);
+                return;
+            }
+
+            Stores.Clear();
+            Stores.AddRange(stores.Select(s => new StoreModel(s)));
+            Stores.Add(new StoreModel("$separator"));
+            Stores.Add(new StoreModel("$createButton"));
+        });
     }
 
     #endregion

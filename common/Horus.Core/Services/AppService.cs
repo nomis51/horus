@@ -335,9 +335,14 @@ public class AppService : IAppService
         return _gitService.RemoveBranch(name);
     }
 
-    public Result<List<string>, Error?> ListStores()
+    public Result<List<string>, Error?> GitListBranches()
     {
         return _gitService.ListBranches();
+    }
+
+    public Result<List<string>, Error?> ListStores()
+    {
+        return _fsService.ListStores();
     }
 
     public void Initialize(AppServiceDependenciesProvider dependencies)
