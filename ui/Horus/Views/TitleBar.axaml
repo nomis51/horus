@@ -88,19 +88,21 @@
                 <Button Classes="transparent"
                         Content="Main">
                     <Button.Flyout>
-                        <Flyout Placement="Bottom"
-                                ShowMode="TransientWithDismissOnPointerMoveAway">
-                            <Menu>
-                                <MenuItem Header="Main" />
-                                <MenuItem Header="Work" />
-                                <MenuItem Header="Other" />
-                                <MenuItem>
-                                    <MenuItem.Header>
-                                        <icons:MaterialIcon Kind="Plus" />
-                                    </MenuItem.Header>
-                                </MenuItem>
-                            </Menu>
-                        </Flyout>
+                        <MenuFlyout>
+                            <MenuItem Header="Main" />
+                            <MenuItem Header="Work" />
+                            <MenuItem Header="Other" />
+                            <Separator />
+                            <MenuItem>
+                                <MenuItem.Header>
+                                    <DockPanel>
+                                        <TextBlock Text="Create a new store" />
+                                        <icons:MaterialIcon Kind="Plus"
+                                                            Margin="5,2,0,0" />
+                                    </DockPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                        </MenuFlyout>
                     </Button.Flyout>
                 </Button>
             </Border>
