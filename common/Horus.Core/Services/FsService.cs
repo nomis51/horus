@@ -643,6 +643,25 @@ public class FsService : IFsService
         }
     }
 
+    public EmptyResult CreateNewStore(string name)
+    {
+        var result = AppService.Instance.GitCreateBranch(name);
+        if (result.HasError) return result;
+
+        var result2 = AppService.Instance.GitChangeBranch(name);
+        return result2;
+    }
+
+    public EmptyResult ChangeStore(string name)
+    {
+        return AppService.Instance.GitChangeBranch(name);
+    }
+
+    public EmptyResult DeleteStore(string name)
+    {
+        return AppService.Instance.GitRemoveBranch(name);
+    }
+
     public void Initialize()
     {
     }

@@ -320,6 +320,21 @@ public class AppService : IAppService
         return _fsService.GetStoreId();
     }
 
+    public EmptyResult GitCreateBranch(string name)
+    {
+        return _gitService.CreateBranch(name);
+    }
+    
+    public EmptyResult GitChangeBranch(string name)
+    {
+        return _gitService.ChangeBranch(name);
+    }
+    
+    public EmptyResult GitRemoveBranch(string name)
+    {
+        return _gitService.RemoveBranch(name);
+    }
+
     public void Initialize(AppServiceDependenciesProvider dependencies)
     {
         _fsService = dependencies.FsService;

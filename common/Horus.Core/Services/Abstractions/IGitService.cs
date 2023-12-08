@@ -15,4 +15,7 @@ public interface IGitService : IService
     string Execute(string[] args);
     EmptyResult Commit(string message);
     EmptyResult Ignore(string filePath);
+    EmptyResult CreateBranch(string name);
+    EmptyResult ChangeBranch(string name);
+    EmptyResult RemoveBranch(string name);
 }

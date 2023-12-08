@@ -34,4 +34,7 @@ public interface IFsService : IService
     EmptyResult SetPassphraseCacheTimeout(int timeout);
     bool VerifyLock();
     void Verify();
+    EmptyResult CreateNewStore(string name);
+    EmptyResult ChangeStore(string name);
+    EmptyResult DeleteStore(string name);
 }
