@@ -485,6 +485,32 @@ public class GitService : IGitService
         return new EmptyResult();
     }
 
+    public Result<List<string>, Error?> ListBranches()
+    {
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "branch",
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+
+            return new Result<List<string>, Error?>(
+                result.OutputLines
+                    .Select(l => l.Replace("*", string.Empty).Trim())
+                    .ToList()
+            );
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git branch: {Message}",  e.Message);
+            return new Result<List<string>, Error?>(new GitCommitFailedError());
+        }
+    }
+
     public void Initialize()
     {
     }

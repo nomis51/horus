@@ -324,15 +324,20 @@ public class AppService : IAppService
     {
         return _gitService.CreateBranch(name);
     }
-    
+
     public EmptyResult GitChangeBranch(string name)
     {
         return _gitService.ChangeBranch(name);
     }
-    
+
     public EmptyResult GitRemoveBranch(string name)
     {
         return _gitService.RemoveBranch(name);
+    }
+
+    public Result<List<string>, Error?> ListStores()
+    {
+        return _gitService.ListBranches();
     }
 
     public void Initialize(AppServiceDependenciesProvider dependencies)
