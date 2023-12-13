@@ -54,6 +54,16 @@ public class AppService : IAppService
 
     #region Public methods
 
+    public Result<string, Error?> GetActiveStore()
+    {
+        return _gitService.GetCurrentBranch();
+    }
+    
+    public EmptyResult ChangeStore(string name)
+    {
+        return _fsService.ChangeStore(name);
+    }
+    
     public Result<string, Error?> RestartGpgAgent()
     {
         return _gpgService.RestartGpgAgent();

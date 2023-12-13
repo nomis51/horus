@@ -5,6 +5,7 @@
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:Horus.ViewModels"
              xmlns:views="clr-namespace:Horus.Views"
+             xmlns:models="clr-namespace:Horus.Models"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -86,20 +87,40 @@
                     ToolTip.Tip="Select a store"
                     ToolTip.VerticalOffset="-5">
                 <Button Classes="transparent"
-                        Content="Main">
+                        Content="{Binding SelectedStore}">
                     <Button.Flyout>
-                        <MenuFlyout ItemsSource="{Binding Stores}">
-                            <!-- <Separator /> -->
-                            <!-- <MenuItem> -->
-                            <!--     <MenuItem.Header> -->
-                            <!--         <DockPanel> -->
-                            <!--             <TextBlock Text="Create a new store" /> -->
-                            <!--             <icons:MaterialIcon Kind="Plus" -->
-                            <!--                                 Margin="5,2,0,0" /> -->
-                            <!--         </DockPanel> -->
-                            <!--     </MenuItem.Header> -->
-                            <!-- </MenuItem> -->
-                        </MenuFlyout>
+                        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway">
+                            <StackPanel Spacing="2">
+                                <ItemsRepeater ItemsSource="{Binding Stores}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Orientation="Vertical"
+                                                     Spacing="2">
+                                        </StackLayout>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="models:StoreModel">
+                                            <Button x:Name="ButtonStore"
+                                                    Classes="transparent"
+                                                    Tag="{Binding Name}"
+                                                    Click="ButtonStore_OnClick"
+                                                    Content="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                                <Separator />
+                                <Button x:Name="ButtonCreateStore"
+                                        Classes="transparent"
+                                        Click="ButtonCreateStore_OnClick">
+                                    <Button.Content>
+                                        <DockPanel>
+                                            <TextBlock Text="Create a new store" />
+                                            <icons:MaterialIcon Kind="Plus"
+                                                                Margin="5,2,0,0" />
+                                        </DockPanel>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
                     </Button.Flyout>
                 </Button>
             </Border>

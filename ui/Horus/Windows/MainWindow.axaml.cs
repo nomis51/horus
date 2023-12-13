@@ -199,5 +199,14 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
         EntryList.TreeView.SelectedItem = null;
     }
 
+
+    private void TitleBar_OnActiveStoreChanged()
+    {
+        EntryList.ReloadList();
+        ViewModel!.EntrySelected = false;
+        EntryForm.SetEntryItem(string.Empty);
+        EntryList.TreeView.SelectedItem = null;
+    }
+
     #endregion
 }

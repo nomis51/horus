@@ -19,4 +19,5 @@ public interface IGitService : IService
     EmptyResult ChangeBranch(string name);
     EmptyResult RemoveBranch(string name);
     Result<List<string>, Error?> ListBranches();
+    Result<string, Error?> GetCurrentBranch();
 }

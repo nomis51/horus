@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Horus.Extensions;
 using Horus.ViewModels;
 
 namespace Horus.Views;
@@ -38,6 +39,10 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
     public delegate void OpenSettingsEvent();
 
     public event OpenSettingsEvent? OpenSettings;
+
+    public delegate void ActiveStoreChangedEvent();
+
+    public event ActiveStoreChangedEvent? ActiveStoreChanged;
 
     #endregion
 
@@ -134,5 +139,23 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
         Dispatch(vm => vm?.StartGpg());
     }
 
-    #endregion
+    private void ButtonStore_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var name = sender!.GetTag<string>();
+        if (name.StartsWith('$')) return;
+
+        Dispatch(vm =>
+        {
+            if (!vm!.ChangeStore(name)) return;
+
+            InvokeUi(() => ActiveStoreChanged?.Invoke());
+        });
+    }
+
+    private void ButtonCreateStore_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new System.NotImplementedException();
+    }
 }
+
+#endregion

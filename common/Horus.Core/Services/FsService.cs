@@ -669,8 +669,7 @@ public class FsService : IFsService
         if (error is not null) return new Result<List<string>, Error?>(error);
 
         return new Result<List<string>, Error?>(
-            stores.Select(s => s.StartsWith("master") ? "main" : s)
-                .ToList()
+            stores.ToList()
         );
     }
 

@@ -512,6 +512,36 @@ public class GitService : IGitService
         }
     }
 
+    public Result<string, Error?> GetCurrentBranch()
+    {
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "branch",
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+
+            return new Result<string, Error?>(
+                (
+                    result.OutputLines
+                        .SelectMany(l => l.Split("\n"))
+                        .FirstOrDefault(l => l.StartsWith("*", StringComparison.OrdinalIgnoreCase)) ?? string.Empty
+                )
+                .Trim('*')
+                .Trim()
+            );
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git branch: {Message}", e.Message);
+            return new Result<string, Error?>(new GitCommitFailedError());
+        }
+    }
+
     public void Initialize()
     {
     }

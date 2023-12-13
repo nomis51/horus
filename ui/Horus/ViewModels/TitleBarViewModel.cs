@@ -50,18 +50,52 @@ public class TitleBarViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _stores, value);
     }
 
+    private bool _isChangingStore;
+
+    public bool IsChangingStore
+    {
+        get => _isChangingStore;
+        set => this.RaiseAndSetIfChanged(ref _isChangingStore, value);
+    }
+
+    private string _selectedStore = "main";
+
+    public string SelectedStore
+    {
+        get => _selectedStore;
+        set => this.RaiseAndSetIfChanged(ref _selectedStore, value);
+    }
+
     #endregion
 
     #region Constructors
 
     public TitleBarViewModel()
     {
+        RetrieveActiveStore();
         RetrieveStores();
     }
 
     #endregion
 
     #region Public methods
+
+    public bool ChangeStore(string name)
+    {
+        IsChangingStore = true;
+        var result = AppService.Instance.ChangeStore(name);
+        IsChangingStore = false;
+
+        if (result.HasError)
+        {
+            SnackbarService.Instance.Show("Failed to change store", SnackbarSeverity.Error, 5000);
+            return false;
+        }
+
+        RetrieveActiveStore();
+        SnackbarService.Instance.Show($"Store '{name}' now active", SnackbarSeverity.Success);
+        return true;
+    }
 
     public void RestartGpg()
     {
@@ -142,6 +176,22 @@ public class TitleBarViewModel : ViewModelBase
 
     #region Private methods
 
+    private void RetrieveActiveStore()
+    {
+        Task.Run(() =>
+        {
+            var (store, error) = AppService.Instance.GetActiveStore();
+            if (error is not null || string.IsNullOrEmpty(store))
+            {
+                Log.Error("Failed to get active store: {Message}", error!.Message);
+                SnackbarService.Instance.Show("Failed to get active store", SnackbarSeverity.Error, 5000);
+                return;
+            }
+
+            SelectedStore = store;
+        });
+    }
+
     private void RetrieveStores()
     {
         Task.Run(() =>
@@ -156,8 +206,6 @@ public class TitleBarViewModel : ViewModelBase
 
             Stores.Clear();
             Stores.AddRange(stores.Select(s => new StoreModel(s)));
-            Stores.Add(new StoreModel("$separator"));
-            Stores.Add(new StoreModel("$createButton"));
         });
     }
 
