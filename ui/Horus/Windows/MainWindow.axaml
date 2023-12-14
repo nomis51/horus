@@ -37,7 +37,8 @@
                         WindowClose="TitleBar_OnWindowClose"
                         WindowMaximize="TitleBar_OnWindowMaximize"
                         WindowMinimize="TitleBar_OnWindowMinimize"
-                        OpenSettings="TitleBarView_OnOpenSettings" ActiveStoreChanged="TitleBar_OnActiveStoreChanged" />
+                        OpenSettings="TitleBarView_OnOpenSettings"
+                        ActiveStoreChanged="TitleBar_OnActiveStoreChanged" />
         <Grid Grid.Row="1"
               IsVisible="{Binding !IsLoading}"
               ColumnDefinitions="*,3*"

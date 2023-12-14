@@ -1,9 +1,10 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Horus.Enums;
 using Horus.Extensions;
+using Horus.Services;
 using Horus.ViewModels;
 
 namespace Horus.Views;
@@ -51,6 +52,8 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
     public TitleBar()
     {
         InitializeComponent();
+
+        DialogService.Instance.OnClose += DialogService_OnClose;
     }
 
     #endregion
@@ -65,6 +68,17 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
     #endregion
 
     #region Private methods
+
+    private void DialogService_OnClose(DialogType dialogType, object? data)
+    {
+        if (dialogType != DialogType.CreateStore || data is not true) return;
+
+        Dispatch(vm =>
+        {
+            vm?.RetrieveActiveStore();
+            vm?.RetrieveStores();
+        });
+    }
 
     private void TitleBar_OnPointerMoved(object? sender, PointerEventArgs e)
     {
@@ -154,7 +168,7 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
 
     private void ButtonCreateStore_OnClick(object? sender, RoutedEventArgs e)
     {
-        throw new System.NotImplementedException();
+        DialogService.Instance.Show(DialogType.CreateStore);
     }
 }
 

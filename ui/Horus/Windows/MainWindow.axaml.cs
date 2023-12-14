@@ -172,6 +172,13 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             case DialogType.DestroyStore:
                 VerifyStoreInitialized();
                 break;
+
+            case DialogType.CreateStore:
+                EntryList.ReloadList();
+                ViewModel!.EntrySelected = false;
+                EntryForm.SetEntryItem(string.Empty);
+                EntryList.TreeView.SelectedItem = null;
+                break;
         }
     }
 

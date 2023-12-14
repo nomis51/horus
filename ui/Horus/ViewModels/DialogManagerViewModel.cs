@@ -29,6 +29,7 @@ public class DialogManagerViewModel : ViewModelBase
             this.RaisePropertyChanged(nameof(IsInitializeStoreDialogVisible));
             this.RaisePropertyChanged(nameof(IsSettingsDialogVisible));
             this.RaisePropertyChanged(nameof(IsDestroyStoreDialogVisible));
+            this.RaisePropertyChanged(nameof(IsCreateStoreDialogVisible));
         }
     }
 
@@ -38,6 +39,8 @@ public class DialogManagerViewModel : ViewModelBase
     public DuplicateEntryDialogViewModel DuplicateEntryDialogViewModel { get; set; } = new();
     public InitializeStoreDialogViewModel InitializeStoreDialogViewModel { get; set; } = new();
     public DestroyStoreDialogViewModel DestroyStoreDialogViewModel { get; set; } = new();
+    public CreateStoreDialogViewModel CreateStoreDialogViewModel { get; set; } = new();
+
 
     public bool IsNewEntryDialogVisible => DialogType == DialogType.NewEntry;
     public bool IsDeleteEntryDialogVisible => DialogType == DialogType.DeleteEntry;
@@ -45,6 +48,7 @@ public class DialogManagerViewModel : ViewModelBase
     public bool IsInitializeStoreDialogVisible => DialogType == DialogType.InitializeStore;
     public bool IsSettingsDialogVisible => DialogType == DialogType.Settings;
     public bool IsDestroyStoreDialogVisible => DialogType == DialogType.DestroyStore;
+    public bool IsCreateStoreDialogVisible => DialogType == DialogType.CreateStore;
 
     #endregion
 
@@ -112,12 +116,19 @@ public class DialogManagerViewModel : ViewModelBase
                 };
                 this.RaisePropertyChanged(nameof(SettingsDialogViewModel));
                 break;
-            
+
             case DialogType.DestroyStore:
                 DestroyStoreDialogViewModel = new DestroyStoreDialogViewModel
                 {
                 };
                 this.RaisePropertyChanged(nameof(DestroyStoreDialogViewModel));
+                break;
+            
+            case DialogType.CreateStore:
+                CreateStoreDialogViewModel = new CreateStoreDialogViewModel()
+                {
+                };
+                this.RaisePropertyChanged(nameof(CreateStoreDialogViewModel));
                 break;
         }
     }

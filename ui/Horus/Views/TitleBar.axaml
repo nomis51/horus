@@ -100,6 +100,7 @@
                                     <ItemsRepeater.ItemTemplate>
                                         <DataTemplate x:DataType="models:StoreModel">
                                             <Button x:Name="ButtonStore"
+                                                    HorizontalAlignment="Stretch"
                                                     Classes="transparent"
                                                     Tag="{Binding Name}"
                                                     Click="ButtonStore_OnClick"
@@ -110,6 +111,7 @@
                                 <Separator />
                                 <Button x:Name="ButtonCreateStore"
                                         Classes="transparent"
+                                        HorizontalAlignment="Stretch"
                                         Click="ButtonCreateStore_OnClick">
                                     <Button.Content>
                                         <DockPanel>

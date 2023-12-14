@@ -172,27 +172,7 @@ public class TitleBarViewModel : ViewModelBase
         TerminalHelper.SpawnTerminal(AppService.Instance.GetStoreLocation());
     }
 
-    #endregion
-
-    #region Private methods
-
-    private void RetrieveActiveStore()
-    {
-        Task.Run(() =>
-        {
-            var (store, error) = AppService.Instance.GetActiveStore();
-            if (error is not null || string.IsNullOrEmpty(store))
-            {
-                Log.Error("Failed to get active store: {Message}", error!.Message);
-                SnackbarService.Instance.Show("Failed to get active store", SnackbarSeverity.Error, 5000);
-                return;
-            }
-
-            SelectedStore = store;
-        });
-    }
-
-    private void RetrieveStores()
+    public void RetrieveStores()
     {
         Task.Run(() =>
         {
@@ -206,6 +186,22 @@ public class TitleBarViewModel : ViewModelBase
 
             Stores.Clear();
             Stores.AddRange(stores.Select(s => new StoreModel(s)));
+        });
+    }
+
+    public void RetrieveActiveStore()
+    {
+        Task.Run(() =>
+        {
+            var (store, error) = AppService.Instance.GetActiveStore();
+            if (error is not null || string.IsNullOrEmpty(store))
+            {
+                Log.Error("Failed to get active store: {Message}", error!.Message);
+                SnackbarService.Instance.Show("Failed to get active store", SnackbarSeverity.Error, 5000);
+                return;
+            }
+
+            SelectedStore = store;
         });
     }
 
