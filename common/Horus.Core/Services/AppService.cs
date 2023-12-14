@@ -54,6 +54,21 @@ public class AppService : IAppService
 
     #region Public methods
 
+    public EmptyResult CreateStore(string name)
+    {
+        return _fsService.CreateNewStore(name);
+    }
+
+    public Result<string, Error?> GetActiveStore()
+    {
+        return _gitService.GetCurrentBranch();
+    }
+
+    public EmptyResult ChangeStore(string name)
+    {
+        return _fsService.ChangeStore(name);
+    }
+
     public Result<string, Error?> RestartGpgAgent()
     {
         return _gpgService.RestartGpgAgent();
@@ -318,6 +333,31 @@ public class AppService : IAppService
     public Result<string, Error?> GetStoreId()
     {
         return _fsService.GetStoreId();
+    }
+
+    public EmptyResult GitCreateBranch(string name)
+    {
+        return _gitService.CreateBranch(name);
+    }
+
+    public EmptyResult GitChangeBranch(string name)
+    {
+        return _gitService.ChangeBranch(name);
+    }
+
+    public EmptyResult GitRemoveBranch(string name)
+    {
+        return _gitService.RemoveBranch(name);
+    }
+
+    public Result<List<string>, Error?> GitListBranches()
+    {
+        return _gitService.ListBranches();
+    }
+
+    public Result<List<string>, Error?> ListStores()
+    {
+        return _fsService.ListStores();
     }
 
     public void Initialize(AppServiceDependenciesProvider dependencies)

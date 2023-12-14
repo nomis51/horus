@@ -36,7 +36,7 @@ public class DialogView<T> : ViewBase<T>
     protected void OnClose(object? data = null)
     {
         Close?.Invoke(data);
-        DialogService.Instance.NotifyClose(_type);
+        DialogService.Instance.NotifyClose(_type, data);
     }
 
     #endregion

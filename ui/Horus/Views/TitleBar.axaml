@@ -4,7 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:Horus.ViewModels"
-             xmlns:views1="clr-namespace:Horus.Views"
+             xmlns:views="clr-namespace:Horus.Views"
+             xmlns:models="clr-namespace:Horus.Models"
              mc:Ignorable="d"
              d:DesignWidth="800"
              d:DesignHeight="450"
@@ -57,8 +58,8 @@
                     BorderBrush="DarkGray"
                     BorderThickness="1,0,0,0" />
 
-            <views1:SyncButton DataContext="{Binding SyncButtonViewModel}"
-                               Classes="titlebar" />
+            <views:SyncButton DataContext="{Binding SyncButtonViewModel}"
+                              Classes="titlebar" />
 
             <Grid IsVisible="{Binding IsUpdateIconVisible}">
                 <Border Background="{DynamicResource ThemeAccentBrush}"
@@ -78,6 +79,54 @@
                          VerticalAlignment="Top"
                          Margin="0,3,3,0" />
             </Grid>
+        </DockPanel>
+
+        <DockPanel Grid.Column="1">
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Select a store"
+                    ToolTip.VerticalOffset="-5">
+                <Button Classes="transparent"
+                        Content="{Binding SelectedStore}">
+                    <Button.Flyout>
+                        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway"
+                                Placement="Bottom">
+                            <StackPanel Spacing="2">
+                                <ItemsRepeater ItemsSource="{Binding Stores}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Orientation="Vertical"
+                                                     Spacing="2">
+                                        </StackLayout>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="models:StoreModel">
+                                            <Button x:Name="ButtonStore"
+                                                    HorizontalAlignment="Stretch"
+                                                    Classes="transparent"
+                                                    Tag="{Binding Name}"
+                                                    Click="ButtonStore_OnClick"
+                                                    Content="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                                <Separator />
+                                <Button x:Name="ButtonCreateStore"
+                                        Classes="transparent"
+                                        HorizontalAlignment="Stretch"
+                                        Click="ButtonCreateStore_OnClick">
+                                    <Button.Content>
+                                        <DockPanel>
+                                            <TextBlock Text="Create a new store" />
+                                            <icons:MaterialIcon Kind="Plus"
+                                                                Margin="5,2,0,0" />
+                                        </DockPanel>
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+            </Border>
         </DockPanel>
 
         <DockPanel Grid.Column="2"
@@ -109,33 +158,6 @@
             </Border>
             <Border Background="{DynamicResource ThemeAccentBrush}"
                     ToolTip.Placement="Top"
-                    ToolTip.Tip="GPG actions"
-                    ToolTip.VerticalOffset="-5">
-                <Button x:Name="ButtonGpgActions"
-                        Classes="transparent titlebar">
-                    <Button.Content>
-                        <icons:MaterialIcon Kind="ShieldKey" />
-                    </Button.Content>
-                    <Button.Flyout>
-                        <Flyout Placement="Bottom"
-                                ShowMode="TransientWithDismissOnPointerMoveAway">
-                            <Menu>
-                                <MenuItem x:Name="MenuItemRestartGpg"
-                                          Header="Restart GPG agent"
-                                          Click="MenuItemRestartGpg_OnClick" />
-                                <MenuItem x:Name="MenuItemStopGpg"
-                                          Header="Stop GPG agent"
-                                          Click="MenuItemStopGpg_OnClick" />
-                                <MenuItem x:Name="MenuItemStartGpg"
-                                          Header="Start GPG agent"
-                                          Click="MenuItemStartGpg_OnClick" />
-                            </Menu>
-                        </Flyout>
-                    </Button.Flyout>
-                </Button>
-            </Border>
-            <Border Background="{DynamicResource ThemeAccentBrush}"
-                    ToolTip.Placement="Top"
                     ToolTip.Tip="Open a terminal in the store folder"
                     ToolTip.VerticalOffset="-5">
                 <Button x:Name="ButtonOpenTerminal"
@@ -144,6 +166,87 @@
                     <Button.Content>
                         <icons:MaterialIcon Kind="Terminal" />
                     </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open options"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOptions"
+                        Classes="transparent titlebar">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="DotsVertical" />
+                    </Button.Content>
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuItem Click="ButtonOpenSettings_OnClick">
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="Settings" />
+                                            <TextBlock Text="Open settings"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                            </MenuItem>
+                            <MenuItem>
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="ShieldKey" />
+                                            <TextBlock Text="GPG actions"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                                <MenuItem Click="MenuItemRestartGpg_OnClick">
+                                    <MenuItem.HeaderTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <icons:MaterialIcon Kind="Refresh" />
+                                                <TextBlock Text="Restart"
+                                                           Margin="5,0,0,0" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </MenuItem.HeaderTemplate>
+                                </MenuItem>
+                                <MenuItem Click="MenuItemStartGpg_OnClick">
+                                    <MenuItem.HeaderTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <icons:MaterialIcon Kind="Play" />
+                                                <TextBlock Text="Start"
+                                                           Margin="5,0,0,0" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </MenuItem.HeaderTemplate>
+                                </MenuItem>
+                                <MenuItem Click="MenuItemStopGpg_OnClick">
+                                    <MenuItem.HeaderTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <icons:MaterialIcon Kind="Stop" />
+                                                <TextBlock Text="Stop"
+                                                           Margin="5,0,0,0" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </MenuItem.HeaderTemplate>
+                                </MenuItem>
+                            </MenuItem>
+                            <MenuItem Click="ButtonOpenTerminal_OnClick">
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="Terminal" />
+                                            <TextBlock Text="Open a terminal"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                            </MenuItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
                 </Button>
             </Border>
 

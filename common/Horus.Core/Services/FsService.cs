@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Horus.Core.Services.Abstractions;
 using Horus.Shared.Enums;
+using Horus.Shared.Extensions;
 using Horus.Shared.Helpers;
 using Horus.Shared.Models.Abstractions;
 using Horus.Shared.Models.Data;
@@ -641,6 +642,35 @@ public class FsService : IFsService
             File.WriteAllLines(confFilePath, lines);
             AppService.Instance.RestartGpgAgent();
         }
+    }
+
+    public EmptyResult CreateNewStore(string name)
+    {
+        var result = AppService.Instance.GitCreateBranch(name);
+        if (result.HasError) return result;
+
+        var result2 = AppService.Instance.GitChangeBranch(name);
+        return result2;
+    }
+
+    public EmptyResult ChangeStore(string name)
+    {
+        return AppService.Instance.GitChangeBranch(name);
+    }
+
+    public EmptyResult DeleteStore(string name)
+    {
+        return AppService.Instance.GitRemoveBranch(name);
+    }
+
+    public Result<List<string>, Error?> ListStores()
+    {
+        var (stores, error) = AppService.Instance.GitListBranches();
+        if (error is not null) return new Result<List<string>, Error?>(error);
+
+        return new Result<List<string>, Error?>(
+            stores.ToList()
+        );
     }
 
     public void Initialize()

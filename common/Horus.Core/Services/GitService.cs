@@ -375,6 +375,173 @@ public class GitService : IGitService
         return new EmptyResult();
     }
 
+    public EmptyResult CreateBranch(string name)
+    {
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "branch",
+                    name
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git branch '{Branch}': {Message}", name, e.Message);
+            return new EmptyResult(new GitCommitFailedError());
+        }
+
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "push",
+                    "-u",
+                    "origin",
+                    name
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git push -u origin '{Branch}': {Message}", name, e.Message);
+            return new EmptyResult(new GitCommitFailedError());
+        }
+
+        return new EmptyResult();
+    }
+
+    public EmptyResult ChangeBranch(string name)
+    {
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "checkout",
+                    name
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git checkout '{Branch}': {Message}", name, e.Message);
+            return new EmptyResult(new GitCommitFailedError());
+        }
+
+        return new EmptyResult();
+    }
+
+    public EmptyResult RemoveBranch(string name)
+    {
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "branch",
+                    "-D",
+                    name
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git branch -D '{Branch}': {Message}", name, e.Message);
+            return new EmptyResult(new GitCommitFailedError());
+        }
+
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "push",
+                    "origin",
+                    "-d",
+                    name
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git push origin -d '{Branch}': {Message}", name, e.Message);
+            return new EmptyResult(new GitCommitFailedError());
+        }
+
+        return new EmptyResult();
+    }
+
+    public Result<List<string>, Error?> ListBranches()
+    {
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "branch",
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+
+            return new Result<List<string>, Error?>(
+                result.OutputLines
+                    .SelectMany(l => l.Split("\n"))
+                    .Select(l => l.Replace("*", string.Empty).Trim())
+                    .ToList()
+            );
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git branch: {Message}", e.Message);
+            return new Result<List<string>, Error?>(new GitCommitFailedError());
+        }
+    }
+
+    public Result<string, Error?> GetCurrentBranch()
+    {
+        try
+        {
+            var result = new TerminalSession(AppService.Instance.GetStoreLocation())
+                .Command(new[]
+                {
+                    GitProcessName,
+                    "branch",
+                })
+                .Execute();
+            if (!result.Successful) throw new Exception(string.Join("\n", result.ErrorLines));
+
+            return new Result<string, Error?>(
+                (
+                    result.OutputLines
+                        .SelectMany(l => l.Split("\n"))
+                        .FirstOrDefault(l => l.StartsWith("*", StringComparison.OrdinalIgnoreCase)) ?? string.Empty
+                )
+                .Trim('*')
+                .Trim()
+            );
+        }
+        catch (Exception e)
+        {
+            Log.Error("Error while performing git branch: {Message}", e.Message);
+            return new Result<string, Error?>(new GitCommitFailedError());
+        }
+    }
+
     public void Initialize()
     {
     }

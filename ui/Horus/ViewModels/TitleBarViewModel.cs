@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using DynamicData;
 using Horus.Core.Services;
 using Horus.Enums;
 using Horus.Helpers;
+using Horus.Models;
 using Horus.Services;
 using ReactiveUI;
 using Serilog;
@@ -36,9 +42,60 @@ public class TitleBarViewModel : ViewModelBase
 
     public string UpdateMessage { get; private set; } = string.Empty;
 
+    private ObservableCollection<StoreModel> _stores = new();
+
+    public ObservableCollection<StoreModel> Stores
+    {
+        get => _stores;
+        set => this.RaiseAndSetIfChanged(ref _stores, value);
+    }
+
+    private bool _isChangingStore;
+
+    public bool IsChangingStore
+    {
+        get => _isChangingStore;
+        set => this.RaiseAndSetIfChanged(ref _isChangingStore, value);
+    }
+
+    private string _selectedStore = "main";
+
+    public string SelectedStore
+    {
+        get => _selectedStore;
+        set => this.RaiseAndSetIfChanged(ref _selectedStore, value);
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public TitleBarViewModel()
+    {
+        RetrieveActiveStore();
+        RetrieveStores();
+    }
+
     #endregion
 
     #region Public methods
+
+    public bool ChangeStore(string name)
+    {
+        IsChangingStore = true;
+        var result = AppService.Instance.ChangeStore(name);
+        IsChangingStore = false;
+
+        if (result.HasError)
+        {
+            SnackbarService.Instance.Show("Failed to change store", SnackbarSeverity.Error, 5000);
+            return false;
+        }
+
+        RetrieveActiveStore();
+        SnackbarService.Instance.Show($"Store '{name}' now active", SnackbarSeverity.Success);
+        return true;
+    }
 
     public void RestartGpg()
     {
@@ -69,7 +126,7 @@ public class TitleBarViewModel : ViewModelBase
             SnackbarService.Instance.Show("GPG agent stopped", SnackbarSeverity.Success);
         }
     }
-    
+
     public void StartGpg()
     {
         var (result, error) = AppService.Instance.StopGpgAgent();
@@ -113,6 +170,39 @@ public class TitleBarViewModel : ViewModelBase
     public void OpenTerminal()
     {
         TerminalHelper.SpawnTerminal(AppService.Instance.GetStoreLocation());
+    }
+
+    public void RetrieveStores()
+    {
+        Task.Run(() =>
+        {
+            var (stores, error) = AppService.Instance.ListStores();
+            if (error is not null || stores.Count == 0)
+            {
+                Log.Error("Failed to list stores: {Message}", error!.Message);
+                SnackbarService.Instance.Show("Failed to list stores", SnackbarSeverity.Error, 5000);
+                return;
+            }
+
+            Stores.Clear();
+            Stores.AddRange(stores.Select(s => new StoreModel(s)));
+        });
+    }
+
+    public void RetrieveActiveStore()
+    {
+        Task.Run(() =>
+        {
+            var (store, error) = AppService.Instance.GetActiveStore();
+            if (error is not null || string.IsNullOrEmpty(store))
+            {
+                Log.Error("Failed to get active store: {Message}", error!.Message);
+                SnackbarService.Instance.Show("Failed to get active store", SnackbarSeverity.Error, 5000);
+                return;
+            }
+
+            SelectedStore = store;
+        });
     }
 
     #endregion

@@ -21,7 +21,7 @@
     <Grid RowDefinitions="*,Auto">
         <StackPanel Spacing="5">
             <!-- Title -->
-            <Grid ColumnDefinitions="Auto,Auto">
+            <Grid ColumnDefinitions="Auto,Auto,*">
                 <Border Grid.Column="0"
                         VerticalAlignment="Center"
                         Background="{DynamicResource ThemeAccentBrush}"
@@ -94,6 +94,17 @@
                                                    IsActive="True"
                                                    IsVisible="{Binding IsLoading}"
                                                    Foreground="{StaticResource AccentColor}" />
+                <Button Grid.Column="2"
+                        Classes="transparent"
+                        IsEnabled="{Binding !IsLoading}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        x:Name="ButtonClose"
+                        Click="ButtonClose_OnClick">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="Close" />
+                    </Button.Content>
+                </Button>
             </Grid>
 
             <!-- Password title -->

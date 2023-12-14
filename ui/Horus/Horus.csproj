@@ -70,6 +70,10 @@
       <DependentUpon>SettingsView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Dialogs\CreateStoreDialog.axaml.cs">
+      <DependentUpon>CreateStoreDialog.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\common\Horus.Core\Horus.Core.csproj" />

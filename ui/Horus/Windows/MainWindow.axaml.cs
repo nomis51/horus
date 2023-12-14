@@ -172,6 +172,13 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
             case DialogType.DestroyStore:
                 VerifyStoreInitialized();
                 break;
+
+            case DialogType.CreateStore:
+                EntryList.ReloadList();
+                ViewModel!.EntrySelected = false;
+                EntryForm.SetEntryItem(string.Empty);
+                EntryList.TreeView.SelectedItem = null;
+                break;
         }
     }
 
@@ -189,6 +196,23 @@ public partial class MainWindow : WindowBase<MainWindowViewModel>
     {
         EntryList.WindowResized(Height);
         EntryForm.WindowResized(Height);
+    }
+
+
+    private void EntryForm_OnEntryClosed()
+    {
+        ViewModel!.EntrySelected = false;
+        EntryForm.SetEntryItem(string.Empty);
+        EntryList.TreeView.SelectedItem = null;
+    }
+
+
+    private void TitleBar_OnActiveStoreChanged()
+    {
+        EntryList.ReloadList();
+        ViewModel!.EntrySelected = false;
+        EntryForm.SetEntryItem(string.Empty);
+        EntryList.TreeView.SelectedItem = null;
     }
 
     #endregion
