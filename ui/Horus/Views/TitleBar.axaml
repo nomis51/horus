@@ -158,57 +158,6 @@
             </Border>
             <Border Background="{DynamicResource ThemeAccentBrush}"
                     ToolTip.Placement="Top"
-                    ToolTip.Tip="GPG actions"
-                    ToolTip.VerticalOffset="-5">
-                <Button x:Name="ButtonGpgActions"
-                        Classes="transparent titlebar">
-                    <Button.Content>
-                        <icons:MaterialIcon Kind="ShieldKey" />
-                    </Button.Content>
-                    <Button.Flyout>
-                        <MenuFlyout>
-                            <MenuItem x:Name="MenuItemRestartGpg"
-                                      Click="MenuItemRestartGpg_OnClick">
-                                <MenuItem.HeaderTemplate>
-                                    <DataTemplate>
-                                        <DockPanel>
-                                            <icons:MaterialIcon Kind="Refresh" />
-                                            <TextBlock Text="Restart GPG agent"
-                                                       Margin="5,0,0,0" />
-                                        </DockPanel>
-                                    </DataTemplate>
-                                </MenuItem.HeaderTemplate>
-                            </MenuItem>
-                            <MenuItem x:Name="MenuItemStopGpg"
-                                      Click="MenuItemStopGpg_OnClick">
-                                <MenuItem.HeaderTemplate>
-                                    <DataTemplate>
-                                        <DockPanel>
-                                            <icons:MaterialIcon Kind="Stop" />
-                                            <TextBlock Text="Stop GPG agent"
-                                                       Margin="5,0,0,0" />
-                                        </DockPanel>
-                                    </DataTemplate>
-                                </MenuItem.HeaderTemplate>
-                            </MenuItem>
-                            <MenuItem x:Name="MenuItemStartGpg"
-                                      Click="MenuItemStartGpg_OnClick">
-                                <MenuItem.HeaderTemplate>
-                                    <DataTemplate>
-                                        <DockPanel>
-                                            <icons:MaterialIcon Kind="Play" />
-                                            <TextBlock Text="Start GPG agent"
-                                                       Margin="5,0,0,0" />
-                                        </DockPanel>
-                                    </DataTemplate>
-                                </MenuItem.HeaderTemplate>
-                            </MenuItem>
-                        </MenuFlyout>
-                    </Button.Flyout>
-                </Button>
-            </Border>
-            <Border Background="{DynamicResource ThemeAccentBrush}"
-                    ToolTip.Placement="Top"
                     ToolTip.Tip="Open a terminal in the store folder"
                     ToolTip.VerticalOffset="-5">
                 <Button x:Name="ButtonOpenTerminal"
@@ -217,6 +166,87 @@
                     <Button.Content>
                         <icons:MaterialIcon Kind="Terminal" />
                     </Button.Content>
+                </Button>
+            </Border>
+            <Border Background="{DynamicResource ThemeAccentBrush}"
+                    ToolTip.Placement="Top"
+                    ToolTip.Tip="Open options"
+                    ToolTip.VerticalOffset="-5">
+                <Button x:Name="ButtonOptions"
+                        Classes="transparent titlebar">
+                    <Button.Content>
+                        <icons:MaterialIcon Kind="DotsVertical" />
+                    </Button.Content>
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuItem Click="ButtonOpenSettings_OnClick">
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="Settings" />
+                                            <TextBlock Text="Open settings"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                            </MenuItem>
+                            <MenuItem>
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="ShieldKey" />
+                                            <TextBlock Text="GPG actions"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                                <MenuItem Click="MenuItemRestartGpg_OnClick">
+                                    <MenuItem.HeaderTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <icons:MaterialIcon Kind="Refresh" />
+                                                <TextBlock Text="Restart"
+                                                           Margin="5,0,0,0" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </MenuItem.HeaderTemplate>
+                                </MenuItem>
+                                <MenuItem Click="MenuItemStartGpg_OnClick">
+                                    <MenuItem.HeaderTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <icons:MaterialIcon Kind="Play" />
+                                                <TextBlock Text="Start"
+                                                           Margin="5,0,0,0" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </MenuItem.HeaderTemplate>
+                                </MenuItem>
+                                <MenuItem Click="MenuItemStopGpg_OnClick">
+                                    <MenuItem.HeaderTemplate>
+                                        <DataTemplate>
+                                            <DockPanel>
+                                                <icons:MaterialIcon Kind="Stop" />
+                                                <TextBlock Text="Stop"
+                                                           Margin="5,0,0,0" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </MenuItem.HeaderTemplate>
+                                </MenuItem>
+                            </MenuItem>
+                            <MenuItem Click="ButtonOpenTerminal_OnClick">
+                                <MenuItem.HeaderTemplate>
+                                    <DataTemplate>
+                                        <DockPanel>
+                                            <icons:MaterialIcon Kind="Terminal" />
+                                            <TextBlock Text="Open a terminal"
+                                                       Margin="5,0,0,0" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </MenuItem.HeaderTemplate>
+                            </MenuItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
                 </Button>
             </Border>
 
