@@ -89,7 +89,8 @@
                 <Button Classes="transparent"
                         Content="{Binding SelectedStore}">
                     <Button.Flyout>
-                        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway">
+                        <Flyout ShowMode="TransientWithDismissOnPointerMoveAway"
+                                Placement="Bottom">
                             <StackPanel Spacing="2">
                                 <ItemsRepeater ItemsSource="{Binding Stores}">
                                     <ItemsRepeater.Layout>
