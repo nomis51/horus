@@ -10,8 +10,10 @@ public static class PasswordHelper
     private const int MaxBestPasswordEntropyGenerationTries = 10;
     private const int DefaultLength = 20;
 
-    private static readonly char[] DefaultCharacters =
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890`~!@#$%^&*()-=_+[{]}\\".ToCharArray();
+    private static readonly char[] Letters = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
+    private static readonly char[] CapitalLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+    private static readonly char[] Numbers = "1234567890".ToCharArray();
+    private static readonly char[] BasicSymbols = "`~!@#$%^&*()-=_+[{]}\\/".ToCharArray();
 
     private static readonly Regex RegAlphaLow = new("[a-z]", RegexOptions.Compiled);
     private static readonly Regex RegAlphaUp = new("[A-Z]", RegexOptions.Compiled);
@@ -29,7 +31,7 @@ public static class PasswordHelper
             length = DefaultLength;
         }
 
-        var chars = string.IsNullOrWhiteSpace(customAlphabet) ? DefaultCharacters : customAlphabet.ToCharArray();
+        var chars = GetCharacters(customAlphabet);
 
         var data = new byte[4 * length];
         using var crypto = RandomNumberGenerator.Create();
@@ -62,6 +64,57 @@ public static class PasswordHelper
     #endregion
 
     #region Private methods
+
+    private static char[] GetCharacters(string alphabetQuery = "")
+    {
+        if (string.IsNullOrWhiteSpace(alphabetQuery))
+        {
+            return Letters.Concat(CapitalLetters)
+                .Concat(Numbers)
+                .Concat(BasicSymbols)
+                .ToArray();
+        }
+
+        List<char[]> result = new();
+
+        if (alphabetQuery.Contains("a-Z") || alphabetQuery.Contains("A-z"))
+        {
+            result.Add(Letters);
+            result.Add(CapitalLetters);
+            alphabetQuery = alphabetQuery.Replace("a-Z", string.Empty);
+            alphabetQuery = alphabetQuery.Replace("A-z", string.Empty);
+        }
+        else
+        {
+            if (alphabetQuery.Contains("a-z"))
+            {
+                result.Add(Letters);
+                alphabetQuery = alphabetQuery.Replace("a-z", string.Empty);
+            }
+
+            if (alphabetQuery.Contains("A-Z"))
+            {
+                result.Add(CapitalLetters);
+                alphabetQuery = alphabetQuery.Replace("A-Z", string.Empty);
+            }
+        }
+
+        if (alphabetQuery.Contains("0-9"))
+        {
+            result.Add(Numbers);
+            alphabetQuery = alphabetQuery.Replace("0-9", string.Empty);
+        }
+
+        if (alphabetQuery.Contains("*-*"))
+        {
+            result.Add(BasicSymbols);
+            alphabetQuery = alphabetQuery.Replace("*-*", string.Empty);
+        }
+
+        return result.SelectMany(r => r)
+            .Concat(alphabetQuery.ToCharArray())
+            .ToArray();
+    }
 
     private static int CalculatePoolSize(char[] chars, bool actualSize = false)
     {
