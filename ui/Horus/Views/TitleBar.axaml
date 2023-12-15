@@ -178,72 +178,55 @@
                         <icons:MaterialIcon Kind="DotsVertical" />
                     </Button.Content>
                     <Button.Flyout>
-                        <MenuFlyout>
-                            <MenuItem Click="ButtonOpenSettings_OnClick">
-                                <MenuItem.HeaderTemplate>
-                                    <DataTemplate>
-                                        <DockPanel>
-                                            <icons:MaterialIcon Kind="Settings" />
-                                            <TextBlock Text="Open settings"
-                                                       Margin="5,0,0,0" />
-                                        </DockPanel>
-                                    </DataTemplate>
-                                </MenuItem.HeaderTemplate>
+                        <MenuFlyout x:DataType="viewModels:TitleBarViewModel">
+                            <MenuItem Click="ButtonOpenSettings_OnClick"
+                                      Header="Open settings">
+                                <MenuItem.Icon>
+                                    <icons:MaterialIcon Kind="Settings" />
+                                </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem>
-                                <MenuItem.HeaderTemplate>
-                                    <DataTemplate>
-                                        <DockPanel>
-                                            <icons:MaterialIcon Kind="ShieldKey" />
-                                            <TextBlock Text="GPG actions"
-                                                       Margin="5,0,0,0" />
-                                        </DockPanel>
-                                    </DataTemplate>
-                                </MenuItem.HeaderTemplate>
-                                <MenuItem Click="MenuItemRestartGpg_OnClick">
-                                    <MenuItem.HeaderTemplate>
-                                        <DataTemplate>
-                                            <DockPanel>
-                                                <icons:MaterialIcon Kind="Refresh" />
-                                                <TextBlock Text="Restart"
-                                                           Margin="5,0,0,0" />
-                                            </DockPanel>
-                                        </DataTemplate>
-                                    </MenuItem.HeaderTemplate>
+                            <Separator />
+                            <MenuItem Header="GPG actions">
+                                <MenuItem.Icon>
+                                    <icons:MaterialIcon Kind="ShieldKey" />
+                                </MenuItem.Icon>
+                                <MenuItem Click="MenuItemRestartGpg_OnClick"
+                                          Header="Restart">
+                                    <MenuItem.Icon>
+                                        <icons:MaterialIcon Kind="Refresh" />
+                                    </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Click="MenuItemStartGpg_OnClick">
-                                    <MenuItem.HeaderTemplate>
-                                        <DataTemplate>
-                                            <DockPanel>
-                                                <icons:MaterialIcon Kind="Play" />
-                                                <TextBlock Text="Start"
-                                                           Margin="5,0,0,0" />
-                                            </DockPanel>
-                                        </DataTemplate>
-                                    </MenuItem.HeaderTemplate>
+                                <MenuItem Click="MenuItemStartGpg_OnClick"
+                                          Header="Start">
+                                    <MenuItem.Icon>
+                                        <icons:MaterialIcon Kind="Play" />
+                                    </MenuItem.Icon>
                                 </MenuItem>
-                                <MenuItem Click="MenuItemStopGpg_OnClick">
-                                    <MenuItem.HeaderTemplate>
-                                        <DataTemplate>
-                                            <DockPanel>
-                                                <icons:MaterialIcon Kind="Stop" />
-                                                <TextBlock Text="Stop"
-                                                           Margin="5,0,0,0" />
-                                            </DockPanel>
-                                        </DataTemplate>
-                                    </MenuItem.HeaderTemplate>
+                                <MenuItem Click="MenuItemStopGpg_OnClick"
+                                          Header="Stop">
+                                    <MenuItem.Icon>
+                                        <icons:MaterialIcon Kind="Stop" />
+                                    </MenuItem.Icon>
                                 </MenuItem>
                             </MenuItem>
-                            <MenuItem Click="ButtonOpenTerminal_OnClick">
-                                <MenuItem.HeaderTemplate>
-                                    <DataTemplate>
-                                        <DockPanel>
-                                            <icons:MaterialIcon Kind="Terminal" />
-                                            <TextBlock Text="Open a terminal"
-                                                       Margin="5,0,0,0" />
-                                        </DockPanel>
-                                    </DataTemplate>
-                                </MenuItem.HeaderTemplate>
+                            <MenuItem Click="ButtonOpenTerminal_OnClick"
+                                      Header="Open a terminal">
+                                <MenuItem.Icon>
+                                    <icons:MaterialIcon Kind="Terminal" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Click="ButtonExportStore_OnClick"
+                                      Header="Export the store">
+                                <MenuItem.Icon>
+                                    <icons:MaterialIcon Kind="Export" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <Separator />
+                            <MenuItem IsEnabled="False"
+                                      Header="{Binding ApplicationVersion}">
+                                <MenuItem.Icon>
+                                    <icons:MaterialIcon Kind="ApplicationCog" />
+                                </MenuItem.Icon>
                             </MenuItem>
                         </MenuFlyout>
                     </Button.Flyout>

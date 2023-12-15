@@ -5,12 +5,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using DynamicData;
 using Horus.Core.Services;
 using Horus.Enums;
 using Horus.Helpers;
 using Horus.Models;
 using Horus.Services;
+using Horus.Shared.Helpers;
 using ReactiveUI;
 using Serilog;
 
@@ -66,12 +69,21 @@ public class TitleBarViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _selectedStore, value);
     }
 
+    private string _applicationVersion = string.Empty;
+
+    public string ApplicationVersion
+    {
+        get => _applicationVersion;
+        set => this.RaiseAndSetIfChanged(ref _applicationVersion, value);
+    }
+
     #endregion
 
     #region Constructors
 
     public TitleBarViewModel()
     {
+        ApplicationVersion = $"Version {VersionHelper.GetVersion()}";
         RetrieveActiveStore();
         RetrieveStores();
     }
@@ -79,6 +91,31 @@ public class TitleBarViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public async Task ExportStore(TopLevel controlTopLevel)
+    {
+        var file = await controlTopLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save file",
+            SuggestedFileName = $"horus-export-{SelectedStore}-{DateTime.Now:yyyyMMddHHmmss}.zip",
+        });
+
+        if (file is null)
+        {
+            SnackbarService.Instance.Show("No destination file selected", SnackbarSeverity.Warning);
+            return;
+        }
+
+        var result = AppService.Instance.ExportStore(file.Path.ToString().TrimStart('f', 'i', 'l', 'e', ':', '/'));
+        if (result.HasError)
+        {
+            Log.Error("Failed to export the store: {Message}", result.Error!.Message);
+            SnackbarService.Instance.Show("Failed to export the store", SnackbarSeverity.Error, 5000);
+            return;
+        }
+
+        SnackbarService.Instance.Show("Store exported successfully", SnackbarSeverity.Success);
+    }
 
     public bool ChangeStore(string name)
     {

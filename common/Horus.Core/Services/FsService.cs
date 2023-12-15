@@ -63,8 +63,10 @@ public class FsService : IFsService
     {
         if (!IsStoreInitialized()) return new EmptyResult(new FsStoreNotInitializedError());
 
-        var filePath = Path.Join(savePath, $"horus-export-{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.zip");
+        var filePath = savePath.EndsWith(".zip") ? savePath : Path.Join(savePath, $"horus-export-{DateTime.Now:yyyyMMddHHmmss}.zip");
+        ReleaseLock();
         ZipFile.CreateFromDirectory(GetStoreLocation(), filePath, CompressionLevel.NoCompression, false);
+        AcquireLock();
 
         return new EmptyResult();
     }

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -170,6 +171,14 @@ public partial class TitleBar : ViewBase<TitleBarViewModel>
     {
         DialogService.Instance.Show(DialogType.CreateStore);
     }
-}
 
-#endregion
+    private void ButtonExportStore_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null) return;
+        
+        Dispatch(vm=>vm?.ExportStore(topLevel));
+    }
+
+    #endregion
+}
