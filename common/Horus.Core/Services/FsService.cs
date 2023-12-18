@@ -162,21 +162,21 @@ public class FsService : IFsService
 
     public Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false)
     {
-        if (string.IsNullOrWhiteSpace(text))
-            return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
+        if (string.IsNullOrWhiteSpace(text)) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
 
-        List<Tuple<string, string>> items = new();
+        List<Tuple<string, string>> items = [];
         var storePath = GetStoreLocation();
 
         EnumerateFilePaths(storePath, items);
         if (items.Count == 0) return new Result<List<StoreEntry>, Error?>(Enumerable.Empty<StoreEntry>().ToList());
 
-        List<MetadataCollection> metadatas = new();
+        List<MetadataCollection> metadatas = [];
 
         if (searchMetadatas)
         {
-            var (lstMetadatas, error) =
-                AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
+            if(!VerifyLock()) return new Result<List<StoreEntry>, Error?>(new GpgDecryptError("Lock check failed"));
+            
+            var (lstMetadatas, error) = AppService.Instance.DecryptManyMetadatas(items.Where(m => m.Item2.EndsWith(".m.gpg")).ToList());
             if (error is not null)
                 return new Result<List<StoreEntry>, Error?>(error);
 
@@ -184,7 +184,7 @@ public class FsService : IFsService
         }
 
         var loweredText = text.Trim().ToLower();
-        List<StoreEntry> entries = new();
+        List<StoreEntry> entries = [];
         LocalSearchEntries(storePath, string.Empty);
 
         return new Result<List<StoreEntry>, Error?>(entries);
@@ -198,7 +198,7 @@ public class FsService : IFsService
 
                 var path = Path.GetFileName(filePath);
 
-                List<string> metadataFound = new();
+                List<string> metadataFound = [];
                 if (searchMetadatas)
                 {
                     var currentEntryPath = string.IsNullOrEmpty(currenPath) ? path : $"{currenPath}/{path}";
@@ -208,8 +208,8 @@ public class FsService : IFsService
                     {
                         foreach (var metadata in entryMetadatas)
                         {
-                            if (!metadata.Key.ToLower().Contains(loweredText) &&
-                                !metadata.Value.ToLower().Contains(loweredText)) continue;
+                            if (!metadata.Key.Contains(loweredText, StringComparison.CurrentCultureIgnoreCase) &&
+                                !metadata.Value.Contains(loweredText, StringComparison.CurrentCultureIgnoreCase)) continue;
 
                             metadataFound.Add(metadata.ToString());
                         }
@@ -217,13 +217,13 @@ public class FsService : IFsService
                 }
 
                 var name = path.Split(".").First();
-                if (!name.ToLower().Contains(loweredText) && !metadataFound.Any()) continue;
+                if (!name.Contains(loweredText, StringComparison.CurrentCultureIgnoreCase) && metadataFound.Count == 0) continue;
 
                 entries.Add(
                     new StoreEntry(
                         name,
                         false,
-                        metadataFound.Any(),
+                        metadataFound.Count != 0,
                         metadataFound
                     )
                 );

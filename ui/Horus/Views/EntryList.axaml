@@ -18,25 +18,21 @@
         <viewModels:EntryListViewModel />
     </Design.DataContext>
 
-    <Grid RowDefinitions="*,Auto" x:Name="Grid">
+    <Grid RowDefinitions="*,Auto"
+          x:Name="Grid">
         <StackPanel Grid.Row="0"
                     Spacing="2"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Top">
-            <Border Background="{DynamicResource ThemeAccentBrush}"
-                    ToolTip.Placement="Top"
-                    ToolTip.VerticalOffset="-5"
-                    ToolTip.Tip="Ctrl + Enter to search in metadata">
-                <TextBox x:Name="TextBoxSearch"
-                         Classes="clearButton"
-                         GotFocus="TextBoxSearch_OnGotFocus"
-                         KeyUp="TextBoxSearch_OnKeyUp"
-                         Watermark="Search"
-                         AcceptsReturn="False"
-                         AcceptsTab="False"
-                         TextChanged="TextBoxSearch_OnTextChanged"
-                         Text="{Binding SearchText}" />
-            </Border>
+            <TextBox x:Name="TextBoxSearch"
+                     Classes="clearButton"
+                     GotFocus="TextBoxSearch_OnGotFocus"
+                     KeyUp="TextBoxSearch_OnKeyUp"
+                     Watermark="Search (ctrl + enter to search in metadata)"
+                     AcceptsReturn="False"
+                     AcceptsTab="False"
+                     TextChanged="TextBoxSearch_OnTextChanged"
+                     Text="{Binding SearchText}" />
             <avaloniaProgressRing:ProgressRing HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
                                                Margin="0, 10, 0,0"

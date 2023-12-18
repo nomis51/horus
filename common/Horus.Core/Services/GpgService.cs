@@ -99,7 +99,7 @@ public class GpgService : IGpgService
     {
         var filePaths = items.Select(i => i.Item2);
 
-        List<string> lines = new();
+        List<string> lines = [];
         foreach (var filePath in filePaths)
         {
             var (line, error) = DecryptOne(filePath);
@@ -108,7 +108,7 @@ public class GpgService : IGpgService
             lines.Add(line);
         }
 
-        List<MetadataCollection?> results = new();
+        List<MetadataCollection?> results = [];
         for (var i = 0; i < lines.Count; ++i)
         {
             try
