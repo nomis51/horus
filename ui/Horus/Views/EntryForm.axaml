@@ -478,7 +478,8 @@
               ColumnDefinitions="*,*">
             <DockPanel Grid.Column="0"
                        HorizontalAlignment="Left"
-                       VerticalAlignment="Bottom">
+                       VerticalAlignment="Bottom"
+                       IsVisible="{Binding AreMetadatasRevealed}">
                 <Border Background="{DynamicResource ThemeAccentBrush}"
                         ToolTip.Placement="Top"
                         ToolTip.VerticalOffset="-5"
@@ -516,13 +517,38 @@
                 <Border Background="{DynamicResource ThemeAccentBrush}"
                         ToolTip.Placement="Top"
                         ToolTip.VerticalOffset="-5"
+                        ToolTip.Tip="Remind me to change the password"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom">
+                    <Button Classes="transparent"
+                            IsEnabled="{Binding !IsLoading}"
+                            IsVisible="{Binding !IsRemindPasswordVisible}"
+                            x:Name="ButtonPasswordReminder"
+                            Click="ButtonPasswordReminder_OnClick">
+                        <Button.Content>
+                            <icons:MaterialIcon Kind="Reminder" />
+                        </Button.Content>
+                    </Button>
+                </Border>
+                <TextBox IsVisible="{Binding IsRemindPasswordVisible}"
+                         x:Name="TextBoxPasswordRemindDays"
+                         Classes="confirm"
+                         MinWidth="230"
+                         CopyingToClipboard="TextBoxPasswordRemindDays_OnCopyingToClipboard"
+                         CuttingToClipboard="TextBoxPasswordRemindDays_OnCuttingToClipboard"
+                         TextChanged="TextBoxPasswordRemindDays_OnTextChanged"
+                         Text="{Binding PasswordRemindDays, Mode=OneWay}"
+                         Watermark="Expiration in ... days"
+                         Margin="5,0,5,0" />
+                <Border Background="{DynamicResource ThemeAccentBrush}"
+                        ToolTip.Placement="Top"
+                        ToolTip.VerticalOffset="-5"
                         ToolTip.Tip="Add a new metadata"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom">
                     <Button Classes="transparent"
                             IsEnabled="{Binding !IsLoading}"
                             x:Name="ButtonAddMetadata"
-                            IsVisible="{Binding AreMetadatasRevealed}"
                             Click="ButtonAddMetadata_OnClick">
                         <Button.Content>
                             <icons:MaterialIcon Kind="PlaylistPlus" />
@@ -538,7 +564,6 @@
                     <Button Classes="transparent"
                             IsEnabled="{Binding !IsLoading}"
                             x:Name="ButtonAttachFile"
-                            IsVisible="{Binding AreMetadatasRevealed}"
                             Click="ButtonAttachFile_OnClick">
                         <Button.Content>
                             <icons:MaterialIcon Kind="PaperclipPlus" />

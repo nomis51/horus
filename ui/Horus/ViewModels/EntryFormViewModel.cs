@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -50,12 +50,12 @@ public class EntryFormViewModel : ViewModelBase
     public MaterialIconKind EntryIcon => IconHelper.GetIconFromEntryName(EntryName);
 
     public ObservableCollection<MetadataModel> Metadatas { get; } = new();
-    public ObservableCollection<MetadataModel> InternalMetadatas { get; } = new();
+    public ObservableCollection<MetadataModel> HistoryDateMetadatas { get; } = new();
     public ObservableCollection<MetadataModel> FileMetadatas { get; } = new();
 
-    private MetadataModel CreatedMetadata => InternalMetadatas.First(m => m is { Type: MetadataType.Internal, Key: "created" });
+    private MetadataModel CreatedMetadata => HistoryDateMetadatas.First(m => m is { Type: MetadataType.HistoryDate, Key: "created" });
     public string CreatedMetadataDisplay => CreatedMetadata.DisplayValue;
-    private MetadataModel ModifiedMetadata => InternalMetadatas.First(m => m is { Type: MetadataType.Internal, Key: "modified" });
+    private MetadataModel ModifiedMetadata => HistoryDateMetadatas.First(m => m is { Type: MetadataType.HistoryDate, Key: "modified" });
     public string ModifiedMetadataDisplay => ModifiedMetadata.DisplayValue;
 
     private string _username = string.Empty;
@@ -86,7 +86,7 @@ public class EntryFormViewModel : ViewModelBase
         }
     }
 
-    public bool HasMetadatas => Metadatas.Any() || InternalMetadatas.Any();
+    public bool HasMetadatas => Metadatas.Any() || HistoryDateMetadatas.Any();
     public bool HasNormalMetadatas => Metadatas.Any() || FileMetadatas.Any();
     private string _password = string.Empty;
 
@@ -201,6 +201,23 @@ public class EntryFormViewModel : ViewModelBase
 
     public double MetadataPanelHeight => WindowHeight - 424 - (IsEditingPassword ? 58 : 0) - (IsGeneratingPassword ? 58 : 0);
 
+    private bool _isRemindPasswordVisible;
+
+    public bool IsRemindPasswordVisible
+    {
+        get => _isRemindPasswordVisible;
+        set => this.RaiseAndSetIfChanged(ref _isRemindPasswordVisible, value);
+    }
+
+    private string _previouspasswordRemindDays = string.Empty;
+    private string _passwordRemindDays = string.Empty;
+
+    public string PasswordRemindDays
+    {
+        get => _passwordRemindDays;
+        set => this.RaiseAndSetIfChanged(ref _passwordRemindDays, value);
+    }
+
     #endregion
 
     #region Constructors
@@ -214,6 +231,23 @@ public class EntryFormViewModel : ViewModelBase
     #endregion
 
     #region Public methods
+
+    public void EditPasswordRemindDays()
+    {
+        _previouspasswordRemindDays = _passwordRemindDays;
+        IsRemindPasswordVisible = true;
+    }
+
+    public void CancelPasswordRemindDays()
+    {
+        PasswordRemindDays = _previouspasswordRemindDays;
+        IsRemindPasswordVisible = false;
+    }
+
+    public void ConfirmPasswordRemindDays()
+    {
+        IsRemindPasswordVisible = false;
+    }
 
     public void OpenUrl()
     {
@@ -435,7 +469,17 @@ public class EntryFormViewModel : ViewModelBase
             EntryName,
             new MetadataCollection(
                 EntryName,
-                InternalMetadatas.ToList()
+                HistoryDateMetadatas.ToList()
+                    .Concat(new[]
+                    {
+                        new MetadataModel(
+                            "expiration",
+                            string.IsNullOrWhiteSpace(PasswordRemindDays) || PasswordRemindDays == "0"
+                                ? string.Empty
+                                : DateTime.Now.AddDays(int.Parse(PasswordRemindDays)).ToString("yyyy-MM-dd"),
+                            MetadataType.ExpirationDate
+                        )
+                    })
                     .Concat(new[]
                     {
                         new MetadataModel("username", Username, MetadataType.Username),
@@ -470,13 +514,16 @@ public class EntryFormViewModel : ViewModelBase
     public void SetEntryItem(string name)
     {
         EntryName = name;
+        IsRemindPasswordVisible = false;
         IsEditingPassword = false;
         AreMetadatasRevealed = false;
 
-        InternalMetadatas.Clear();
+        HistoryDateMetadatas.Clear();
+        FileMetadatas.Clear();
         Metadatas.Clear();
         Username = string.Empty;
         Url = string.Empty;
+        PasswordRemindDays = string.Empty;
     }
 
     public void RetrieveMetadatas()
@@ -500,8 +547,8 @@ public class EntryFormViewModel : ViewModelBase
 
                 switch (item.Type)
                 {
-                    case MetadataType.Internal:
-                        InternalMetadatas.Add(item);
+                    case MetadataType.HistoryDate:
+                        HistoryDateMetadatas.Add(item);
                         break;
 
                     case MetadataType.Normal:
@@ -518,6 +565,19 @@ public class EntryFormViewModel : ViewModelBase
 
                     case MetadataType.File:
                         FileMetadatas.Add(item);
+                        break;
+
+                    case MetadataType.ExpirationDate:
+                        if (!DateTime.TryParse(item.Value, out var expirationDate)) continue;
+                        var diff = expirationDate.Subtract(DateTime.Now);
+                        var days = diff.Days + (diff.Hours > 0 ? 1 : 0);
+
+                        if (days <= 0)
+                        {
+                            SnackbarService.Instance.Show("The password has expired", SnackbarSeverity.Warning, 60000);
+                        }
+
+                        PasswordRemindDays = days.ToString();
                         break;
 
                     default:
@@ -540,10 +600,13 @@ public class EntryFormViewModel : ViewModelBase
     public void CancelMetadatas()
     {
         Metadatas.Clear();
-        InternalMetadatas.Clear();
+        HistoryDateMetadatas.Clear();
         FileMetadatas.Clear();
         Username = string.Empty;
         Url = string.Empty;
+        IsRemindPasswordVisible = false;
+        PasswordRemindDays = string.Empty;
+        _previouspasswordRemindDays = string.Empty;
         AreMetadatasRevealed = false;
         this.RaisePropertyChanged(nameof(HasNormalMetadatas));
     }
