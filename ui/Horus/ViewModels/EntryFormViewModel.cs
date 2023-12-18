@@ -472,6 +472,11 @@ public class EntryFormViewModel : ViewModelBase
         EntryName = name;
         IsEditingPassword = false;
         AreMetadatasRevealed = false;
+
+        InternalMetadatas.Clear();
+        Metadatas.Clear();
+        Username = string.Empty;
+        Url = string.Empty;
     }
 
     public void RetrieveMetadatas()
