@@ -28,6 +28,7 @@ public partial class NewEntryDialog : DialogView<NewEntryDialogViewModel>
 
     private void ButtonCancel_OnClick(object? sender, RoutedEventArgs e)
     {
+        ViewModel!.Name = string.Empty;
         OnClose();
     }
 
@@ -37,12 +38,17 @@ public partial class NewEntryDialog : DialogView<NewEntryDialogViewModel>
         {
             if (!vm!.CreateEntry()) return;
 
-            InvokeUi(() => OnClose(vm.Name));
+            InvokeUi(() =>
+            {
+                OnClose(vm.Name);
+                vm.Name = string.Empty;
+            });
         });
     }
 
     private void ButtonClose_OnClick(object? sender, RoutedEventArgs e)
     {
+        ViewModel!.Name = string.Empty;
         OnClose();
     }
 

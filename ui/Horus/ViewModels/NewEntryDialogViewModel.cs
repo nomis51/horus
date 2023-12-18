@@ -8,7 +8,7 @@ namespace Horus.ViewModels;
 
 public class NewEntryDialogViewModel : ViewModelBase
 {
-    #region Public  methods
+    #region Props
 
     private string _name = string.Empty;
 
