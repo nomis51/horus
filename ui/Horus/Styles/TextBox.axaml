@@ -60,59 +60,6 @@
         </Setter>
     </Style>
 
-    <Style Selector="TextBox.confirm[AcceptsReturn=False][IsReadOnly=False]">
-        <Setter Property="InnerRightContent">
-            <Template>
-                <DockPanel>
-                    <Border Background="{DynamicResource ThemeAccentBrush}"
-                            ToolTip.Placement="Top"
-                            ToolTip.Tip="Confirm"
-                            ToolTip.VerticalOffset="-5">
-                        <Button Theme="{StaticResource FluentTextBoxButton}"
-                                x:Name="ButtonConfirm"
-                                Cursor="Hand"
-                                ClipToBounds="True">
-                            <Interaction.Behaviors>
-                                <EventTriggerBehavior EventName="Click"
-                                                      SourceObject="{Binding #ButtonConfirm}">
-                                    <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                                    <InvokeCommandAction Command="{Binding $parent[TextBox].Copy}" />
-                                    <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                                </EventTriggerBehavior>
-                            </Interaction.Behaviors>
-
-                            <icons:MaterialIcon Kind="CheckCircle"
-                                                Height="20"
-                                                Width="20" />
-                        </Button>
-                    </Border>
-                    <Border Background="{DynamicResource ThemeAccentBrush}"
-                            ToolTip.Placement="Top"
-                            ToolTip.Tip="Cancel"
-                            ToolTip.VerticalOffset="-5">
-                        <Button Theme="{StaticResource FluentTextBoxButton}"
-                                x:Name="ButtonCancel"
-                                Cursor="Hand"
-                                ClipToBounds="True">
-                            <Interaction.Behaviors>
-                                <EventTriggerBehavior EventName="Click"
-                                                      SourceObject="{Binding #ButtonCancel}">
-                                    <InvokeCommandAction Command="{Binding $parent[TextBox].SelectAll}" />
-                                    <InvokeCommandAction Command="{Binding $parent[TextBox].Cut}" />
-                                    <InvokeCommandAction Command="{Binding $parent[TextBox].ClearSelection}" />
-                                </EventTriggerBehavior>
-                            </Interaction.Behaviors>
-
-                            <icons:MaterialIcon Kind="CancelCircle"
-                                                Height="20"
-                                                Width="20" />
-                        </Button>
-                    </Border>
-                </DockPanel>
-            </Template>
-        </Setter>
-    </Style>
-
     <Style Selector="TextBox.copyButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
         <Setter Property="InnerRightContent">
             <Template>

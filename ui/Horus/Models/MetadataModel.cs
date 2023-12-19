@@ -33,7 +33,7 @@ public class MetadataModel
     {
         get
         {
-            if (Type == MetadataType.HistoryDate && Key is "created" or "modified" && DateTime.TryParse(Value, out var date))
+            if (Type == MetadataType.Internal && Key is "created" or "modified" && DateTime.TryParse(Value, out var date))
             {
                 return date.ToString("yyyy-MM-dd HH:mm:ss");
             }

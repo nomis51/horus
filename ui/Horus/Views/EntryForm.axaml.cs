@@ -183,34 +183,5 @@ public partial class EntryForm : ViewBase<EntryFormViewModel>
         ViewModel!.EntryName = string.Empty;
     }
 
-
-    private void ButtonPasswordReminder_OnClick(object? sender, RoutedEventArgs e)
-    {
-        ViewModel?.EditPasswordRemindDays();
-    }
-
-    private void TextBoxPasswordRemindDays_OnCopyingToClipboard(object? sender, RoutedEventArgs e)
-    {
-        ViewModel?.ConfirmPasswordRemindDays();
-    }
-
-    private void TextBoxPasswordRemindDays_OnCuttingToClipboard(object? sender, RoutedEventArgs e)
-    {
-        ViewModel?.CancelPasswordRemindDays();
-    }
-
-    private void TextBoxPasswordRemindDays_OnTextChanged(object? sender, TextChangedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(TextBoxPasswordRemindDays.Text))
-        {
-            ViewModel!.PasswordRemindDays = 0.ToString();
-        }
-        else
-        {
-            if (!int.TryParse(TextBoxPasswordRemindDays.Text, out var intValue)) return;
-            ViewModel!.PasswordRemindDays = (intValue < 0 ? 0 : intValue).ToString();
-        }
-    }
-
     #endregion
 }

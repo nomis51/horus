@@ -398,8 +398,8 @@ public class FsService : IFsService
         var metadatasFilePath = GetMetadataPath(name);
         var resultEncryptMetadatas = AppService.Instance.EncryptMetadatas(metadatasFilePath, new MetadataCollection
         {
-            new("created", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.HistoryDate),
-            new("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.HistoryDate),
+            new("created", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
+            new("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"), MetadataType.Internal),
         });
         if (resultEncryptMetadatas.HasError) return new EmptyResult(resultEncryptMetadatas.Error!);
 
@@ -781,7 +781,7 @@ public class FsService : IFsService
         else
         {
             metadatas.Add(new Metadata("modified", DateTime.Now.ToString("yyyy-MM-dd HH':'mm':'ss"),
-                MetadataType.HistoryDate));
+                MetadataType.Internal));
         }
 
         var metadatasFilePath = GetMetadataPath(name);
