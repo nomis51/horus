@@ -20,9 +20,9 @@
     <PackageTags>windows,linux,password-manager</PackageTags>
     <Company>nomis51</Company>
     <Product>Horus</Product>
-    <AssemblyVersion>3.0.3</AssemblyVersion>
-    <FileVersion>3.0.3</FileVersion>
-    <PackageVersion>3.0.3</PackageVersion>
+    <AssemblyVersion>3.0.5</AssemblyVersion>
+    <FileVersion>3.0.5</FileVersion>
+    <PackageVersion>3.0.5</PackageVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>none</DebugType>
