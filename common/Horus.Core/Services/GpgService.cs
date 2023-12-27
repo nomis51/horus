@@ -151,9 +151,11 @@ public class GpgService : IGpgService
                 .Execute();
 
             if (result.OutputLines.FirstOrDefault()?.StartsWith("gpg: error reading key: No public key") ?? true)
+            {
                 return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
-            if (!result.OutputLines.Any(e => e.StartsWith("pub")))
-                return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
+            }
+
+            if (!result.OutputLines.Any(e => e.StartsWith("pub"))) return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
 
             if (string.IsNullOrEmpty(id))
             {
@@ -162,10 +164,26 @@ public class GpgService : IGpgService
                 id = currentId;
             }
 
-            // TODO: fix this to validdate the actual ID, not the first line coming out of GPG
-            const string expireTag = "[E]";
+            var found = false;
+            var index = 0;
+            for(; index < result.OutputLines.Count; ++index)
+            {
+                if (!result.OutputLines[index].StartsWith("pub")) continue;
+                ++index;
+                
+                var lineId = result.OutputLines[index].Trim();
+                if (lineId != id) continue;
+                
+                found = true;
+                break;
+            }
+            
+            if(!found) return new ResultStruct<bool, Error?>(new GpgKeyNotFoundError());
+
+            index += 2;
             const string expireLabel = "[expires: ";
-            var expireLine = result.OutputLines.FirstOrDefault(l => l.Contains(expireTag));
+
+            var expireLine = result.OutputLines[index];
             if (string.IsNullOrEmpty(expireLine)) return new ResultStruct<bool, Error?>(new GpgInvalidKeyError());
 
             if (!expireLine.Contains(expireLabel)) return new ResultStruct<bool, Error?>(true);
@@ -175,7 +193,7 @@ public class GpgService : IGpgService
 
             startIndex += expireLabel.Length;
 
-            var endIndex = expireLine.LastIndexOf("]", StringComparison.Ordinal);
+            var endIndex = expireLine.LastIndexOf(']');
             if (endIndex == -1 || endIndex <= startIndex)
                 return new ResultStruct<bool, Error?>(new GpgInvalidKeyError());
 
