@@ -6,9 +6,9 @@
     <Version>2.0.0</Version>
     <Title>Horus.Core</Title>
     <Authors>nomis51</Authors>
-    <AssemblyVersion>3.0.4</AssemblyVersion>
-    <FileVersion>3.0.4</FileVersion>
-    <PackageVersion>3.0.4</PackageVersion>
+    <AssemblyVersion>3.0.5</AssemblyVersion>
+    <FileVersion>3.0.5</FileVersion>
+    <PackageVersion>3.0.5</PackageVersion>
     <LangVersion>12</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
