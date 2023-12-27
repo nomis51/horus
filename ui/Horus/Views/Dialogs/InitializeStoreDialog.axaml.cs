@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Horus.Abstractions;
 using Horus.Enums;
@@ -38,6 +39,11 @@ public partial class InitializeStoreDialog : DialogView<InitializeStoreDialogVie
     private void ButtonQuit_OnClick(object? sender, RoutedEventArgs e)
     {
         Environment.Exit(0);
+    }
+
+    private void ComboBoxGpgId_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        ViewModel!.GpgId = ComboBoxGpgId.SelectedItem!.ToString()!;
     }
 
     #endregion

@@ -35,21 +35,20 @@
             </Grid>
             <StackPanel Grid.Row="1"
                         Spacing="5"
-                        Margin="5,5">
-                <TextBox x:Name="TextBoxGpgId"
-                         IsEnabled="{Binding !IsLoading}"
-                         Watermark="GPG ID"
-                         UseFloatingWatermark="True"
-                         MinHeight="48"
-                         MaxHeight="48"
-                         Text="{Binding GpgId, Mode=TwoWay}"
-                         Classes="clearButton" />
+                        Margin="10,5">
+                <StackPanel Spacing="3">
+                    <TextBlock Text="Select the GPG keypair to use to encrypt the store and a private remote Git repository :" />
+                    <ComboBox x:Name="ComboBoxGpgId"
+                              SelectedIndex="0"
+                              IsEnabled="{Binding !IsLoading}"
+                              ItemsSource="{Binding GpgIds}"
+                              MaxDropDownHeight="100"
+                              SelectionChanged="ComboBoxGpgId_OnSelectionChanged"
+                              HorizontalAlignment="Stretch" />
+                </StackPanel>
                 <TextBox x:Name="TextBoxGitUrl"
                          IsEnabled="{Binding !IsLoading}"
                          Watermark="Remote Git URL (private)"
-                         UseFloatingWatermark="True"
-                         MinHeight="48"
-                         MaxHeight="48"
                          Text="{Binding GitUrl, Mode=TwoWay}"
                          Classes="clearButton" />
             </StackPanel>

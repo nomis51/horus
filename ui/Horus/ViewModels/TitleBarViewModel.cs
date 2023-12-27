@@ -216,6 +216,8 @@ public class TitleBarViewModel : ViewModelBase
             var (stores, error) = AppService.Instance.ListStores();
             if (error is not null || stores.Count == 0)
             {
+                if (error!.Message.Contains("not a git repository")) return;
+                
                 Log.Error("Failed to list stores: {Message}", error!.Message);
                 SnackbarService.Instance.Show("Failed to list stores", SnackbarSeverity.Error, 5000);
                 return;
@@ -233,6 +235,8 @@ public class TitleBarViewModel : ViewModelBase
             var (store, error) = AppService.Instance.GetActiveStore();
             if (error is not null || string.IsNullOrEmpty(store))
             {
+                if (error!.Message.Contains("not a git repository")) return;
+
                 Log.Error("Failed to get active store: {Message}", error!.Message);
                 SnackbarService.Instance.Show("Failed to get active store", SnackbarSeverity.Error, 5000);
                 return;
