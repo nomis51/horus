@@ -508,7 +508,7 @@ public class GitService : IGitService
         catch (Exception e)
         {
             Log.Error("Error while performing git branch: {Message}", e.Message);
-            return new Result<List<string>, Error?>(new GitCommitFailedError());
+            return new Result<List<string>, Error?>(new GitBranchError(e.Message));
         }
     }
 
@@ -538,7 +538,7 @@ public class GitService : IGitService
         catch (Exception e)
         {
             Log.Error("Error while performing git branch: {Message}", e.Message);
-            return new Result<string, Error?>(new GitCommitFailedError());
+            return new Result<string, Error?>(new GitCurrentBranchError(e.Message));
         }
     }
 
