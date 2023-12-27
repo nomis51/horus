@@ -271,7 +271,24 @@ public class GitService : IGitService
         var storeLocation = AppService.Instance.GetStoreLocation();
         if (Directory.Exists(storeLocation)) DeleteRepository();
 
-        Directory.Move(dirPath, storeLocation);
+        var sourcePath = dirPath.TrimEnd('\\', ' ');
+        var targetPath = storeLocation.TrimEnd('\\', ' ');
+        var files = Directory.EnumerateFiles(sourcePath, "*", SearchOption.AllDirectories)
+            .GroupBy(Path.GetDirectoryName);
+        foreach (var folder in files)
+        {
+            var targetFolder = folder.Key!.Replace(sourcePath, targetPath);
+            Directory.CreateDirectory(targetFolder);
+            foreach (var file in folder)
+            {
+                var targetFile = Path.Combine(targetFolder, Path.GetFileName(file));
+                if (File.Exists(targetFile)) File.Delete(targetFile);
+                File.Move(file, targetFile);
+            }
+        }
+
+        Directory.Delete(dirPath, true);
+
         if (!Directory.Exists(Path.Join(storeLocation, ".git"))) return false;
 
         var gpgIdFilePath = Path.Join(storeLocation, FsService.GpgIdFileName);

@@ -17,4 +17,5 @@ public interface IGpgService : IService
     Result<string, Error?> RestartGpgAgent();
     Result<string, Error?> StartGpgAgent();
     Result<string, Error?> StopGpgAgent();
+    Result<List<string>, Error?> ListAvailableGpgIds();
 }

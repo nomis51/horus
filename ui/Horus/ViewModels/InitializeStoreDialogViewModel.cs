@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using DynamicData;
 using Horus.Core.Services;
 using Horus.Enums;
 using Horus.Services;
@@ -35,6 +38,23 @@ public class InitializeStoreDialogViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _gitUrl, value);
     }
 
+    private ObservableCollection<string> _gpgIds = [];
+
+    public ObservableCollection<string> GpgIds
+    {
+        get => _gpgIds;
+        set => this.RaiseAndSetIfChanged(ref _gpgIds, value);
+    }
+
+    #endregion
+
+    #region Constructors
+
+    public InitializeStoreDialogViewModel()
+    {
+        RetrieveAvailableGpgIds();
+    }
+
     #endregion
 
     #region Public methods
@@ -45,6 +65,29 @@ public class InitializeStoreDialogViewModel : ViewModelBase
         var result = ValidateGpgId() && CreateStore();
         IsLoading = false;
         return result;
+    }
+
+    public void RetrieveAvailableGpgIds()
+    {
+        Task.Run(() =>
+        {
+            var (ids, error) = AppService.Instance.ListAvailableGpgIds();
+            if (error is not null)
+            {
+                Log.Error("Failed to retrieve available GPG IDs: {Message}", error.Message);
+                SnackbarService.Instance.Show("Failed to retrieve available GPG IDs", SnackbarSeverity.Error, 30000);
+                return;
+            }
+
+            if (ids.Count == 0)
+            {
+                SnackbarService.Instance.Show("No available GPG ID", SnackbarSeverity.Warning, 30000);
+                return;
+            }
+
+            GpgIds.AddRange(ids);
+            this.RaisePropertyChanged(nameof(GpgIds));
+        });
     }
 
     #endregion

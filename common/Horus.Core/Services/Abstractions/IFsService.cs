@@ -8,10 +8,7 @@ public interface IFsService : IService
 {
     EmptyResult ExportStore(string savePath);
     EmptyResult MigrateStore(string gpgId);
-
-    Result<Password?, Error?> GenerateNewPassword(int length = 0, string customAlphabet = "", bool copy = false,
-        bool dontReturn = false);
-
+    Result<Password?, Error?> GenerateNewPassword(int length = 0, string customAlphabet = "", bool copy = false, bool dontReturn = false);
     Result<List<StoreEntry>, Error?> SearchStoreEntries(string text, bool searchMetadatas = false);
     Result<List<StoreEntry>, Error?> RetrieveStoreEntries();
     EmptyResult RemoveStoreEntry(string name);

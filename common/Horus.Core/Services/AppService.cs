@@ -355,6 +355,11 @@ public class AppService : IAppService
         return _gitService.ListBranches();
     }
 
+    public Result<List<string>, Error?> ListAvailableGpgIds()
+    {
+        return _gpgService.ListAvailableGpgIds();
+    }
+
     public Result<List<string>, Error?> ListStores()
     {
         return _fsService.ListStores();
