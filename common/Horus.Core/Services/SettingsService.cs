@@ -48,6 +48,13 @@ public class SettingsService : ISettingsService
         {
             var appFolder = AppService.Instance.GetAppLocation();
             var settingsFilePath = Path.Join(appFolder, SettingsFile);
+            if (!File.Exists(settingsFilePath))
+            {
+                _settings = new Settings();
+                File.WriteAllText(settingsFilePath, JsonSerializer.Serialize(_settings));
+                return new Result<Settings?, Error?>(_settings);
+            }
+
             var data = File.ReadAllText(settingsFilePath);
             return new Result<Settings?, Error?>(JsonSerializer.Deserialize<Settings>(data));
         }
